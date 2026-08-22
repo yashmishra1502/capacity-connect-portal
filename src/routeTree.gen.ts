@@ -18,9 +18,12 @@ import { Route as TraineeAchievementsRouteImport } from './routes/trainee.achiev
 import { Route as TraineeAssessmentRouteImport } from './routes/trainee.assessment'
 import { Route as TraineeCertificatesRouteImport } from './routes/trainee.certificates'
 import { Route as TraineeFeedbackRouteImport } from './routes/trainee.feedback'
+import { Route as TraineeNotificationsRouteImport } from './routes/trainee.notifications'
+import { Route as TraineeProfileRouteImport } from './routes/trainee.profile'
 import { Route as TraineeProgressRouteImport } from './routes/trainee.progress'
 import { Route as TraineeResourcesRouteImport } from './routes/trainee.resources'
 import { Route as TraineeResultsRouteImport } from './routes/trainee.results'
+import { Route as TraineeSettingsRouteImport } from './routes/trainee.settings'
 import { Route as TraineeCoursesIndexRouteImport } from './routes/trainee.courses.index'
 import { Route as TraineeCoursesCourseIdRouteImport } from './routes/trainee.courses.$courseId'
 
@@ -69,6 +72,16 @@ const TraineeFeedbackRoute = TraineeFeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => TraineeRoute,
 } as any)
+const TraineeNotificationsRoute = TraineeNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeProfileRoute = TraineeProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => TraineeRoute,
+} as any)
 const TraineeProgressRoute = TraineeProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -82,6 +95,11 @@ const TraineeResourcesRoute = TraineeResourcesRouteImport.update({
 const TraineeResultsRoute = TraineeResultsRouteImport.update({
   id: '/results',
   path: '/results',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeSettingsRoute = TraineeSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => TraineeRoute,
 } as any)
 const TraineeCoursesIndexRoute = TraineeCoursesIndexRouteImport.update({
@@ -104,9 +122,12 @@ export interface FileRoutesByFullPath {
   '/trainee/assessment': typeof TraineeAssessmentRoute
   '/trainee/certificates': typeof TraineeCertificatesRoute
   '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
   '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses/': typeof TraineeCoursesIndexRoute
@@ -119,9 +140,12 @@ export interface FileRoutesByTo {
   '/trainee/assessment': typeof TraineeAssessmentRoute
   '/trainee/certificates': typeof TraineeCertificatesRoute
   '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
   '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
   '/trainee': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses': typeof TraineeCoursesIndexRoute
@@ -136,9 +160,12 @@ export interface FileRoutesById {
   '/trainee/assessment': typeof TraineeAssessmentRoute
   '/trainee/certificates': typeof TraineeCertificatesRoute
   '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
   '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses/': typeof TraineeCoursesIndexRoute
@@ -154,9 +181,12 @@ export interface FileRouteTypes {
     | '/trainee/assessment'
     | '/trainee/certificates'
     | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
     | '/trainee/progress'
     | '/trainee/resources'
     | '/trainee/results'
+    | '/trainee/settings'
     | '/trainee/'
     | '/trainee/courses/$courseId'
     | '/trainee/courses/'
@@ -169,9 +199,12 @@ export interface FileRouteTypes {
     | '/trainee/assessment'
     | '/trainee/certificates'
     | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
     | '/trainee/progress'
     | '/trainee/resources'
     | '/trainee/results'
+    | '/trainee/settings'
     | '/trainee'
     | '/trainee/courses/$courseId'
     | '/trainee/courses'
@@ -185,9 +218,12 @@ export interface FileRouteTypes {
     | '/trainee/assessment'
     | '/trainee/certificates'
     | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
     | '/trainee/progress'
     | '/trainee/resources'
     | '/trainee/results'
+    | '/trainee/settings'
     | '/trainee/'
     | '/trainee/courses/$courseId'
     | '/trainee/courses/'
@@ -265,6 +301,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TraineeFeedbackRouteImport
       parentRoute: typeof TraineeRoute
     }
+    '/trainee/notifications': {
+      id: '/trainee/notifications'
+      path: '/notifications'
+      fullPath: '/trainee/notifications'
+      preLoaderRoute: typeof TraineeNotificationsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/profile': {
+      id: '/trainee/profile'
+      path: '/profile'
+      fullPath: '/trainee/profile'
+      preLoaderRoute: typeof TraineeProfileRouteImport
+      parentRoute: typeof TraineeRoute
+    }
     '/trainee/progress': {
       id: '/trainee/progress'
       path: '/progress'
@@ -284,6 +334,13 @@ declare module '@tanstack/react-router' {
       path: '/results'
       fullPath: '/trainee/results'
       preLoaderRoute: typeof TraineeResultsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/settings': {
+      id: '/trainee/settings'
+      path: '/settings'
+      fullPath: '/trainee/settings'
+      preLoaderRoute: typeof TraineeSettingsRouteImport
       parentRoute: typeof TraineeRoute
     }
     '/trainee/courses/': {
@@ -308,9 +365,12 @@ interface TraineeRouteChildren {
   TraineeAssessmentRoute: typeof TraineeAssessmentRoute
   TraineeCertificatesRoute: typeof TraineeCertificatesRoute
   TraineeFeedbackRoute: typeof TraineeFeedbackRoute
+  TraineeNotificationsRoute: typeof TraineeNotificationsRoute
+  TraineeProfileRoute: typeof TraineeProfileRoute
   TraineeProgressRoute: typeof TraineeProgressRoute
   TraineeResourcesRoute: typeof TraineeResourcesRoute
   TraineeResultsRoute: typeof TraineeResultsRoute
+  TraineeSettingsRoute: typeof TraineeSettingsRoute
   TraineeIndexRoute: typeof TraineeIndexRoute
   TraineeCoursesCourseIdRoute: typeof TraineeCoursesCourseIdRoute
   TraineeCoursesIndexRoute: typeof TraineeCoursesIndexRoute
@@ -321,9 +381,12 @@ const TraineeRouteChildren: TraineeRouteChildren = {
   TraineeAssessmentRoute: TraineeAssessmentRoute,
   TraineeCertificatesRoute: TraineeCertificatesRoute,
   TraineeFeedbackRoute: TraineeFeedbackRoute,
+  TraineeNotificationsRoute: TraineeNotificationsRoute,
+  TraineeProfileRoute: TraineeProfileRoute,
   TraineeProgressRoute: TraineeProgressRoute,
   TraineeResourcesRoute: TraineeResourcesRoute,
   TraineeResultsRoute: TraineeResultsRoute,
+  TraineeSettingsRoute: TraineeSettingsRoute,
   TraineeIndexRoute: TraineeIndexRoute,
   TraineeCoursesCourseIdRoute: TraineeCoursesCourseIdRoute,
   TraineeCoursesIndexRoute: TraineeCoursesIndexRoute,
