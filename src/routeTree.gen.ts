@@ -14,8 +14,13 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TraineeRouteImport } from './routes/trainee'
 import { Route as TrainerRouteImport } from './routes/trainer'
 import { Route as TraineeIndexRouteImport } from './routes/trainee.index'
+import { Route as TraineeAchievementsRouteImport } from './routes/trainee.achievements'
+import { Route as TraineeAssessmentRouteImport } from './routes/trainee.assessment'
+import { Route as TraineeCertificatesRouteImport } from './routes/trainee.certificates'
+import { Route as TraineeFeedbackRouteImport } from './routes/trainee.feedback'
 import { Route as TraineeProgressRouteImport } from './routes/trainee.progress'
 import { Route as TraineeResourcesRouteImport } from './routes/trainee.resources'
+import { Route as TraineeResultsRouteImport } from './routes/trainee.results'
 import { Route as TraineeCoursesIndexRouteImport } from './routes/trainee.courses.index'
 import { Route as TraineeCoursesCourseIdRouteImport } from './routes/trainee.courses.$courseId'
 
@@ -44,6 +49,26 @@ const TraineeIndexRoute = TraineeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => TraineeRoute,
 } as any)
+const TraineeAchievementsRoute = TraineeAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeAssessmentRoute = TraineeAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCertificatesRoute = TraineeCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeFeedbackRoute = TraineeFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => TraineeRoute,
+} as any)
 const TraineeProgressRoute = TraineeProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -52,6 +77,11 @@ const TraineeProgressRoute = TraineeProgressRouteImport.update({
 const TraineeResourcesRoute = TraineeResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeResultsRoute = TraineeResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
   getParentRoute: () => TraineeRoute,
 } as any)
 const TraineeCoursesIndexRoute = TraineeCoursesIndexRouteImport.update({
@@ -70,8 +100,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/trainee': typeof TraineeRouteWithChildren
   '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses/': typeof TraineeCoursesIndexRoute
@@ -80,8 +115,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
   '/trainee': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses': typeof TraineeCoursesIndexRoute
@@ -92,8 +132,13 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/trainee': typeof TraineeRouteWithChildren
   '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
   '/trainee/progress': typeof TraineeProgressRoute
   '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
   '/trainee/courses/': typeof TraineeCoursesIndexRoute
@@ -105,8 +150,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/trainee'
     | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
     | '/trainee/progress'
     | '/trainee/resources'
+    | '/trainee/results'
     | '/trainee/'
     | '/trainee/courses/$courseId'
     | '/trainee/courses/'
@@ -115,8 +165,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
     | '/trainee/progress'
     | '/trainee/resources'
+    | '/trainee/results'
     | '/trainee'
     | '/trainee/courses/$courseId'
     | '/trainee/courses'
@@ -126,8 +181,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/trainee'
     | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
     | '/trainee/progress'
     | '/trainee/resources'
+    | '/trainee/results'
     | '/trainee/'
     | '/trainee/courses/$courseId'
     | '/trainee/courses/'
@@ -177,6 +237,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TraineeIndexRouteImport
       parentRoute: typeof TraineeRoute
     }
+    '/trainee/achievements': {
+      id: '/trainee/achievements'
+      path: '/achievements'
+      fullPath: '/trainee/achievements'
+      preLoaderRoute: typeof TraineeAchievementsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/assessment': {
+      id: '/trainee/assessment'
+      path: '/assessment'
+      fullPath: '/trainee/assessment'
+      preLoaderRoute: typeof TraineeAssessmentRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/certificates': {
+      id: '/trainee/certificates'
+      path: '/certificates'
+      fullPath: '/trainee/certificates'
+      preLoaderRoute: typeof TraineeCertificatesRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/feedback': {
+      id: '/trainee/feedback'
+      path: '/feedback'
+      fullPath: '/trainee/feedback'
+      preLoaderRoute: typeof TraineeFeedbackRouteImport
+      parentRoute: typeof TraineeRoute
+    }
     '/trainee/progress': {
       id: '/trainee/progress'
       path: '/progress'
@@ -189,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/trainee/resources'
       preLoaderRoute: typeof TraineeResourcesRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/results': {
+      id: '/trainee/results'
+      path: '/results'
+      fullPath: '/trainee/results'
+      preLoaderRoute: typeof TraineeResultsRouteImport
       parentRoute: typeof TraineeRoute
     }
     '/trainee/courses/': {
@@ -209,16 +304,26 @@ declare module '@tanstack/react-router' {
 }
 
 interface TraineeRouteChildren {
+  TraineeAchievementsRoute: typeof TraineeAchievementsRoute
+  TraineeAssessmentRoute: typeof TraineeAssessmentRoute
+  TraineeCertificatesRoute: typeof TraineeCertificatesRoute
+  TraineeFeedbackRoute: typeof TraineeFeedbackRoute
   TraineeProgressRoute: typeof TraineeProgressRoute
   TraineeResourcesRoute: typeof TraineeResourcesRoute
+  TraineeResultsRoute: typeof TraineeResultsRoute
   TraineeIndexRoute: typeof TraineeIndexRoute
   TraineeCoursesCourseIdRoute: typeof TraineeCoursesCourseIdRoute
   TraineeCoursesIndexRoute: typeof TraineeCoursesIndexRoute
 }
 
 const TraineeRouteChildren: TraineeRouteChildren = {
+  TraineeAchievementsRoute: TraineeAchievementsRoute,
+  TraineeAssessmentRoute: TraineeAssessmentRoute,
+  TraineeCertificatesRoute: TraineeCertificatesRoute,
+  TraineeFeedbackRoute: TraineeFeedbackRoute,
   TraineeProgressRoute: TraineeProgressRoute,
   TraineeResourcesRoute: TraineeResourcesRoute,
+  TraineeResultsRoute: TraineeResultsRoute,
   TraineeIndexRoute: TraineeIndexRoute,
   TraineeCoursesCourseIdRoute: TraineeCoursesCourseIdRoute,
   TraineeCoursesIndexRoute: TraineeCoursesIndexRoute,
