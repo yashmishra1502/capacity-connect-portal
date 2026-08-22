@@ -223,11 +223,11 @@ function Landing() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Button asChild variant="outline" size="sm">
-              <Link to="/trainee">Login</Link>
+              <Link to="/trainee">Admin Login</Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/trainee">
-                Enter portal <ArrowRight className="ml-1 size-4" />
+                Trainee/Trainer <ArrowRight className="ml-1 size-4" />
               </Link>
             </Button>
           </div>
