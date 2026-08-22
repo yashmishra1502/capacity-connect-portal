@@ -72,8 +72,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-// Yeh inline script page load hote hi (React render hone se pehle) theme apply
-// kar deta hai, isse dark mode ka "flash" nahi dikhta
 const themeInitScript = `
 (function() {
   try {
@@ -118,7 +116,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        {/* Dark mode flash rokne wala script */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
