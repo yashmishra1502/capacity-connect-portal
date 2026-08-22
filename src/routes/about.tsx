@@ -96,10 +96,8 @@ function About() {
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <Link to="/" className="hover:text-foreground">Home</Link>
             <a href="#" className="border-b-2 border-primary pb-1 text-foreground">About</a>
-            <a href="#" className="hover:text-foreground">Features</a>
-            <a href="#" className="hover:text-foreground">Programs</a>
-            <a href="#" className="hover:text-foreground">Resources</a>
-            <a href="#" className="hover:text-foreground">Contact</a>
+            <Link to="/#how-it-works" className="hover:text-foreground">How it works</Link>
+            <Link to="/contact" className="hover:text-foreground">Contact</Link>
           </nav>
 
           <div className="flex items-center gap-3">
