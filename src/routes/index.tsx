@@ -87,7 +87,7 @@ function Landing() {
 
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Home</a>
-            <a href="#" className="hover:text-foreground">About</a>
+            <Link to="/about" className="hover:text-foreground">About</Link>
             <a href="#" className="hover:text-foreground">Features</a>
             <a href="#" className="hover:text-foreground">Programs</a>
             <a href="#" className="hover:text-foreground">Resources</a>
