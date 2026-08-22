@@ -114,7 +114,17 @@ export function AppShell({ role }: { role: Role }) {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search courses, trainees, resources…" className="pl-9" />
           </div>
-          <div className="flex-1" />
+                    <div className="flex-1" />
+
+          <ThemeToggle />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                Switch role <ChevronDown className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+          
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
