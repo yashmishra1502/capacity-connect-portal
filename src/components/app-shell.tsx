@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Bell, Menu, Search, X, GraduationCap, ChevronDown } from "lucide-react";
