@@ -191,10 +191,8 @@ function Landing() {
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Home</a>
             <Link to="/about" className="hover:text-foreground">About</Link>
-            <a href="#" className="hover:text-foreground">Features</a>
-            <a href="#" className="hover:text-foreground">Programs</a>
-            <a href="#" className="hover:text-foreground">Resources</a>
-            <a href="#" className="hover:text-foreground">Contact</a>
+            <a href="#how-it-works" className="hover:text-foreground">How it works</a>
+            <Link to="/contact" className="hover:text-foreground">Contact</Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -384,7 +382,7 @@ function Landing() {
       </section>
 
       {/* ---------- HOW IT WORKS ---------- */}
-      <section className="bg-muted/40 py-16">
+      <section id="how-it-works" className="bg-muted/40 py-16">
         <div className="mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
             <h2 className="font-display text-xl font-bold">How it works</h2>
@@ -487,9 +485,8 @@ function Landing() {
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-                <li><a href="#" className="hover:text-foreground">Features</a></li>
-                <li><a href="#" className="hover:text-foreground">Programs</a></li>
-                <li><a href="#" className="hover:text-foreground">Resources</a></li>
+                <li><a href="#how-it-works" className="hover:text-foreground">How it works</a></li>
+                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
               </ul>
             </div>
 
