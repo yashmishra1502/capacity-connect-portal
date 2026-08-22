@@ -13,6 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TraineeRouteImport } from './routes/trainee'
 import { Route as TrainerRouteImport } from './routes/trainer'
+import { Route as TraineeIndexRouteImport } from './routes/trainee.index'
+import { Route as TraineeProgressRouteImport } from './routes/trainee.progress'
+import { Route as TraineeResourcesRouteImport } from './routes/trainee.resources'
+import { Route as TraineeCoursesIndexRouteImport } from './routes/trainee.courses.index'
+import { Route as TraineeCoursesCourseIdRouteImport } from './routes/trainee.courses.$courseId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,38 +39,104 @@ const TrainerRoute = TrainerRouteImport.update({
   path: '/trainer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TraineeIndexRoute = TraineeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeProgressRoute = TraineeProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeResourcesRoute = TraineeResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCoursesIndexRoute = TraineeCoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCoursesCourseIdRoute = TraineeCoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
+  getParentRoute: () => TraineeRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/trainee': typeof TraineeRoute
+  '/trainee': typeof TraineeRouteWithChildren
   '/trainer': typeof TrainerRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses/': typeof TraineeCoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/trainee': typeof TraineeRoute
   '/trainer': typeof TrainerRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses': typeof TraineeCoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/trainee': typeof TraineeRoute
+  '/trainee': typeof TraineeRouteWithChildren
   '/trainer': typeof TrainerRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses/': typeof TraineeCoursesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/trainee' | '/trainer'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/trainee'
+    | '/trainer'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee/'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/trainee' | '/trainer'
-  id: '__root__' | '/' | '/admin' | '/trainee' | '/trainer'
+  to:
+    | '/'
+    | '/admin'
+    | '/trainer'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/trainee'
+    | '/trainer'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee/'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  TraineeRoute: typeof TraineeRoute
+  TraineeRoute: typeof TraineeRouteWithChildren
   TrainerRoute: typeof TrainerRoute
 }
 
@@ -99,13 +170,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrainerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trainee/': {
+      id: '/trainee/'
+      path: '/'
+      fullPath: '/trainee/'
+      preLoaderRoute: typeof TraineeIndexRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/progress': {
+      id: '/trainee/progress'
+      path: '/progress'
+      fullPath: '/trainee/progress'
+      preLoaderRoute: typeof TraineeProgressRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/resources': {
+      id: '/trainee/resources'
+      path: '/resources'
+      fullPath: '/trainee/resources'
+      preLoaderRoute: typeof TraineeResourcesRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/courses/': {
+      id: '/trainee/courses/'
+      path: '/courses'
+      fullPath: '/trainee/courses/'
+      preLoaderRoute: typeof TraineeCoursesIndexRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/courses/$courseId': {
+      id: '/trainee/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/trainee/courses/$courseId'
+      preLoaderRoute: typeof TraineeCoursesCourseIdRouteImport
+      parentRoute: typeof TraineeRoute
+    }
   }
 }
+
+interface TraineeRouteChildren {
+  TraineeProgressRoute: typeof TraineeProgressRoute
+  TraineeResourcesRoute: typeof TraineeResourcesRoute
+  TraineeIndexRoute: typeof TraineeIndexRoute
+  TraineeCoursesCourseIdRoute: typeof TraineeCoursesCourseIdRoute
+  TraineeCoursesIndexRoute: typeof TraineeCoursesIndexRoute
+}
+
+const TraineeRouteChildren: TraineeRouteChildren = {
+  TraineeProgressRoute: TraineeProgressRoute,
+  TraineeResourcesRoute: TraineeResourcesRoute,
+  TraineeIndexRoute: TraineeIndexRoute,
+  TraineeCoursesCourseIdRoute: TraineeCoursesCourseIdRoute,
+  TraineeCoursesIndexRoute: TraineeCoursesIndexRoute,
+}
+
+const TraineeRouteWithChildren =
+  TraineeRoute._addFileChildren(TraineeRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  TraineeRoute: TraineeRoute,
+  TraineeRoute: TraineeRouteWithChildren,
   TrainerRoute: TrainerRoute,
 }
 export const routeTree = rootRouteImport

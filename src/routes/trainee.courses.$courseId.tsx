@@ -13,7 +13,7 @@ export const Route = createFileRoute("/trainee/courses/$courseId")({
 
 function CourseDetails() {
   const { courseId } = useParams({ from: "/trainee/courses/$courseId" });
-  const course = courses.find((c) => c.id === courseId) ?? courses[0];
+  const course = courses.find((c) => c.id === courseId) ?? courses[0]!;
 
   return (
     <>
