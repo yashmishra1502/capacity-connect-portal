@@ -109,7 +109,12 @@ function Landing() {
 
       {/* ---------- HERO ---------- */}
       <section className="brand-gradient relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 text-navy-foreground md:grid-cols-2">
+        {/* glow accents */}
+        <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-cyan-400/20 blur-[100px]" />
+        <div className="pointer-events-none absolute -right-20 top-1/3 size-[28rem] rounded-full bg-cyan-400/25 blur-[120px]" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 size-72 rounded-full bg-primary/20 blur-[100px]" />
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 text-navy-foreground md:grid-cols-2">
           {/* Left copy */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-navy-foreground/70">
@@ -117,7 +122,7 @@ function Landing() {
             </p>
             <h1 className="mt-4 font-display text-4xl font-bold leading-tight md:text-5xl">
               One portal for training, assessment and competency planning{" "}
-              <span className="text-accent">across departments.</span>
+              <span className="text-cyan-300">across departments.</span>
             </h1>
             <p className="mt-5 max-w-md text-sm text-navy-foreground/80 md:text-base">
               Capacity Connect brings trainees, trainers and administrators onto a single
@@ -126,7 +131,11 @@ function Landing() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button asChild size="lg">
+              <Button
+                asChild
+                size="lg"
+                className="bg-cyan-400 text-[#0a1a3d] shadow-[0_0_24px_-4px] shadow-cyan-400/60 hover:bg-cyan-300"
+              >
                 <Link to="/trainee">
                   Explore platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
@@ -134,10 +143,10 @@ function Landing() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-navy-foreground/20 text-navy-foreground hover:bg-navy-foreground/5"
+                className="border-navy-foreground/25 bg-navy-foreground/5 text-navy-foreground hover:bg-navy-foreground/10"
               >
                 Watch overview
-                <span className="ml-2 flex size-6 items-center justify-center rounded-full bg-navy-foreground/10">
+                <span className="ml-2 flex size-6 items-center justify-center rounded-full bg-navy-foreground/15">
                   <Play className="size-3 fill-current" />
                 </span>
               </Button>
@@ -146,16 +155,16 @@ function Landing() {
 
           {/* Right dashboard preview */}
           <div className="relative hidden md:block">
-            <div className="flex overflow-hidden rounded-2xl border border-navy-foreground/10 bg-navy-foreground/[0.04] shadow-2xl backdrop-blur">
+            <div className="flex overflow-hidden rounded-2xl border border-cyan-300/20 bg-navy-foreground/[0.04] shadow-2xl shadow-cyan-500/10 backdrop-blur">
               <div className="flex flex-col items-center gap-4 border-r border-navy-foreground/10 bg-black/10 px-3 py-6">
                 {[LayoutDashboard, Library, UserCheck, BarChart3, Settings].map((Icon, i) => (
                   <div
                     key={i}
                     className={`flex size-8 items-center justify-center rounded-md ${
-                      i === 0 ? "bg-primary" : "text-navy-foreground/50"
+                      i === 0 ? "bg-cyan-400 text-[#0a1a3d]" : "text-navy-foreground/50"
                     }`}
                   >
-                    <Icon className="size-4 text-navy-foreground" />
+                    <Icon className="size-4" />
                   </div>
                 ))}
               </div>
@@ -174,14 +183,21 @@ function Landing() {
                   <div className="rounded-xl bg-card p-4">
                     <p className="mb-2 text-xs font-medium text-muted-foreground">Learning progress</p>
                     <div className="flex items-center justify-center py-2">
-                      <div className="flex size-20 items-center justify-center rounded-full bg-muted">
-                        <span className="text-lg font-bold text-foreground">78%</span>
+                      <div
+                        className="flex size-20 items-center justify-center rounded-full"
+                        style={{
+                          background: `conic-gradient(hsl(var(--accent)) 0deg 280.8deg, hsl(var(--muted)) 280.8deg 360deg)`,
+                        }}
+                      >
+                        <div className="flex size-[62px] items-center justify-center rounded-full bg-card">
+                          <span className="text-base font-bold text-foreground">78%</span>
+                        </div>
                       </div>
                     </div>
                     <p className="text-[11px] font-medium text-foreground">Overall completion</p>
                     <p className="mb-2 text-[10px] text-muted-foreground">You're doing great!</p>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-3/4 rounded-full bg-primary" />
+                      <div className="h-full w-3/4 rounded-full bg-accent" />
                     </div>
                     <p className="mt-1 text-[10px] text-muted-foreground">12 of 16 courses completed</p>
                   </div>
@@ -189,7 +205,7 @@ function Landing() {
                   <div className="rounded-xl bg-card p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
-                      <span className="text-[10px] text-accent">View all</span>
+                      <span className="text-[10px] font-medium text-accent">View all</span>
                     </div>
                     <ActivityRow label="Data Analytics Basics" sub="In progress · 75%" />
                     <ActivityRow label="Leadership & Management" sub="Completed · 100%" />
@@ -210,21 +226,24 @@ function Landing() {
       </section>
 
       {/* ---------- STATS STRIP ---------- */}
-      <section className="mx-auto -mt-10 max-w-6xl px-5">
-        <Card className="grid grid-cols-2 divide-y sm:divide-y-0 sm:divide-x md:grid-cols-4">
+      <section className="relative mx-auto -mt-10 max-w-6xl px-5">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {statBar.map((s) => (
-            <div key={s.label} className="flex items-center gap-4 px-6 py-8">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent">
-                <s.icon className="size-6 text-accent-foreground" />
+            <Card
+              key={s.label}
+              className="flex items-center gap-4 rounded-2xl border-border/60 px-5 py-6 shadow-lg shadow-black/5 transition-shadow hover:shadow-xl hover:shadow-accent/10"
+            >
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15">
+                <s.icon className="size-6 text-accent" />
               </div>
               <div>
                 <p className="font-display text-xl font-bold">{s.value}+</p>
                 <p className="text-sm font-semibold">{s.label}</p>
                 <p className="text-xs text-muted-foreground">{s.sub}</p>
               </div>
-            </div>
+            </Card>
           ))}
-        </Card>
+        </div>
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
