@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Component mount hote hi current state check karo
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
@@ -16,12 +17,8 @@ export function ThemeToggle() {
   };
 
   return (
-    <button
-      onClick={toggleTheme}
-      aria-label="Toggle dark mode"
-      className="inline-flex items-center justify-center rounded-md border border-input bg-background p-2 text-foreground transition-colors hover:bg-accent"
-    >
-      {isDark ? "☀️" : "🌙"}
-    </button>
+    <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle dark mode">
+      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+    </Button>
   );
 }
