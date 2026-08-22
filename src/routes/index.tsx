@@ -33,6 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { adminStats } from "@/lib/mock-data";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -181,6 +182,7 @@ function Landing() {
             <Link to="/contact" className="pb-1 hover:text-foreground">Contact</Link>
           </nav>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button asChild variant="outline" size="sm">
               <Link to="/trainee">Login</Link>
             </Button>
