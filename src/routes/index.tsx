@@ -235,10 +235,10 @@ function Landing() {
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="relative isolate overflow-hidden border-b bg-white">
+      <section className="relative isolate overflow-hidden border-b bg-background">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.35]"
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.35] dark:opacity-[0.12]"
           style={{
             backgroundImage: "radial-gradient(#c7d2fe 1px, transparent 1px)",
             backgroundSize: "22px 22px",
@@ -280,19 +280,19 @@ function Landing() {
 
           {/* Right: dashboard mockup + floating badges */}
           <div className="relative hidden md:block">
-            <div className="absolute -left-6 top-4 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -left-6 top-4 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <GraduationCap className="size-5 text-primary" />
             </div>
-            <div className="absolute -left-10 top-28 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -left-10 top-28 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <BarChart3 className="size-5 text-violet-500" />
             </div>
-            <div className="absolute -left-6 top-52 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -left-6 top-52 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <BookOpen className="size-5 text-amber-500" />
             </div>
-            <div className="absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <Users className="size-5 text-indigo-500" />
             </div>
-            <div className="absolute -right-2 bottom-24 z-20 flex size-11 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -right-2 bottom-24 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <ShieldCheck className="size-5 text-emerald-500" />
             </div>
 
@@ -374,7 +374,7 @@ function Landing() {
       </section>
 
       {/* ---------- IMPACT + ABOUT ---------- */}
-      <section className="border-b bg-white py-16 md:py-20">
+      <section className="border-b bg-background py-16 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 md:grid-cols-2">
           <div>
             <h2 className="font-display text-xl font-bold">Driving impact through learning</h2>
@@ -382,7 +382,7 @@ function Landing() {
               {statBar.map((s, i) => (
                 <div key={s.label}>
                   <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i].bg}`}>
-                    <s.icon className={`size-4.5 ${impactStats[i].fg}`} />
+                    <s.icon className={`size-4 ${impactStats[i].fg}`} />
                   </div>
                   <p className="mt-2 font-display text-2xl font-bold">{s.value}+</p>
                   <p className="text-xs text-muted-foreground">{s.sub}</p>
