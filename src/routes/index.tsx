@@ -372,7 +372,7 @@ function Landing() {
       </section>
 
       {/* ---------- TRUST STRIP (dark) ---------- */}
-      <section className="bg-[#0B1B33] py-6">
+      <section className="bg-[#0B1B33] py-6 dark:bg-[#060d1c] dark:border-y dark:border-white/5">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 md:grid-cols-4">
           {trustStrip.map((s) => (
             <div key={s.title} className="flex items-start gap-3">
