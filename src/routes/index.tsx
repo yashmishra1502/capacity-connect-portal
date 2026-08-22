@@ -23,6 +23,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -160,6 +161,44 @@ const faqs = [
   },
 ];
 
+const impactStats = [
+  { icon: Users, bg: "bg-indigo-500/10", fg: "text-indigo-600" },
+  { icon: UserCheck, bg: "bg-emerald-500/10", fg: "text-emerald-600" },
+  { icon: BookOpen, bg: "bg-violet-500/10", fg: "text-violet-600" },
+  { icon: Award, bg: "bg-amber-500/10", fg: "text-amber-600" },
+];
+
+const trustStrip = [
+  {
+    icon: GraduationCap,
+    title: "Centralised learning",
+    desc: "Courses, resources and assessments in one platform.",
+    bg: "bg-indigo-500/20",
+    fg: "text-indigo-300",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Secure & role-based",
+    desc: "Role-based access for trainers, trainees and admins.",
+    bg: "bg-emerald-500/20",
+    fg: "text-emerald-300",
+  },
+  {
+    icon: BarChart3,
+    title: "Track & monitor",
+    desc: "Real-time dashboards for performance and progress.",
+    bg: "bg-violet-500/20",
+    fg: "text-violet-300",
+  },
+  {
+    icon: Bell,
+    title: "Stay updated",
+    desc: "Instant notifications on deadlines and achievements.",
+    bg: "bg-amber-500/20",
+    fg: "text-amber-300",
+  },
+];
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background">
@@ -196,39 +235,36 @@ function Landing() {
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="relative isolate overflow-hidden border-b brand-gradient">
-        {/* decorative background layer */}
+      <section className="relative isolate overflow-hidden border-b bg-white">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.16]"
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.35]"
           style={{
-            backgroundImage:
-              "radial-gradient(hsl(var(--navy-foreground)) 1px, transparent 1px)",
-            backgroundSize: "26px 26px",
+            backgroundImage: "radial-gradient(#c7d2fe 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+            maskImage: "linear-gradient(to bottom, black, transparent 85%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black, transparent 85%)",
           }}
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-24 -top-24 z-0 size-[420px] rounded-full bg-accent/30 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 right-[-10%] z-0 size-[460px] rounded-full bg-primary/25 blur-3xl"
-        />
-
-        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 text-navy-foreground md:grid-cols-2 md:py-24">
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-2 md:py-20">
           {/* Left copy */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-navy-foreground/65">
-              Digital Capacity Building &amp; Learning Management
-            </p>
-            <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-[2.75rem]">
-              One portal for training, assessment and competency planning across departments.
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
+              <GraduationCap className="size-3.5" /> Smart Capacity Building for a Skilled Tomorrow
+            </span>
+            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight text-foreground md:text-5xl">
+              Empowering People.
+              <br />
+              Building Capacity.
+              <br />
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Connecting Futures.
+              </span>
             </h1>
-            <p className="mt-5 max-w-md text-sm leading-relaxed text-navy-foreground/75 md:text-[15px]">
-              Capacity Connect brings trainees, trainers and administrators onto a single
-              platform — structured courses, verified certification, live analytics and
-              skill-based trainer matching.
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+              Capacity Connect is a centralised digital platform for training management,
+              competency development and knowledge sharing — built to empower departments
+              and the people within them.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="shadow-lg shadow-primary/25">
@@ -236,105 +272,137 @@ function Landing() {
                   Explore platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-navy-foreground/25 bg-transparent text-navy-foreground hover:bg-navy-foreground/10"
-              >
-                <a href="#how-it-works">How it works</a>
+              <Button asChild variant="outline" size="lg">
+                <a href="#how-it-works">View problem statement</a>
               </Button>
             </div>
           </div>
 
-          {/* Right dashboard preview */}
-          <div className="hidden md:block">
-            <div className="relative">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-4 rounded-2xl bg-gradient-to-tr from-accent/25 via-transparent to-primary/25 blur-2xl"
-              />
-              <div className="relative overflow-hidden rounded-lg border border-navy-foreground/10 bg-card shadow-2xl shadow-black/20">
-                <div className="flex items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
-                  {[LayoutDashboard, Library, UserCheck, BarChart3, Settings].map((Icon, i) => (
-                    <div
-                      key={i}
-                      className={`flex size-7 items-center justify-center rounded-md ${
-                        i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                      }`}
-                    >
-                      <Icon className="size-3.5" />
-                    </div>
-                  ))}
-                  <div className="ml-auto text-[10px] text-muted-foreground">Dashboard overview</div>
-                </div>
-                <div className="p-5">
-                  <div className="mb-4 grid grid-cols-2 gap-3">
-                    <StatMini label="Total users" value={adminStats.users.toLocaleString()} change="+12% from last month" icon={Users} />
-                    <StatMini label="Courses" value={String(adminStats.courses)} change="+8% from last month" icon={BookOpen} />
-                    <StatMini label="Enrollments" value={adminStats.enrollments.toLocaleString()} change="+15% from last month" icon={TrendingUp} />
-                    <StatMini label="Certificates issued" value={adminStats.certificates.toLocaleString()} change="+10% from last month" icon={Award} />
+          {/* Right: dashboard mockup + floating badges */}
+          <div className="relative hidden md:block">
+            <div className="absolute -left-6 top-4 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+              <GraduationCap className="size-5 text-primary" />
+            </div>
+            <div className="absolute -left-10 top-28 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+              <BarChart3 className="size-5 text-violet-500" />
+            </div>
+            <div className="absolute -left-6 top-52 z-20 flex size-11 items-center justify-center rounded-xl bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+              <BookOpen className="size-5 text-amber-500" />
+            </div>
+            <div className="absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+              <Users className="size-5 text-indigo-500" />
+            </div>
+            <div className="absolute -right-2 bottom-24 z-20 flex size-11 items-center justify-center rounded-full bg-white shadow-lg shadow-black/10 ring-1 ring-black/5">
+              <ShieldCheck className="size-5 text-emerald-500" />
+            </div>
+
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-primary/10 via-transparent to-accent/20 blur-2xl"
+            />
+
+            <div className="relative rounded-2xl border border-black/5 bg-card p-2 shadow-2xl shadow-black/15">
+              <div className="rounded-xl border bg-background p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Welcome back,</p>
+                    <p className="text-[11px] text-muted-foreground">Let's continue learning!</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-md border p-3.5">
-                      <p className="mb-2 text-xs font-medium text-muted-foreground">Learning progress</p>
-                      <div className="flex items-center justify-center py-2">
-                        <div
-                          className="flex size-20 items-center justify-center rounded-full"
-                          style={{
-                            background: `conic-gradient(hsl(var(--accent)) 0deg 280.8deg, hsl(var(--muted)) 280.8deg 360deg)`,
-                          }}
-                        >
-                          <div className="flex size-[62px] items-center justify-center rounded-full bg-card">
-                            <span className="text-base font-bold text-foreground">78%</span>
-                          </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-6 items-center justify-center rounded-full bg-muted">
+                      <Bell className="size-3 text-muted-foreground" />
+                    </div>
+                    <div className="size-6 rounded-full bg-primary/20" />
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  <MiniStat label="Trainers" value="120+" sub="Active" />
+                  <MiniStat label="Trainees" value="1.2K+" sub="Enrolled" />
+                  <MiniStat label="Courses" value="85+" sub="Published" />
+                  <MiniStat label="Certificates" value="950+" sub="Issued" />
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border p-3">
+                    <p className="text-[10px] font-semibold text-foreground">Recent activities</p>
+                    <div className="mt-2 space-y-2">
+                      <ActivityRow label="New course published" sub="Digital Leadership Basics" time="2h ago" />
+                      <ActivityRow label="Assessment completed" sub="Communication Skills" time="4h ago" />
+                      <ActivityRow label="Certificate issued" sub="Data Analysis Fundamentals" time="6h ago" />
+                    </div>
+                    <p className="mt-2 text-[10px] font-medium text-primary">View all activities →</p>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <p className="text-[10px] font-semibold text-foreground">Learning progress</p>
+                    <div className="mt-2 flex items-center justify-center py-1">
+                      <div
+                        className="flex size-16 items-center justify-center rounded-full"
+                        style={{ background: "conic-gradient(#4f46e5 0deg 270deg, #e5e7eb 270deg 360deg)" }}
+                      >
+                        <div className="flex size-12 items-center justify-center rounded-full bg-card">
+                          <span className="text-xs font-bold">75%</span>
                         </div>
                       </div>
-                      <p className="text-[11px] font-medium text-foreground">Overall completion</p>
-                      <p className="mb-2 text-[10px] text-muted-foreground">12 of 16 courses completed</p>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                        <div className="h-full w-3/4 rounded-full bg-primary" />
-                      </div>
                     </div>
-                    <div className="rounded-md border p-3.5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
-                        <span className="text-[10px] font-medium text-primary">View all</span>
-                      </div>
-                      <ActivityRow label="Data Analytics Basics" sub="In progress · 75%" />
-                      <ActivityRow label="Leadership & Management" sub="Completed · 100%" />
-                      <ActivityRow label="Communication Skills" sub="In progress · 60%" />
-                    </div>
+                    <p className="text-center text-[9px] text-muted-foreground">Overall progress</p>
+                    <p className="mt-2 text-center text-[10px] font-medium text-primary">View details →</p>
                   </div>
                 </div>
               </div>
+              <div className="mx-auto -mb-1 mt-2 h-2 w-3/5 rounded-b-xl bg-muted" />
             </div>
-            <p className="mt-3 text-center text-[11px] text-navy-foreground/50">
-              Illustrative interface preview — sample data
-            </p>
           </div>
         </div>
       </section>
 
-      {/* ---------- STATS STRIP ---------- */}
-      <section className="border-b bg-gradient-to-b from-muted/30 to-transparent">
-        <div className="mx-auto max-w-6xl px-5 py-8">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {statBar.map((s) => (
-              <div
-                key={s.label}
-                className="surface-panel flex items-center gap-4 px-5 py-5 transition-shadow duration-200 hover:shadow-md"
-              >
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-accent">
-                  <s.icon className="size-5 text-accent-foreground" />
-                </div>
-                <div>
-                  <p className="font-display text-xl font-bold">{s.value}+</p>
-                  <p className="text-sm font-semibold">{s.label}</p>
+      {/* ---------- TRUST STRIP (dark) ---------- */}
+      <section className="bg-[#0B1B33] py-6">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 md:grid-cols-4">
+          {trustStrip.map((s) => (
+            <div key={s.title} className="flex items-start gap-3">
+              <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${s.bg}`}>
+                <s.icon className={`size-4 ${s.fg}`} />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-white">{s.title}</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-white/50">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- IMPACT + ABOUT ---------- */}
+      <section className="border-b bg-white py-16 md:py-20">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 md:grid-cols-2">
+          <div>
+            <h2 className="font-display text-xl font-bold">Driving impact through learning</h2>
+            <div className="mt-6 grid grid-cols-2 gap-6">
+              {statBar.map((s, i) => (
+                <div key={s.label}>
+                  <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i].bg}`}>
+                    <s.icon className={`size-4.5 ${impactStats[i].fg}`} />
+                  </div>
+                  <p className="mt-2 font-display text-2xl font-bold">{s.value}+</p>
                   <p className="text-xs text-muted-foreground">{s.sub}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-muted/20 p-6">
+            <h3 className="font-display text-base font-bold">About Capacity Connect</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              An initiative of the Capacity Building Commission, Capacity Connect brings a
+              seamless digital experience to training, assessments and knowledge sharing —
+              so every department can plan competency growth in one place.
+            </p>
+            <Button asChild variant="link" className="mt-3 px-0">
+              <Link to="/about">
+                Learn more about us <ArrowRight className="ml-1 size-3.5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -527,41 +595,27 @@ function Landing() {
   );
 }
 
-function StatMini({
-  label,
-  value,
-  change,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  change: string;
-  icon: React.ElementType;
-}) {
+function MiniStat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-md border p-3">
-      <div className="mb-1 flex items-center justify-between">
-        <p className="text-[10px] text-muted-foreground">{label}</p>
-        <Icon className="size-3.5 text-primary" />
-      </div>
-      <p className="text-lg font-bold text-foreground">{value}</p>
-      <p className="flex items-center gap-0.5 text-[9px] text-primary">
-        <CheckCircle2 className="size-2.5" /> {change}
-      </p>
+    <div className="rounded-lg border p-2 text-center">
+      <p className="text-[13px] font-bold text-foreground">{value}</p>
+      <p className="text-[9px] font-medium text-foreground/80">{label}</p>
+      <p className="text-[8px] text-muted-foreground">{sub}</p>
     </div>
   );
 }
 
-function ActivityRow({ label, sub }: { label: string; sub: string }) {
+function ActivityRow({ label, sub, time }: { label: string; sub: string; time: string }) {
   return (
-    <div className="flex items-center gap-2 py-1.5">
-      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent">
-        <div className="size-2 rounded-full bg-accent-foreground" />
+    <div className="flex items-center gap-2">
+      <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
+        <div className="size-1.5 rounded-full bg-primary" />
       </div>
-      <div>
-        <p className="text-[11px] font-medium leading-tight text-foreground">{label}</p>
-        <p className="text-[9px] text-muted-foreground">{sub}</p>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[9px] font-medium leading-tight">{label}</p>
+        <p className="truncate text-[8px] text-muted-foreground">{sub}</p>
       </div>
+      <span className="shrink-0 text-[8px] text-muted-foreground">{time}</span>
     </div>
   );
 }
