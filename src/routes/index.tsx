@@ -246,7 +246,7 @@ function Landing() {
             WebkitMaskImage: "linear-gradient(to bottom, black, transparent 85%)",
           }}
         />
-        <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-10 px-5 py-16 md:grid-cols-2 md:py-16">
+        <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-10 px-5 pt-16 pb-10 md:grid-cols-2 md:pt-16 md:pb-10">
           {/* Left copy */}
           <div className="md:pt-6">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
@@ -276,6 +276,21 @@ function Landing() {
                 <a href="#how-it-works">View problem statement</a>
               </Button>
             </div>
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t pt-6">
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">4,826+</p>
+                <p className="text-xs text-muted-foreground">Active users</p>
+              </div>
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">86+</p>
+                <p className="text-xs text-muted-foreground">Courses live</p>
+              </div>
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">950+</p>
+                <p className="text-xs text-muted-foreground">Certificates issued</p>
+              </div>
+            </div>
           </div>
 
           {/* Right: dashboard mockup + floating badges */}
@@ -292,7 +307,7 @@ function Landing() {
             <div className="absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <Users className="size-5 text-indigo-500" />
             </div>
-            <div className="absolute -right-2 bottom-24 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="absolute -right-2 top-40 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <ShieldCheck className="size-5 text-emerald-500" />
             </div>
 
