@@ -166,7 +166,7 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-md bg-primary">
+            <div className="flex size-9 items-center justify-center rounded-md bg-primary shadow-sm shadow-primary/30">
               <GraduationCap className="size-5 text-primary-foreground" />
             </div>
             <div>
@@ -174,14 +174,12 @@ function Landing() {
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
             </div>
           </div>
-
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Home</a>
             <Link to="/about" className="pb-1 hover:text-foreground">About</Link>
             <a href="#how-it-works" className="pb-1 hover:text-foreground">How it works</a>
             <Link to="/contact" className="pb-1 hover:text-foreground">Contact</Link>
           </nav>
-
           <div className="flex items-center gap-3">
             <Button asChild variant="outline" size="sm">
               <Link to="/trainee">Login</Link>
@@ -196,8 +194,27 @@ function Landing() {
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="border-b brand-gradient">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 text-navy-foreground md:grid-cols-2 md:py-20">
+      <section className="relative isolate overflow-hidden border-b brand-gradient">
+        {/* decorative background layer */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.16]"
+          style={{
+            backgroundImage:
+              "radial-gradient(hsl(var(--navy-foreground)) 1px, transparent 1px)",
+            backgroundSize: "26px 26px",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-24 -top-24 z-0 size-[420px] rounded-full bg-accent/30 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-32 right-[-10%] z-0 size-[460px] rounded-full bg-primary/25 blur-3xl"
+        />
+
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 text-navy-foreground md:grid-cols-2 md:py-24">
           {/* Left copy */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-navy-foreground/65">
@@ -211,9 +228,8 @@ function Landing() {
               platform — structured courses, verified certification, live analytics and
               skill-based trainer matching.
             </p>
-
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="shadow-lg shadow-primary/25">
                 <Link to="/trainee">
                   Explore platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
@@ -231,59 +247,62 @@ function Landing() {
 
           {/* Right dashboard preview */}
           <div className="hidden md:block">
-            <div className="overflow-hidden rounded-lg border border-navy-foreground/10 bg-card shadow-xl">
-              <div className="flex items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
-                {[LayoutDashboard, Library, UserCheck, BarChart3, Settings].map((Icon, i) => (
-                  <div
-                    key={i}
-                    className={`flex size-7 items-center justify-center rounded-md ${
-                      i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    <Icon className="size-3.5" />
-                  </div>
-                ))}
-                <div className="ml-auto text-[10px] text-muted-foreground">Dashboard overview</div>
-              </div>
-
-              <div className="p-5">
-                <div className="mb-4 grid grid-cols-2 gap-3">
-                  <StatMini label="Total users" value={adminStats.users.toLocaleString()} change="+12% from last month" icon={Users} />
-                  <StatMini label="Courses" value={String(adminStats.courses)} change="+8% from last month" icon={BookOpen} />
-                  <StatMini label="Enrollments" value={adminStats.enrollments.toLocaleString()} change="+15% from last month" icon={TrendingUp} />
-                  <StatMini label="Certificates issued" value={adminStats.certificates.toLocaleString()} change="+10% from last month" icon={Award} />
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-4 rounded-2xl bg-gradient-to-tr from-accent/25 via-transparent to-primary/25 blur-2xl"
+              />
+              <div className="relative overflow-hidden rounded-lg border border-navy-foreground/10 bg-card shadow-2xl shadow-black/20">
+                <div className="flex items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
+                  {[LayoutDashboard, Library, UserCheck, BarChart3, Settings].map((Icon, i) => (
+                    <div
+                      key={i}
+                      className={`flex size-7 items-center justify-center rounded-md ${
+                        i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      <Icon className="size-3.5" />
+                    </div>
+                  ))}
+                  <div className="ml-auto text-[10px] text-muted-foreground">Dashboard overview</div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-md border p-3.5">
-                    <p className="mb-2 text-xs font-medium text-muted-foreground">Learning progress</p>
-                    <div className="flex items-center justify-center py-2">
-                      <div
-                        className="flex size-20 items-center justify-center rounded-full"
-                        style={{
-                          background: `conic-gradient(hsl(var(--accent)) 0deg 280.8deg, hsl(var(--muted)) 280.8deg 360deg)`,
-                        }}
-                      >
-                        <div className="flex size-[62px] items-center justify-center rounded-full bg-card">
-                          <span className="text-base font-bold text-foreground">78%</span>
+                <div className="p-5">
+                  <div className="mb-4 grid grid-cols-2 gap-3">
+                    <StatMini label="Total users" value={adminStats.users.toLocaleString()} change="+12% from last month" icon={Users} />
+                    <StatMini label="Courses" value={String(adminStats.courses)} change="+8% from last month" icon={BookOpen} />
+                    <StatMini label="Enrollments" value={adminStats.enrollments.toLocaleString()} change="+15% from last month" icon={TrendingUp} />
+                    <StatMini label="Certificates issued" value={adminStats.certificates.toLocaleString()} change="+10% from last month" icon={Award} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-md border p-3.5">
+                      <p className="mb-2 text-xs font-medium text-muted-foreground">Learning progress</p>
+                      <div className="flex items-center justify-center py-2">
+                        <div
+                          className="flex size-20 items-center justify-center rounded-full"
+                          style={{
+                            background: `conic-gradient(hsl(var(--accent)) 0deg 280.8deg, hsl(var(--muted)) 280.8deg 360deg)`,
+                          }}
+                        >
+                          <div className="flex size-[62px] items-center justify-center rounded-full bg-card">
+                            <span className="text-base font-bold text-foreground">78%</span>
+                          </div>
                         </div>
                       </div>
+                      <p className="text-[11px] font-medium text-foreground">Overall completion</p>
+                      <p className="mb-2 text-[10px] text-muted-foreground">12 of 16 courses completed</p>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div className="h-full w-3/4 rounded-full bg-primary" />
+                      </div>
                     </div>
-                    <p className="text-[11px] font-medium text-foreground">Overall completion</p>
-                    <p className="mb-2 text-[10px] text-muted-foreground">12 of 16 courses completed</p>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-3/4 rounded-full bg-primary" />
+                    <div className="rounded-md border p-3.5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
+                        <span className="text-[10px] font-medium text-primary">View all</span>
+                      </div>
+                      <ActivityRow label="Data Analytics Basics" sub="In progress · 75%" />
+                      <ActivityRow label="Leadership & Management" sub="Completed · 100%" />
+                      <ActivityRow label="Communication Skills" sub="In progress · 60%" />
                     </div>
-                  </div>
-
-                  <div className="rounded-md border p-3.5">
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
-                      <span className="text-[10px] font-medium text-primary">View all</span>
-                    </div>
-                    <ActivityRow label="Data Analytics Basics" sub="In progress · 75%" />
-                    <ActivityRow label="Leadership & Management" sub="Completed · 100%" />
-                    <ActivityRow label="Communication Skills" sub="In progress · 60%" />
                   </div>
                 </div>
               </div>
@@ -296,11 +315,14 @@ function Landing() {
       </section>
 
       {/* ---------- STATS STRIP ---------- */}
-      <section className="border-b">
+      <section className="border-b bg-gradient-to-b from-muted/30 to-transparent">
         <div className="mx-auto max-w-6xl px-5 py-8">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {statBar.map((s) => (
-              <div key={s.label} className="surface-panel flex items-center gap-4 px-5 py-5">
+              <div
+                key={s.label}
+                className="surface-panel flex items-center gap-4 px-5 py-5 transition-shadow duration-200 hover:shadow-md"
+              >
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-accent">
                   <s.icon className="size-5 text-accent-foreground" />
                 </div>
@@ -316,16 +338,20 @@ function Landing() {
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="relative mx-auto max-w-6xl px-5 py-16 md:py-20">
         <h2 className="font-display text-xl font-bold">Choose your portal</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Each role has a dedicated dashboard experience with its own navigation.
         </p>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {portals.map((p) => (
-            <Card key={p.role} className="flex flex-col">
+            <Card
+              key={p.role}
+              className="group flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-primary to-accent opacity-70 transition-opacity duration-200 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-6">
-                <div className="flex size-11 items-center justify-center rounded-md bg-accent">
+                <div className="flex size-11 items-center justify-center rounded-md bg-accent transition-transform duration-200 group-hover:scale-105">
                   <p.icon className="size-5 text-accent-foreground" />
                 </div>
                 <h3 className="mt-4 font-display text-lg font-semibold">{p.role}</h3>
@@ -350,20 +376,26 @@ function Landing() {
       </section>
 
       {/* ---------- HOW IT WORKS ---------- */}
-      <section id="how-it-works" className="border-y bg-muted/30 py-16">
-        <div className="mx-auto max-w-6xl px-5">
+      <section id="how-it-works" className="relative overflow-hidden border-y bg-muted/30 py-16 md:py-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[380px] -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
             <h2 className="font-display text-xl font-bold">How it works</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               A simple four-step journey from registration to verified certification.
             </p>
           </div>
-
           <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
             {steps.map((s, i) => (
               <div key={s.title} className="relative">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                {i < steps.length - 1 && (
+                  <div className="absolute left-5 top-10 hidden h-px w-full bg-gradient-to-r from-border to-transparent md:block" />
+                )}
+                <div className="relative flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm shadow-primary/30">
                     <s.icon className="size-5" />
                   </div>
                   <span className="font-display text-2xl font-bold text-muted-foreground/30">
@@ -379,17 +411,19 @@ function Landing() {
       </section>
 
       {/* ---------- FEATURES ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
         <div className="max-w-2xl">
           <h2 className="font-display text-xl font-bold">Platform capabilities</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Everything trainees, trainers and administrators need on a single platform.
           </p>
         </div>
-
         <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
           {features.map((f) => (
-            <Card key={f.title}>
+            <Card
+              key={f.title}
+              className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            >
               <CardContent className="p-6">
                 <div className="flex size-10 items-center justify-center rounded-md bg-accent">
                   <f.icon className="size-5 text-accent-foreground" />
@@ -403,14 +437,17 @@ function Landing() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="bg-muted/30 py-16">
-        <div className="mx-auto max-w-3xl px-5">
+      <section className="relative overflow-hidden bg-muted/30 py-16 md:py-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
+        />
+        <div className="relative z-10 mx-auto max-w-3xl px-5">
           <h2 className="font-display text-xl font-bold">Frequently asked questions</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Common questions from trainees, trainers and department administrators.
           </p>
-
-          <Accordion type="single" collapsible className="mt-8 rounded-lg border bg-card px-5">
+          <Accordion type="single" collapsible className="mt-8 rounded-lg border bg-card px-5 shadow-sm">
             {faqs.map((f, i) => (
               <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0" : ""}>
                 <AccordionTrigger className="text-sm hover:no-underline">{f.q}</AccordionTrigger>
@@ -422,7 +459,11 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="border-t bg-card">
+      <footer className="relative overflow-hidden border-t bg-card">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+        />
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
@@ -437,7 +478,6 @@ function Landing() {
                 Capacity Building Commission.
               </p>
             </div>
-
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
@@ -446,7 +486,6 @@ function Landing() {
                 <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
               </ul>
             </div>
-
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
@@ -455,7 +494,6 @@ function Landing() {
                 <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>
-
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Contact</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
@@ -471,7 +509,6 @@ function Landing() {
               </ul>
             </div>
           </div>
-
           <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-6 sm:flex-row">
             <p className="text-xs text-muted-foreground">
               Capacity Connect · Demonstration interface with sample data
