@@ -55,6 +55,8 @@ const portals = [
     icon: GraduationCap,
     desc: "Courses, resources, assessments, certificates and progress tracking.",
     points: ["6 enrolled courses", "3 certificates earned", "72% average progress"],
+    bg: "bg-[#E6F1FB]",
+    color: "text-[#185FA5]",
   },
   {
     role: "Trainer",
@@ -62,6 +64,8 @@ const portals = [
     icon: Users,
     desc: "Course authoring, resource library, question bank and cohort insights.",
     points: ["6 active courses", "412 enrolled trainees", "4.7 average rating"],
+    bg: "bg-[#EEEDFE]",
+    color: "text-[#534AB7]",
   },
   {
     role: "Admin",
@@ -69,6 +73,8 @@ const portals = [
     icon: ShieldCheck,
     desc: "Users, approvals, analytics, competency mapping and trainer matching.",
     points: ["4,826 users", "17 pending approvals", "78% completion rate"],
+    bg: "bg-[#E1F5EE]",
+    color: "text-[#0F6E56]",
   },
 ];
 
@@ -107,31 +113,43 @@ const features = [
     icon: Layers,
     title: "Course management",
     desc: "Structured courses with modules, resources and assessments in one place.",
+    bg: "bg-[#E6F1FB]",
+    color: "text-[#185FA5]",
   },
   {
     icon: Users,
     title: "Trainer matching",
     desc: "Skill-based matching connects trainers to the right cohorts automatically.",
+    bg: "bg-[#EEEDFE]",
+    color: "text-[#534AB7]",
   },
   {
     icon: BadgeCheck,
     title: "Verified certification",
     desc: "Tamper-evident certificates tied to a trainee's verified service record.",
+    bg: "bg-[#E1F5EE]",
+    color: "text-[#0F6E56]",
   },
   {
     icon: LineChart,
     title: "Real-time analytics",
     desc: "Live dashboards for enrolment, completion and competency gaps.",
+    bg: "bg-[#FAECE7]",
+    color: "text-[#993C1D]",
   },
   {
     icon: Building2,
     title: "Multi-department access",
     desc: "One platform, role-based access across departments and cadres.",
+    bg: "bg-[#FBEAF0]",
+    color: "text-[#993556]",
   },
   {
     icon: Sparkles,
     title: "Progress tracking",
     desc: "Trainees track their own learning path and upcoming milestones.",
+    bg: "bg-[#FAEEDA]",
+    color: "text-[#854F0B]",
   },
 ];
 
@@ -341,8 +359,8 @@ function Landing() {
           {portals.map((p) => (
             <Card key={p.role} className="flex flex-col">
               <CardContent className="flex flex-1 flex-col p-6">
-                <div className="flex size-10 items-center justify-center rounded-md bg-accent">
-                  <p.icon className="size-5 text-accent-foreground" />
+                <div className={`flex size-11 items-center justify-center rounded-xl ${p.bg}`}>
+                  <p.icon className={`size-5 ${p.color}`} />
                 </div>
                 <h3 className="mt-4 font-display text-lg font-semibold">{p.role}</h3>
                 <p className="mt-1.5 text-sm text-muted-foreground">{p.desc}</p>
@@ -410,8 +428,8 @@ function Landing() {
           {features.map((f) => (
             <Card key={f.title}>
               <CardContent className="p-6">
-                <div className="flex size-10 items-center justify-center rounded-md bg-accent/15">
-                  <f.icon className="size-5 text-accent" />
+                <div className={`flex size-10 items-center justify-center rounded-[10px] ${f.bg}`}>
+                  <f.icon className={`size-5 ${f.color}`} />
                 </div>
                 <h3 className="mt-4 font-display text-sm font-semibold">{f.title}</h3>
                 <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
