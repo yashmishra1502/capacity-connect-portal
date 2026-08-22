@@ -10,33 +10,230 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TraineeRouteImport } from './routes/trainee'
+import { Route as TrainerRouteImport } from './routes/trainer'
+import { Route as TraineeIndexRouteImport } from './routes/trainee.index'
+import { Route as TraineeAchievementsRouteImport } from './routes/trainee.achievements'
+import { Route as TraineeAssessmentRouteImport } from './routes/trainee.assessment'
+import { Route as TraineeCertificatesRouteImport } from './routes/trainee.certificates'
+import { Route as TraineeFeedbackRouteImport } from './routes/trainee.feedback'
+import { Route as TraineeNotificationsRouteImport } from './routes/trainee.notifications'
+import { Route as TraineeProfileRouteImport } from './routes/trainee.profile'
+import { Route as TraineeProgressRouteImport } from './routes/trainee.progress'
+import { Route as TraineeResourcesRouteImport } from './routes/trainee.resources'
+import { Route as TraineeResultsRouteImport } from './routes/trainee.results'
+import { Route as TraineeSettingsRouteImport } from './routes/trainee.settings'
+import { Route as TraineeCoursesIndexRouteImport } from './routes/trainee.courses.index'
+import { Route as TraineeCoursesCourseIdRouteImport } from './routes/trainee.courses.$courseId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TraineeRoute = TraineeRouteImport.update({
+  id: '/trainee',
+  path: '/trainee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerRoute = TrainerRouteImport.update({
+  id: '/trainer',
+  path: '/trainer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TraineeIndexRoute = TraineeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeAchievementsRoute = TraineeAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeAssessmentRoute = TraineeAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCertificatesRoute = TraineeCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeFeedbackRoute = TraineeFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeNotificationsRoute = TraineeNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeProfileRoute = TraineeProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeProgressRoute = TraineeProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeResourcesRoute = TraineeResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeResultsRoute = TraineeResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeSettingsRoute = TraineeSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCoursesIndexRoute = TraineeCoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => TraineeRoute,
+} as any)
+const TraineeCoursesCourseIdRoute = TraineeCoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
+  getParentRoute: () => TraineeRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/trainee': typeof TraineeRouteWithChildren
+  '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
+  '/trainee/': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses/': typeof TraineeCoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
+  '/trainee': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses': typeof TraineeCoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/trainee': typeof TraineeRouteWithChildren
+  '/trainer': typeof TrainerRoute
+  '/trainee/achievements': typeof TraineeAchievementsRoute
+  '/trainee/assessment': typeof TraineeAssessmentRoute
+  '/trainee/certificates': typeof TraineeCertificatesRoute
+  '/trainee/feedback': typeof TraineeFeedbackRoute
+  '/trainee/notifications': typeof TraineeNotificationsRoute
+  '/trainee/profile': typeof TraineeProfileRoute
+  '/trainee/progress': typeof TraineeProgressRoute
+  '/trainee/resources': typeof TraineeResourcesRoute
+  '/trainee/results': typeof TraineeResultsRoute
+  '/trainee/settings': typeof TraineeSettingsRoute
+  '/trainee/': typeof TraineeIndexRoute
+  '/trainee/courses/$courseId': typeof TraineeCoursesCourseIdRoute
+  '/trainee/courses/': typeof TraineeCoursesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/trainee'
+    | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee/results'
+    | '/trainee/settings'
+    | '/trainee/'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee/results'
+    | '/trainee/settings'
+    | '/trainee'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/trainee'
+    | '/trainer'
+    | '/trainee/achievements'
+    | '/trainee/assessment'
+    | '/trainee/certificates'
+    | '/trainee/feedback'
+    | '/trainee/notifications'
+    | '/trainee/profile'
+    | '/trainee/progress'
+    | '/trainee/resources'
+    | '/trainee/results'
+    | '/trainee/settings'
+    | '/trainee/'
+    | '/trainee/courses/$courseId'
+    | '/trainee/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  TraineeRoute: typeof TraineeRouteWithChildren
+  TrainerRoute: typeof TrainerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +245,161 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainee': {
+      id: '/trainee'
+      path: '/trainee'
+      fullPath: '/trainee'
+      preLoaderRoute: typeof TraineeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer': {
+      id: '/trainer'
+      path: '/trainer'
+      fullPath: '/trainer'
+      preLoaderRoute: typeof TrainerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainee/': {
+      id: '/trainee/'
+      path: '/'
+      fullPath: '/trainee/'
+      preLoaderRoute: typeof TraineeIndexRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/achievements': {
+      id: '/trainee/achievements'
+      path: '/achievements'
+      fullPath: '/trainee/achievements'
+      preLoaderRoute: typeof TraineeAchievementsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/assessment': {
+      id: '/trainee/assessment'
+      path: '/assessment'
+      fullPath: '/trainee/assessment'
+      preLoaderRoute: typeof TraineeAssessmentRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/certificates': {
+      id: '/trainee/certificates'
+      path: '/certificates'
+      fullPath: '/trainee/certificates'
+      preLoaderRoute: typeof TraineeCertificatesRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/feedback': {
+      id: '/trainee/feedback'
+      path: '/feedback'
+      fullPath: '/trainee/feedback'
+      preLoaderRoute: typeof TraineeFeedbackRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/notifications': {
+      id: '/trainee/notifications'
+      path: '/notifications'
+      fullPath: '/trainee/notifications'
+      preLoaderRoute: typeof TraineeNotificationsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/profile': {
+      id: '/trainee/profile'
+      path: '/profile'
+      fullPath: '/trainee/profile'
+      preLoaderRoute: typeof TraineeProfileRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/progress': {
+      id: '/trainee/progress'
+      path: '/progress'
+      fullPath: '/trainee/progress'
+      preLoaderRoute: typeof TraineeProgressRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/resources': {
+      id: '/trainee/resources'
+      path: '/resources'
+      fullPath: '/trainee/resources'
+      preLoaderRoute: typeof TraineeResourcesRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/results': {
+      id: '/trainee/results'
+      path: '/results'
+      fullPath: '/trainee/results'
+      preLoaderRoute: typeof TraineeResultsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/settings': {
+      id: '/trainee/settings'
+      path: '/settings'
+      fullPath: '/trainee/settings'
+      preLoaderRoute: typeof TraineeSettingsRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/courses/': {
+      id: '/trainee/courses/'
+      path: '/courses'
+      fullPath: '/trainee/courses/'
+      preLoaderRoute: typeof TraineeCoursesIndexRouteImport
+      parentRoute: typeof TraineeRoute
+    }
+    '/trainee/courses/$courseId': {
+      id: '/trainee/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/trainee/courses/$courseId'
+      preLoaderRoute: typeof TraineeCoursesCourseIdRouteImport
+      parentRoute: typeof TraineeRoute
+    }
   }
 }
 
+interface TraineeRouteChildren {
+  TraineeAchievementsRoute: typeof TraineeAchievementsRoute
+  TraineeAssessmentRoute: typeof TraineeAssessmentRoute
+  TraineeCertificatesRoute: typeof TraineeCertificatesRoute
+  TraineeFeedbackRoute: typeof TraineeFeedbackRoute
+  TraineeNotificationsRoute: typeof TraineeNotificationsRoute
+  TraineeProfileRoute: typeof TraineeProfileRoute
+  TraineeProgressRoute: typeof TraineeProgressRoute
+  TraineeResourcesRoute: typeof TraineeResourcesRoute
+  TraineeResultsRoute: typeof TraineeResultsRoute
+  TraineeSettingsRoute: typeof TraineeSettingsRoute
+  TraineeIndexRoute: typeof TraineeIndexRoute
+  TraineeCoursesCourseIdRoute: typeof TraineeCoursesCourseIdRoute
+  TraineeCoursesIndexRoute: typeof TraineeCoursesIndexRoute
+}
+
+const TraineeRouteChildren: TraineeRouteChildren = {
+  TraineeAchievementsRoute: TraineeAchievementsRoute,
+  TraineeAssessmentRoute: TraineeAssessmentRoute,
+  TraineeCertificatesRoute: TraineeCertificatesRoute,
+  TraineeFeedbackRoute: TraineeFeedbackRoute,
+  TraineeNotificationsRoute: TraineeNotificationsRoute,
+  TraineeProfileRoute: TraineeProfileRoute,
+  TraineeProgressRoute: TraineeProgressRoute,
+  TraineeResourcesRoute: TraineeResourcesRoute,
+  TraineeResultsRoute: TraineeResultsRoute,
+  TraineeSettingsRoute: TraineeSettingsRoute,
+  TraineeIndexRoute: TraineeIndexRoute,
+  TraineeCoursesCourseIdRoute: TraineeCoursesCourseIdRoute,
+  TraineeCoursesIndexRoute: TraineeCoursesIndexRoute,
+}
+
+const TraineeRouteWithChildren =
+  TraineeRoute._addFileChildren(TraineeRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  TraineeRoute: TraineeRouteWithChildren,
+  TrainerRoute: TrainerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
