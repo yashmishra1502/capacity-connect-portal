@@ -155,10 +155,5 @@
 }
 
 @utility brand-gradient {
-  background-image: linear-gradient(
-    135deg,
-    oklch(0.24 0.06 262),
-    oklch(0.38 0.12 255) 60%,
-    oklch(0.5 0.13 235)
-  );
+  background-color: var(--navy);
 }
