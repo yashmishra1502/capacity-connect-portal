@@ -273,7 +273,7 @@ function Landing() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <a href="#how-it-works">View problem statement</a>
+                <a href="#how-it-works">How it works</a>
               </Button>
             </div>
 
