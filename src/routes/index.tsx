@@ -14,6 +14,16 @@ import {
   BarChart3,
   Settings,
   CheckCircle2,
+  UserPlus,
+  ClipboardCheck,
+  BadgeCheck,
+  Layers,
+  Sparkles,
+  LineChart,
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,6 +77,81 @@ const statBar = [
   { icon: BookOpen, label: "Courses", value: `${adminStats.courses}`, sub: "Across multiple domains" },
   { icon: TrendingUp, label: "Enrollments", value: adminStats.enrollments.toLocaleString(), sub: "This year so far" },
   { icon: Award, label: "Certificates", value: adminStats.certificates.toLocaleString(), sub: "Successfully issued" },
+];
+
+const steps = [
+  {
+    icon: UserPlus,
+    title: "Register",
+    desc: "Sign up with your department credentials and get verified as trainee, trainer or admin.",
+  },
+  {
+    icon: Layers,
+    title: "Get matched",
+    desc: "Trainees are enrolled into relevant courses; trainers are matched by skill and availability.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "Train & assess",
+    desc: "Complete structured courses, assessments and hands-on modules on a single dashboard.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Get certified",
+    desc: "Earn a verified certificate linked to your service record, recognised across departments.",
+  },
+];
+
+const features = [
+  {
+    icon: Layers,
+    title: "Course management",
+    desc: "Structured courses with modules, resources and assessments in one place.",
+  },
+  {
+    icon: Users,
+    title: "Trainer matching",
+    desc: "Skill-based matching connects trainers to the right cohorts automatically.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Verified certification",
+    desc: "Tamper-evident certificates tied to a trainee's verified service record.",
+  },
+  {
+    icon: LineChart,
+    title: "Real-time analytics",
+    desc: "Live dashboards for enrolment, completion and competency gaps.",
+  },
+  {
+    icon: Building2,
+    title: "Multi-department access",
+    desc: "One platform, role-based access across departments and cadres.",
+  },
+  {
+    icon: Sparkles,
+    title: "Progress tracking",
+    desc: "Trainees track their own learning path and upcoming milestones.",
+  },
+];
+
+const faqs = [
+  {
+    q: "Who is eligible to use Capacity Connect?",
+    a: "Any government employee onboarded by their department administrator can access the platform as a trainee, trainer or admin, depending on their assigned role.",
+  },
+  {
+    q: "Are certificates issued on this platform officially recognised?",
+    a: "Yes. Certificates are linked to a trainee's verified service record and are recognised across participating departments under the Capacity Building Commission.",
+  },
+  {
+    q: "Can a trainer teach across multiple departments?",
+    a: "Yes, trainers are matched to cohorts based on domain expertise and availability, regardless of their home department.",
+  },
+  {
+    q: "How is trainee data kept secure?",
+    a: "All data is handled in line with Government of India IT security guidelines, with role-based access control restricting visibility to authorised users only.",
+  },
 ];
 
 function Landing() {
@@ -280,10 +365,152 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t py-8">
-        <p className="text-center text-xs text-muted-foreground">
-          Capacity Connect · Demonstration interface with sample data
-        </p>
+      {/* ---------- HOW IT WORKS ---------- */}
+      <section className="bg-muted/40 py-16">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-xl font-bold">How it works</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              A simple four-step journey from registration to verified certification.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+            {steps.map((s, i) => (
+              <div key={s.title} className="relative">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <s.icon className="size-5" />
+                  </div>
+                  <span className="font-display text-2xl font-bold text-muted-foreground/40">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-display text-sm font-semibold">{s.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+                {i !== steps.length - 1 && (
+                  <div className="absolute right-[-1.5rem] top-5 hidden h-px w-6 bg-border md:block" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- FEATURES ---------- */}
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <div className="max-w-2xl">
+          <h2 className="font-display text-xl font-bold">Platform capabilities</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Everything trainees, trainers and administrators need on a single platform.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+          {features.map((f) => (
+            <Card key={f.title}>
+              <CardContent className="p-6">
+                <div className="flex size-10 items-center justify-center rounded-md bg-accent/15">
+                  <f.icon className="size-5 text-accent" />
+                </div>
+                <h3 className="mt-4 font-display text-sm font-semibold">{f.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- FAQ ---------- */}
+      <section className="bg-muted/40 py-16">
+        <div className="mx-auto max-w-3xl px-5">
+          <h2 className="font-display text-xl font-bold">Frequently asked questions</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Common questions from trainees, trainers and department administrators.
+          </p>
+
+          <div className="mt-8 space-y-3">
+            {faqs.map((f) => (
+              <details
+                key={f.q}
+                className="group rounded-lg border bg-card px-5 py-4 open:shadow-sm"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
+                  {f.q}
+                  <span className="ml-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- FOOTER ---------- */}
+      <footer className="border-t bg-card">
+        <div className="mx-auto max-w-6xl px-5 py-12">
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-8 items-center justify-center rounded-md bg-primary">
+                  <GraduationCap className="size-4 text-primary-foreground" />
+                </div>
+                <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
+              </div>
+              <p className="mt-3 max-w-xs text-xs text-muted-foreground">
+                A digital capacity building and learning management initiative under the
+                Capacity Building Commission.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+                <li><a href="#" className="hover:text-foreground">Features</a></li>
+                <li><a href="#" className="hover:text-foreground">Programs</a></li>
+                <li><a href="#" className="hover:text-foreground">Resources</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/trainee" className="hover:text-foreground">Trainee</Link></li>
+                <li><Link to="/trainer" className="hover:text-foreground">Trainer</Link></li>
+                <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Contact</p>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <Mail className="size-3.5" /> support@capacityconnect.gov.in
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="size-3.5" /> 1800-XXX-XXXX
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="size-3.5" /> New Delhi, India
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-6 sm:flex-row">
+            <p className="text-xs text-muted-foreground">
+              Capacity Connect · Demonstration interface with sample data
+            </p>
+            <div className="flex items-center gap-5 text-xs text-muted-foreground">
+              <a href="#" className="hover:text-foreground">Privacy policy</a>
+              <a href="#" className="hover:text-foreground">Terms of use</a>
+              <a href="#" className="hover:text-foreground">Accessibility</a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
