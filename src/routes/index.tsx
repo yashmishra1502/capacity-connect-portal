@@ -246,9 +246,9 @@ function Landing() {
             WebkitMaskImage: "linear-gradient(to bottom, black, transparent 85%)",
           }}
         />
-        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-2 md:py-20">
+        <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-10 px-5 py-16 md:grid-cols-2 md:py-16">
           {/* Left copy */}
-          <div>
+          <div className="md:pt-6">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
               <GraduationCap className="size-3.5" /> Smart Capacity Building for a Skilled Tomorrow
             </span>
