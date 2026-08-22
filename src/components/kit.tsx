@@ -127,3 +127,45 @@ export function ProgressCell({ value }: { value: number }) {
 export function EmptyHint({ text }: { text: string }) {
   return <p className="py-8 text-center text-sm text-muted-foreground">{text}</p>;
 }
+
+export function SimpleTable({
+  columns,
+  rows,
+}: {
+  columns: string[];
+  rows: (ReactNode[] | { key: string; cells: ReactNode[] })[];
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[560px] text-sm">
+        <thead>
+          <tr className="border-b">
+            {columns.map((c) => (
+              <th
+                key={c}
+                className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+              >
+                {c}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => {
+            const cells = Array.isArray(r) ? r : r.cells;
+            return (
+              <tr key={Array.isArray(r) ? i : r.key} className="border-b last:border-0 hover:bg-muted/50">
+                {cells.map((cell, j) => (
+                  <td key={j} className="px-3 py-3 align-middle">
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {rows.length === 0 && <EmptyHint text="No records match the current filters." />}
+    </div>
+  );
+}
