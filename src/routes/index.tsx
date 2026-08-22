@@ -371,8 +371,8 @@ function Landing() {
         </div>
       </section>
 
-      {/* ---------- TRUST STRIP (dark) ---------- */}
-      <section className="bg-[#0B1B33] py-6 dark:bg-[#060d1c] dark:border-y dark:border-white/5">
+      {/* ---------- TRUST STRIP ---------- */}
+      <section className="border-y bg-muted/40 py-6 dark:border-white/5 dark:bg-[#0B1B33]">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 md:grid-cols-4">
           {trustStrip.map((s) => (
             <div key={s.title} className="flex items-start gap-3">
@@ -380,8 +380,8 @@ function Landing() {
                 <s.icon className={`size-4 ${s.fg}`} />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-white">{s.title}</p>
-                <p className="mt-0.5 text-[11px] leading-snug text-white/50">{s.desc}</p>
+                <p className="text-[13px] font-semibold text-foreground dark:text-white">{s.title}</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground dark:text-white/50">{s.desc}</p>
               </div>
             </div>
           ))}
