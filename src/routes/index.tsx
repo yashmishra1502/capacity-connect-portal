@@ -1,33 +1,65 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   GraduationCap,
   Users,
-  ShieldCheck,
   ArrowRight,
   BookOpen,
   TrendingUp,
   Award,
-  Play,
   LayoutDashboard,
   Library,
   UserCheck,
   BarChart3,
   Settings,
-  CheckCircle2,
   UserPlus,
   ClipboardCheck,
   BadgeCheck,
-  Layers,
-  Sparkles,
-  LineChart,
+  ClipboardList,
+  FileCheck2,
+  Compass,
+  KeyRound,
+  Lock,
+  History,
   Building2,
   Mail,
   Phone,
   MapPin,
+  Search,
+  Filter,
+  MapPinned,
+  CalendarClock,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { adminStats } from "@/lib/mock-data";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Line,
+  LineChart,
+} from "recharts";
+import {
+  adminStats,
+  competencyMap,
+  trainerMatching,
+  enrollmentTrend,
+  departmentPerformance,
+} from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,156 +80,178 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const portals = [
-  {
-    role: "Trainee",
-    to: "/trainee" as const,
-    icon: GraduationCap,
-    desc: "Courses, resources, assessments, certificates and progress tracking.",
-    points: ["6 enrolled courses", "3 certificates earned", "72% average progress"],
-    bg: "bg-[#E6F1FB]",
-    color: "text-[#185FA5]",
-  },
-  {
-    role: "Trainer",
-    to: "/trainer" as const,
-    icon: Users,
-    desc: "Course authoring, resource library, question bank and cohort insights.",
-    points: ["6 active courses", "412 enrolled trainees", "4.7 average rating"],
-    bg: "bg-[#EEEDFE]",
-    color: "text-[#534AB7]",
-  },
-  {
-    role: "Admin",
-    to: "/admin" as const,
-    icon: ShieldCheck,
-    desc: "Users, approvals, analytics, competency mapping and trainer matching.",
-    points: ["4,826 users", "17 pending approvals", "78% completion rate"],
-    bg: "bg-[#E1F5EE]",
-    color: "text-[#0F6E56]",
-  },
-];
-
 const statBar = [
-  { icon: Users, label: "Users", value: adminStats.users.toLocaleString(), sub: "Active learners & professionals" },
-  { icon: BookOpen, label: "Courses", value: `${adminStats.courses}`, sub: "Across multiple domains" },
-  { icon: TrendingUp, label: "Enrollments", value: adminStats.enrollments.toLocaleString(), sub: "This year so far" },
-  { icon: Award, label: "Certificates", value: adminStats.certificates.toLocaleString(), sub: "Successfully issued" },
+  { icon: Users, label: "Active learners", value: adminStats.trainees.toLocaleString(), sub: "Onboarded across departments" },
+  { icon: BookOpen, label: "Learning programmes", value: `${adminStats.courses}`, sub: "Live across domains" },
+  { icon: TrendingUp, label: "Enrolments", value: adminStats.enrollments.toLocaleString(), sub: "Year to date" },
+  { icon: Award, label: "Certificates issued", value: adminStats.certificates.toLocaleString(), sub: "Verified & recognised" },
+  { icon: BarChart3, label: "Completion rate", value: `${adminStats.completionRate}%`, sub: "Trailing 90 days" },
 ];
 
-const steps = [
+type RoleKey = "trainee" | "trainer" | "admin";
+
+const roleContent: Record<
+  RoleKey,
   {
-    icon: UserPlus,
-    title: "Register",
-    desc: "Sign up with your department credentials and get verified as trainee, trainer or admin.",
+    label: string;
+    to: "/trainee" | "/trainer" | "/admin";
+    summary: string;
+    points: { icon: typeof BookOpen; label: string; value: string }[];
+    preview: { label: string; value: string; status: string }[];
+  }
+> = {
+  trainee: {
+    label: "Trainee",
+    to: "/trainee",
+    summary:
+      "Track learning progress, attempt assessments, view competency growth and manage certificates from one dashboard.",
+    points: [
+      { icon: BookOpen, label: "Active programmes", value: "6" },
+      { icon: ClipboardList, label: "Pending assessments", value: "2" },
+      { icon: Award, label: "Certificates earned", value: "3" },
+    ],
+    preview: [
+      { label: "Public Policy Analysis — PPGOV-101", value: "82%", status: "In progress" },
+      { label: "Digital Governance — DGOV-204", value: "100%", status: "Completed" },
+      { label: "Leadership & Team Effectiveness", value: "34%", status: "In progress" },
+    ],
   },
-  {
-    icon: Layers,
-    title: "Get matched",
-    desc: "Trainees are enrolled into relevant courses; trainers are matched by skill and availability.",
+  trainer: {
+    label: "Trainer",
+    to: "/trainer",
+    summary:
+      "Author courses, manage cohorts, grade assessments and view how you're matched to upcoming training requests.",
+    points: [
+      { icon: Library, label: "Courses managed", value: "6" },
+      { icon: Users, label: "Enrolled trainees", value: "412" },
+      { icon: BadgeCheck, label: "Average rating", value: "4.7" },
+    ],
+    preview: [
+      { label: "FIN-311 — Batch E, September", value: "98%", status: "Match" },
+      { label: "LEAD-150 — Batch D, September", value: "91%", status: "Match" },
+      { label: "DATA-220 — Batch B, September", value: "89%", status: "Match" },
+    ],
   },
-  {
-    icon: ClipboardCheck,
-    title: "Train & assess",
-    desc: "Complete structured courses, assessments and hands-on modules on a single dashboard.",
+  admin: {
+    label: "Administrator",
+    to: "/admin",
+    summary:
+      "Monitor platform-wide metrics, approve content and trainer registrations, and track competency coverage by department.",
+    points: [
+      { icon: Users, label: "Registered users", value: adminStats.users.toLocaleString() },
+      { icon: ClipboardCheck, label: "Pending approvals", value: `${adminStats.pendingApprovals}` },
+      { icon: TrendingUp, label: "Platform completion", value: `${adminStats.completionRate}%` },
+    ],
+    preview: [
+      { label: "Trainer Registration — Meera Iyer", value: "High", status: "Pending" },
+      { label: "Course Publication — Data Analytics", value: "Medium", status: "Pending" },
+      { label: "Enrollment Request — Batch D, FIN-311", value: "High", status: "Pending" },
+    ],
   },
-  {
-    icon: BadgeCheck,
-    title: "Get certified",
-    desc: "Earn a verified certificate linked to your service record, recognised across departments.",
-  },
+};
+
+const journey = [
+  { icon: Compass, title: "Discover programme", desc: "Browse programmes relevant to your role and department." },
+  { icon: UserPlus, title: "Enroll", desc: "Join a batch and get access to structured modules." },
+  { icon: BookOpen, title: "Learn", desc: "Work through modules, resources and case studies." },
+  { icon: ClipboardCheck, title: "Assess", desc: "Attempt structured assessments tied to each module." },
+  { icon: FileCheck2, title: "Demonstrate competency", desc: "Assessment evidence maps to a competency level." },
+  { icon: Award, title: "Receive certificate", desc: "A verified certificate is linked to your service record." },
+  { icon: TrendingUp, title: "Continue development", desc: "A development plan closes remaining competency gaps." },
 ];
 
-const features = [
+const competencyStages = [
+  "Training",
+  "Course completion",
+  "Assessment",
+  "Skill evidence",
+  "Competency level",
+  "Development plan",
+];
+
+const securityPoints = [
   {
-    icon: Layers,
-    title: "Course management",
-    desc: "Structured courses with modules, resources and assessments in one place.",
-    bg: "bg-[#E6F1FB]",
-    color: "text-[#185FA5]",
-  },
-  {
-    icon: Users,
-    title: "Trainer matching",
-    desc: "Skill-based matching connects trainers to the right cohorts automatically.",
-    bg: "bg-[#EEEDFE]",
-    color: "text-[#534AB7]",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Verified certification",
-    desc: "Tamper-evident certificates tied to a trainee's verified service record.",
-    bg: "bg-[#E1F5EE]",
-    color: "text-[#0F6E56]",
-  },
-  {
-    icon: LineChart,
-    title: "Real-time analytics",
-    desc: "Live dashboards for enrolment, completion and competency gaps.",
-    bg: "bg-[#FAECE7]",
-    color: "text-[#993C1D]",
+    icon: KeyRound,
+    title: "Role-based access",
+    desc: "Trainees, trainers and administrators each see only the screens and actions relevant to their role.",
   },
   {
     icon: Building2,
-    title: "Multi-department access",
-    desc: "One platform, role-based access across departments and cadres.",
-    bg: "bg-[#FBEAF0]",
-    color: "text-[#993556]",
+    title: "Department-level visibility",
+    desc: "Administrators see data scoped to their department by default; cross-department views require explicit access.",
   },
   {
-    icon: Sparkles,
-    title: "Progress tracking",
-    desc: "Trainees track their own learning path and upcoming milestones.",
-    bg: "bg-[#FAEEDA]",
-    color: "text-[#854F0B]",
+    icon: Lock,
+    title: "Controlled administration",
+    desc: "Sensitive actions — approvals, certificate issuance, user status changes — are restricted to administrator accounts.",
+  },
+  {
+    icon: History,
+    title: "Audit-friendly workflows",
+    desc: "Approvals, enrolments and certificate issuance are recorded with actor, timestamp and status for later review.",
   },
 ];
 
 const faqs = [
   {
     q: "Who is eligible to use Capacity Connect?",
-    a: "Any government employee onboarded by their department administrator can access the platform as a trainee, trainer or admin, depending on their assigned role.",
+    a: "Any government employee onboarded by their department administrator can access the platform as a trainee, trainer or administrator, depending on their assigned role.",
   },
   {
-    q: "Are certificates issued on this platform officially recognised?",
-    a: "Yes. Certificates are linked to a trainee's verified service record and are recognised across participating departments under the Capacity Building Commission.",
+    q: "How are trainees matched with trainers?",
+    a: "Training requests are matched against trainer expertise, availability and prior ratings. The match percentage shown reflects how closely a trainer's profile fits a specific request, not a general ranking.",
   },
   {
-    q: "Can a trainer teach across multiple departments?",
-    a: "Yes, trainers are matched to cohorts based on domain expertise and availability, regardless of their home department.",
+    q: "How does competency tracking work?",
+    a: "Completing a course and passing its linked assessment produces evidence against a specific competency. That evidence is aggregated into a current level, which is compared against a target level to highlight development gaps.",
   },
   {
-    q: "How is trainee data kept secure?",
-    a: "All data is handled in line with Government of India IT security guidelines, with role-based access control restricting visibility to authorised users only.",
+    q: "Are certificates issued on this platform recognised across departments?",
+    a: "Certificates are linked to a trainee's verified service record and are intended to be recognised across participating departments under the Capacity Building Commission.",
+  },
+  {
+    q: "Can an administrator see data outside their own department?",
+    a: "By default, administrator views are scoped to their department. Broader visibility is a separate, explicitly granted permission.",
+  },
+  {
+    q: "What happens if a trainer becomes unavailable for a matched batch?",
+    a: "The request returns to the matching pool and is re-evaluated against remaining trainer availability and expertise.",
   },
 ];
 
 function Landing() {
+  const [role, setRole] = useState<RoleKey>("trainee");
+  const active = roleContent[role];
+
   return (
     <div className="min-h-screen bg-background">
       {/* ---------- HEADER ---------- */}
-      <header className="border-b">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 items-center justify-center rounded-md bg-primary">
               <GraduationCap className="size-5 text-primary-foreground" />
             </div>
             <div>
-              <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
+              <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
             </div>
           </div>
 
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
-            <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Home</a>
-            <Link to="/about" className="hover:text-foreground">About</Link>
-            <a href="#how-it-works" className="hover:text-foreground">How it works</a>
-            <Link to="/contact" className="hover:text-foreground">Contact</Link>
+            <a href="#platform" className="border-b-2 border-primary pb-1 text-foreground">Platform</a>
+            <a href="#programmes" className="pb-1 hover:text-foreground">Programmes</a>
+            <a href="#competencies" className="pb-1 hover:text-foreground">Competencies</a>
+            <a href="#trainers" className="pb-1 hover:text-foreground">Trainers</a>
+            <Link to="/about" className="pb-1 hover:text-foreground">Resources</Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link to="/contact">Help</Link>
+            </Button>
             <Button asChild variant="outline" size="sm">
-              <Link to="/trainee">Login</Link>
+              <Link to="/trainee">Sign in</Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/trainee">
@@ -209,258 +263,467 @@ function Landing() {
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="brand-gradient relative overflow-hidden">
-        {/* glow accents */}
-        <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-cyan-400/20 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-20 top-1/3 size-[28rem] rounded-full bg-cyan-400/25 blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 left-1/3 size-72 rounded-full bg-primary/20 blur-[100px]" />
-
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 text-navy-foreground md:grid-cols-2">
-          {/* Left copy */}
+      <section id="platform" className="border-b brand-gradient">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 text-navy-foreground md:grid-cols-2 md:py-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-navy-foreground/70">
-              Digital Capacity Building &amp; Learning Management
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-navy-foreground/65">
+              Digital capacity building, connected
             </p>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-tight md:text-5xl">
-              One portal for training, assessment and competency planning{" "}
-              <span className="text-cyan-300">across departments.</span>
+            <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-[2.75rem]">
+              One platform for training, assessment and competency planning across departments
             </h1>
-            <p className="mt-5 max-w-md text-sm text-navy-foreground/80 md:text-base">
-              Capacity Connect brings trainees, trainers and administrators onto a single
-              platform — structured courses, verified certification, live analytics and
-              skill-based trainer matching.
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-navy-foreground/75 md:text-[15px]">
+              Capacity Connect helps departments discover relevant training, track learner progress,
+              assess competencies against real evidence, connect trainees with matched trainers, and
+              monitor outcomes across programmes — on a single, role-based platform.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-cyan-400 text-[#0a1a3d] shadow-[0_0_24px_-4px] shadow-cyan-400/60 hover:bg-cyan-300"
-              >
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg">
                 <Link to="/trainee">
-                  Explore platform <ArrowRight className="ml-1.5 size-4" />
+                  Explore the platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
               </Button>
               <Button
+                asChild
                 variant="outline"
                 size="lg"
-                className="border-navy-foreground/25 bg-navy-foreground/5 text-navy-foreground hover:bg-navy-foreground/10"
+                className="border-navy-foreground/25 bg-transparent text-navy-foreground hover:bg-navy-foreground/10"
               >
-                Watch overview
-                <span className="ml-2 flex size-6 items-center justify-center rounded-full bg-navy-foreground/15">
-                  <Play className="size-3 fill-current" />
-                </span>
+                <Link to="/about">How it works</Link>
               </Button>
             </div>
           </div>
 
-          {/* Right dashboard preview */}
-          <div className="relative hidden md:block">
-            <div className="flex overflow-hidden rounded-2xl border border-cyan-300/20 bg-navy-foreground/[0.04] shadow-2xl shadow-cyan-500/10 backdrop-blur">
-              <div className="flex flex-col items-center gap-4 border-r border-navy-foreground/10 bg-black/10 px-3 py-6">
+          {/* Product preview */}
+          <div className="hidden md:block">
+            <div className="overflow-hidden rounded-lg border border-navy-foreground/10 bg-card shadow-xl">
+              <div className="flex items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
                 {[LayoutDashboard, Library, UserCheck, BarChart3, Settings].map((Icon, i) => (
                   <div
                     key={i}
-                    className={`flex size-8 items-center justify-center rounded-md ${
-                      i === 0 ? "bg-cyan-400 text-[#0a1a3d]" : "text-navy-foreground/50"
+                    className={`flex size-7 items-center justify-center rounded-md ${
+                      i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                     }`}
                   >
-                    <Icon className="size-4" />
+                    <Icon className="size-3.5" />
                   </div>
                 ))}
+                <div className="ml-auto text-[10px] text-muted-foreground">Trainee overview</div>
               </div>
 
-              <div className="flex-1 p-6">
-                <p className="mb-4 text-sm font-medium text-navy-foreground">Dashboard overview</p>
-
-                <div className="mb-5 grid grid-cols-2 gap-3">
-                  <StatMini label="Total users" value={adminStats.users.toLocaleString()} change="+12% from last month" icon={Users} />
-                  <StatMini label="Courses" value={String(adminStats.courses)} change="+8% from last month" icon={BookOpen} />
-                  <StatMini label="Enrollments" value={adminStats.enrollments.toLocaleString()} change="+15% from last month" icon={TrendingUp} />
-                  <StatMini label="Certificates issued" value={adminStats.certificates.toLocaleString()} change="+10% from last month" icon={Award} />
+              <div className="p-5">
+                <div className="mb-4 grid grid-cols-2 gap-3">
+                  <StatMini label="Active programmes" value="6" sub="2 due this month" />
+                  <StatMini label="Competency progress" value="72%" sub="Toward target levels" />
+                  <StatMini label="Upcoming assessment" value="LEAD-150" sub="Tue, 09:30 IST" />
+                  <StatMini label="Certificates" value="3" sub="Verified & issued" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-card p-4">
-                    <p className="mb-2 text-xs font-medium text-muted-foreground">Learning progress</p>
-                    <div className="flex items-center justify-center py-2">
-                      <div
-                        className="flex size-20 items-center justify-center rounded-full"
-                        style={{
-                          background: `conic-gradient(hsl(var(--accent)) 0deg 280.8deg, hsl(var(--muted)) 280.8deg 360deg)`,
-                        }}
-                      >
-                        <div className="flex size-[62px] items-center justify-center rounded-full bg-card">
-                          <span className="text-base font-bold text-foreground">78%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-[11px] font-medium text-foreground">Overall completion</p>
-                    <p className="mb-2 text-[10px] text-muted-foreground">You're doing great!</p>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-3/4 rounded-full bg-accent" />
-                    </div>
-                    <p className="mt-1 text-[10px] text-muted-foreground">12 of 16 courses completed</p>
+                <div className="rounded-md border p-3.5">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
+                    <span className="text-[10px] font-medium text-primary">View all</span>
                   </div>
-
-                  <div className="rounded-xl bg-card p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-xs font-medium text-muted-foreground">Recent activity</p>
-                      <span className="text-[10px] font-medium text-accent">View all</span>
-                    </div>
-                    <ActivityRow label="Data Analytics Basics" sub="In progress · 75%" />
-                    <ActivityRow label="Leadership & Management" sub="Completed · 100%" />
-                    <ActivityRow label="Communication Skills" sub="In progress · 60%" />
-                  </div>
+                  <ActivityRow label="Digital Governance — Module Quiz 3" sub="Completed · 2 hrs ago" />
+                  <ActivityRow label="Public Policy Analysis" sub="75% complete · updated today" />
+                  <ActivityRow label="Leadership & Team Effectiveness" sub="34% complete · in progress" />
                 </div>
               </div>
             </div>
-
-            <div className="absolute -right-4 top-10 flex size-12 items-center justify-center rounded-xl bg-primary shadow-lg">
-              <GraduationCap className="size-6 text-primary-foreground" />
-            </div>
-            <div className="absolute -right-4 bottom-16 flex size-12 items-center justify-center rounded-xl bg-accent shadow-lg">
-              <TrendingUp className="size-6 text-accent-foreground" />
-            </div>
+            <p className="mt-3 text-center text-[11px] text-navy-foreground/50">
+              Illustrative interface preview — sample data
+            </p>
           </div>
         </div>
       </section>
 
       {/* ---------- STATS STRIP ---------- */}
-      <section className="relative mx-auto -mt-10 max-w-6xl px-5">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {statBar.map((s) => (
-            <Card
-              key={s.label}
-              className="flex items-center gap-4 rounded-2xl border-border/60 px-5 py-6 shadow-lg shadow-black/5 transition-shadow hover:shadow-xl hover:shadow-accent/10"
-            >
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15">
-                <s.icon className="size-6 text-accent" />
+      <section className="border-b">
+        <div className="mx-auto max-w-6xl px-5 py-8">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Platform activity</p>
+            <p className="text-xs text-muted-foreground">Demonstration data · illustrative only</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {statBar.map((s) => (
+              <div key={s.label} className="surface-panel px-4 py-4">
+                <div className="mb-2 flex size-8 items-center justify-center rounded-md bg-accent">
+                  <s.icon className="size-4 text-accent-foreground" />
+                </div>
+                <p className="font-display text-xl font-bold">{s.value}</p>
+                <p className="text-xs font-medium text-foreground">{s.label}</p>
+                <p className="text-[11px] text-muted-foreground">{s.sub}</p>
               </div>
-              <div>
-                <p className="font-display text-xl font-bold">{s.value}+</p>
-                <p className="text-sm font-semibold">{s.label}</p>
-                <p className="text-xs text-muted-foreground">{s.sub}</p>
-              </div>
-            </Card>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ---------- PORTAL PICKER ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <h2 className="font-display text-xl font-bold">Choose your portal</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Each role has a dedicated dashboard experience with its own navigation.
-        </p>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {portals.map((p) => (
-            <Card key={p.role} className="flex flex-col">
-              <CardContent className="flex flex-1 flex-col p-6">
-                <div className={`flex size-11 items-center justify-center rounded-xl ${p.bg}`}>
-                  <p.icon className={`size-5 ${p.color}`} />
-                </div>
-                <h3 className="mt-4 font-display text-lg font-semibold">{p.role}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{p.desc}</p>
-                <ul className="mt-4 flex-1 space-y-1.5 text-xs text-muted-foreground">
-                  {p.points.map((pt) => (
-                    <li key={pt} className="flex items-center gap-2">
-                      <span className="size-1.5 rounded-full bg-primary" />
-                      {pt}
-                    </li>
+      {/* ---------- ONE PLATFORM, THREE EXPERIENCES ---------- */}
+      <section id="programmes" className="mx-auto max-w-6xl px-5 py-16">
+        <div className="max-w-2xl">
+          <h2 className="font-display text-2xl font-bold">One platform, three experiences</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Trainees, trainers and administrators each get a dashboard built for what they need to do.
+          </p>
+        </div>
+
+        <Tabs value={role} onValueChange={(v) => setRole(v as RoleKey)} className="mt-8">
+          <TabsList className="h-10 w-full max-w-md sm:w-auto">
+            {(Object.keys(roleContent) as RoleKey[]).map((k) => (
+              <TabsTrigger key={k} value={k} className="flex-1 sm:flex-none">
+                {roleContent[k].label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value={role} className="mt-6" forceMount>
+            <div className="grid gap-6 md:grid-cols-[1fr_1.1fr]">
+              <div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{active.summary}</p>
+                <div className="mt-6 grid grid-cols-3 gap-3 sm:max-w-sm">
+                  {active.points.map((p) => (
+                    <div key={p.label} className="surface-panel p-3">
+                      <p.icon className="size-4 text-primary" />
+                      <p className="mt-2 font-display text-lg font-bold">{p.value}</p>
+                      <p className="text-[11px] leading-tight text-muted-foreground">{p.label}</p>
+                    </div>
                   ))}
-                </ul>
-                <Button asChild className="mt-6 w-full">
-                  <Link to={p.to}>
-                    Open {p.role} dashboard <ArrowRight className="ml-1.5 size-4" />
+                </div>
+                <Button asChild className="mt-6">
+                  <Link to={active.to}>
+                    Open {active.label} dashboard <ArrowRight className="ml-1.5 size-4" />
                   </Link>
                 </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+
+              <Card>
+                <CardContent className="p-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {active.label} overview
+                  </p>
+                  <div className="space-y-3">
+                    {active.preview.map((row) => (
+                      <div key={row.label} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+                        <span className="text-sm text-foreground">{row.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-foreground">{row.value}</span>
+                          <Badge variant="secondary" className="text-[10px]">{row.status}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </section>
 
-      {/* ---------- HOW IT WORKS ---------- */}
-      <section id="how-it-works" className="bg-muted/40 py-16">
+      {/* ---------- COMPETENCY MAPPING ---------- */}
+      <section id="competencies" className="border-y bg-muted/30 py-16">
         <div className="mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
-            <h2 className="font-display text-xl font-bold">How it works</h2>
+            <h2 className="font-display text-2xl font-bold">Competency mapping</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              A simple four-step journey from registration to verified certification.
+              Capacity Connect is more than a course portal — every assessment produces evidence
+              that rolls up into a tracked competency level.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-            {steps.map((s, i) => (
-              <div key={s.title} className="relative">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <s.icon className="size-5" />
-                  </div>
-                  <span className="font-display text-2xl font-bold text-muted-foreground/40">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="mt-4 font-display text-sm font-semibold">{s.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
-                {i !== steps.length - 1 && (
-                  <div className="absolute right-[-1.5rem] top-5 hidden h-px w-6 bg-border md:block" />
+          <div className="mt-8 flex flex-wrap items-center gap-2 overflow-x-auto pb-2">
+            {competencyStages.map((s, i) => (
+              <div key={s} className="flex items-center gap-2">
+                <span className="whitespace-nowrap rounded-md border bg-card px-3 py-1.5 text-xs font-medium text-foreground">
+                  {s}
+                </span>
+                {i !== competencyStages.length - 1 && (
+                  <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
                 )}
               </div>
             ))}
           </div>
+
+          <Card className="mt-8">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/40">
+                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Competency</th>
+                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Demand</th>
+                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Current coverage</th>
+                      <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Top match</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {competencyMap.map((c) => (
+                      <tr key={c.skill} className="border-b last:border-0">
+                        <td className="px-4 py-3 font-medium text-foreground">{c.skill}</td>
+                        <td className="px-4 py-3">
+                          <Badge
+                            variant="outline"
+                            className={
+                              c.demand === "High"
+                                ? "border-destructive/25 bg-destructive/10 text-destructive"
+                                : c.demand === "Medium"
+                                  ? "border-warning/40 bg-warning/15 text-warning-foreground"
+                                  : "border-border bg-muted text-muted-foreground"
+                            }
+                          >
+                            {c.demand}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex min-w-32 items-center gap-2">
+                            <Progress value={c.coverage} className="h-1.5" />
+                            <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                              {c.coverage}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                          {c.trainers[0]?.name} · {c.trainers[0]?.match}% match
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      {/* ---------- FEATURES ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      {/* ---------- TRAINER MATCHING ---------- */}
+      <section id="trainers" className="mx-auto max-w-6xl px-5 py-16">
         <div className="max-w-2xl">
-          <h2 className="font-display text-xl font-bold">Platform capabilities</h2>
+          <h2 className="font-display text-2xl font-bold">Trainer matching</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Everything trainees, trainers and administrators need on a single platform.
+            Open training requests are matched against trainer expertise, availability and location —
+            not a black-box recommendation.
           </p>
         </div>
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-          {features.map((f) => (
-            <Card key={f.title}>
-              <CardContent className="p-6">
-                <div className={`flex size-10 items-center justify-center rounded-[10px] ${f.bg}`}>
-                  <f.icon className={`size-5 ${f.color}`} />
+        <div className="mt-6 flex flex-wrap gap-2">
+          {[
+            { icon: Filter, label: "Expertise" },
+            { icon: Building2, label: "Department" },
+            { icon: CalendarClock, label: "Availability" },
+            { icon: MapPinned, label: "Location" },
+          ].map((f) => (
+            <button
+              key={f.label}
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-md border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
+            >
+              <f.icon className="size-3.5" /> {f.label}
+            </button>
+          ))}
+          <div className="relative ml-auto hidden max-w-[220px] flex-1 sm:block">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <div className="w-full rounded-md border bg-card py-1.5 pl-8 pr-3 text-xs text-muted-foreground">
+              Search trainers…
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {trainerMatching.map((t) => (
+            <Card key={t.request}>
+              <CardContent className="p-4">
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  <div className="flex size-9 items-center justify-center rounded-full bg-accent">
+                    <UserCheck className="size-4 text-accent-foreground" />
+                  </div>
+                  <span className="font-display text-lg font-bold text-primary">{t.match}%</span>
                 </div>
-                <h3 className="mt-4 font-display text-sm font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
+                <p className="text-sm font-semibold text-foreground">{t.trainer}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t.skill}</p>
+                <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
+                  <p className="truncate">{t.request}</p>
+                  <p className="flex items-center gap-1"><MapPinned className="size-3" /> {t.location}</p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={
+                    t.availability === "Available"
+                      ? "mt-3 border-success/25 bg-success/12 text-success"
+                      : t.availability === "Partially Booked"
+                        ? "mt-3 border-warning/40 bg-warning/15 text-warning-foreground"
+                        : "mt-3 border-destructive/25 bg-destructive/10 text-destructive"
+                  }
+                >
+                  {t.availability}
+                </Badge>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* ---------- FAQ ---------- */}
-      <section className="bg-muted/40 py-16">
-        <div className="mx-auto max-w-3xl px-5">
-          <h2 className="font-display text-xl font-bold">Frequently asked questions</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Common questions from trainees, trainers and department administrators.
-          </p>
+      {/* ---------- LEARNING JOURNEY ---------- */}
+      <section className="border-y bg-muted/30 py-16">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-2xl font-bold">Learning journey</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              From discovering a programme to closing a competency gap — one continuous path.
+            </p>
+          </div>
 
-          <div className="mt-8 space-y-3">
-            {faqs.map((f) => (
-              <details
-                key={f.q}
-                className="group rounded-lg border bg-card px-5 py-4 open:shadow-sm"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
-                  {f.q}
-                  <span className="ml-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-                <p className="mt-3 text-sm text-muted-foreground">{f.a}</p>
-              </details>
+          <div className="mt-10 grid gap-x-4 gap-y-8 sm:grid-cols-2 md:flex md:items-start md:gap-3">
+            {journey.map((s, i) => (
+              <div key={s.title} className="relative flex items-start gap-3 md:flex-1 md:flex-col md:items-start">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <s.icon className="size-4" />
+                </div>
+                <div className="md:mt-3">
+                  <p className="text-[11px] font-semibold text-muted-foreground/70">
+                    Step {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-0.5 font-display text-sm font-semibold">{s.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ---------- ANALYTICS ---------- */}
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <div className="max-w-2xl">
+          <h2 className="font-display text-2xl font-bold">Analytics & monitoring</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Operational visibility into enrolment, completion and department participation.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-5 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardContent className="p-5">
+              <p className="mb-1 text-sm font-semibold">Enrolments vs completions</p>
+              <p className="mb-4 text-xs text-muted-foreground">Last 6 months · sample data</p>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={enrollmentTrend} margin={{ left: -20, right: 8, top: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                    <Line type="monotone" dataKey="enrollments" stroke="var(--color-primary)" strokeWidth={2} dot={false} name="Enrolments" />
+                    <Line type="monotone" dataKey="completions" stroke="var(--color-chart-2)" strokeWidth={2} dot={false} name="Completions" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-5">
+              <p className="mb-1 text-sm font-semibold">Pending assessments</p>
+              <p className="mb-4 text-xs text-muted-foreground">Awaiting attempt or grading</p>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Assessments live</span>
+                  <span className="font-semibold">{adminStats.assessments}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Pending approvals</span>
+                  <span className="font-semibold">{adminStats.pendingApprovals}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Active today</span>
+                  <span className="font-semibold">{adminStats.activeToday.toLocaleString()}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-3">
+            <CardContent className="p-5">
+              <p className="mb-1 text-sm font-semibold">Department participation</p>
+              <p className="mb-4 text-xs text-muted-foreground">Average completion rate by department · sample data</p>
+              <div className="h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={departmentPerformance} margin={{ left: -20, right: 8, top: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                    <XAxis dataKey="dept" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                    <Bar dataKey="completion" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Completion %" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* ---------- SECURITY & ACCESS ---------- */}
+      <section className="border-y bg-muted/30 py-16">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-2xl font-bold">Security & access</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Access is scoped by role and department, and sensitive actions are logged for review.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            {securityPoints.map((s) => (
+              <div key={s.title} className="flex gap-4 rounded-lg border bg-card p-5">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent">
+                  <s.icon className="size-5 text-accent-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-display text-sm font-semibold">{s.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- FAQ ---------- */}
+      <section className="mx-auto max-w-3xl px-5 py-16">
+        <div className="flex items-center gap-2">
+          <HelpCircle className="size-5 text-primary" />
+          <h2 className="font-display text-2xl font-bold">Frequently asked questions</h2>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Common questions from trainees, trainers and department administrators.
+        </p>
+
+        <Accordion type="single" collapsible className="mt-6 rounded-lg border bg-card px-5">
+          {faqs.map((f, i) => (
+            <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0" : ""}>
+              <AccordionTrigger className="text-sm hover:no-underline">{f.q}</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">{f.a}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </section>
+
+      {/* ---------- CTA ---------- */}
+      <section className="border-t">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-5 px-5 py-14 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="font-display text-xl font-bold sm:text-2xl">
+              Build stronger capabilities across your organisation
+            </h2>
+            <p className="mt-2 max-w-lg text-sm text-muted-foreground">
+              Sign in to explore the trainee, trainer and administrator experiences with sample data.
+            </p>
+          </div>
+          <Button asChild size="lg">
+            <Link to="/trainee">
+              Enter portal <ArrowRight className="ml-1.5 size-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -473,7 +736,7 @@ function Landing() {
                 <div className="flex size-8 items-center justify-center rounded-md bg-primary">
                   <GraduationCap className="size-4 text-primary-foreground" />
                 </div>
-                <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
+                <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
               </div>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
@@ -484,18 +747,20 @@ function Landing() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-                <li><a href="#how-it-works" className="hover:text-foreground">How it works</a></li>
-                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
+                <li><a href="#programmes" className="hover:text-foreground">Programmes</a></li>
+                <li><a href="#competencies" className="hover:text-foreground">Competencies</a></li>
+                <li><a href="#trainers" className="hover:text-foreground">Trainers</a></li>
               </ul>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Resources</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/trainee" className="hover:text-foreground">Trainee</Link></li>
-                <li><Link to="/trainer" className="hover:text-foreground">Trainer</Link></li>
-                <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
+                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground">Contact / Help</Link></li>
+                <li><Link to="/trainee" className="hover:text-foreground">Trainee portal</Link></li>
+                <li><Link to="/trainer" className="hover:text-foreground">Trainer portal</Link></li>
+                <li><Link to="/admin" className="hover:text-foreground">Admin portal</Link></li>
               </ul>
             </div>
 
@@ -517,7 +782,7 @@ function Landing() {
 
           <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-6 sm:flex-row">
             <p className="text-xs text-muted-foreground">
-              Capacity Connect · Demonstration interface with sample data
+              Capacity Connect · Demonstration interface · Version 1.0.0
             </p>
             <div className="flex items-center gap-5 text-xs text-muted-foreground">
               <a href="#" className="hover:text-foreground">Privacy policy</a>
@@ -531,27 +796,12 @@ function Landing() {
   );
 }
 
-function StatMini({
-  label,
-  value,
-  change,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  change: string;
-  icon: React.ElementType;
-}) {
+function StatMini({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-lg bg-card p-3">
-      <div className="mb-1 flex items-center justify-between">
-        <p className="text-[10px] text-muted-foreground">{label}</p>
-        <Icon className="size-3.5 text-accent" />
-      </div>
-      <p className="text-lg font-bold text-foreground">{value}</p>
-      <p className="flex items-center gap-0.5 text-[9px] text-primary">
-        <CheckCircle2 className="size-2.5" /> {change}
-      </p>
+    <div className="rounded-md border p-3">
+      <p className="text-[10px] text-muted-foreground">{label}</p>
+      <p className="text-base font-bold text-foreground">{value}</p>
+      <p className="text-[10px] text-muted-foreground">{sub}</p>
     </div>
   );
 }
@@ -559,11 +809,11 @@ function StatMini({
 function ActivityRow({ label, sub }: { label: string; sub: string }) {
   return (
     <div className="flex items-center gap-2 py-1.5">
-      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent/10">
-        <div className="size-2 rounded-full bg-accent" />
+      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent">
+        <div className="size-1.5 rounded-full bg-accent-foreground" />
       </div>
-      <div>
-        <p className="text-[11px] font-medium leading-tight text-foreground">{label}</p>
+      <div className="min-w-0">
+        <p className="truncate text-[11px] font-medium leading-tight text-foreground">{label}</p>
         <p className="text-[9px] text-muted-foreground">{sub}</p>
       </div>
     </div>
