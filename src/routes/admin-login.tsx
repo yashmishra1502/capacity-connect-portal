@@ -130,6 +130,12 @@ function AdminLogin() {
                 Trainee / Trainer login
               </Link>
             </p>
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Don't have an account?{" "}
+              <Link to="/register" className="font-medium text-primary hover:underline">
+                Register now
+              </Link>
+            </p>
           </CardContent>
         </Card>
 
