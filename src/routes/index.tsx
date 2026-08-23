@@ -684,6 +684,15 @@ function MiniStat({ label, value, sub }: { label: string; value: string; sub: st
   );
 }
 
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+      {children}
+    </p>
+  );
+}
+
+
 function ActivityRow({ label, sub, time }: { label: string; sub: string; time: string }) {
   return (
     <div className="flex items-center gap-2">
