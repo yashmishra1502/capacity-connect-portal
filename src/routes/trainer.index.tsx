@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
 import { currentUsers, courses, weeklyProgress, skillRadar } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/trainee/")({
+export const Route = createFileRoute("/trainer/")({
   head: () => ({
     meta: [{ title: "Dashboard — Trainee Portal · Capacity Connect" }],
   }),
