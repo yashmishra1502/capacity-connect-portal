@@ -1,7 +1,8 @@
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, Menu, Search, X, GraduationCap, ChevronDown } from "lucide-react";
+import { Bell, LogOut, Menu, Search, X, GraduationCap } from "lucide-react";
+import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +30,14 @@ function initials(name: string) {
 
 export function AppShell({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const user = currentUsers[role];
+
+  function handleSignOut() {
+    logout();
+    navigate({ to: "/" });
+  }
   const items = navConfig[role];
   const groups = [...new Set(items.map((i) => i.group))];
   const unread = notifications.filter((n) => n.unread).length;
@@ -120,27 +127,6 @@ export function AppShell({ role }: { role: Role }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                Switch role <ChevronDown className="size-3.5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>View portal as</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/trainee">Trainee</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/trainer">Trainer</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/admin">Admin</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="size-5" />
                 {unread > 0 && (
@@ -165,7 +151,7 @@ export function AppShell({ role }: { role: Role }) {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/${role}/notifications`} className="justify-center text-xs font-medium">
+                <Link to={`/${role}`} className="justify-center text-xs font-medium">
                   View all notifications
                 </Link>
               </DropdownMenuItem>
@@ -192,14 +178,15 @@ export function AppShell({ role }: { role: Role }) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/${role}/profile`}>Profile</Link>
+                <Link to={`/${role}`}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to={`/${role}/settings`}>Settings</Link>
+                <Link to={`/${role}`}>Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/">Sign out</Link>
+              <DropdownMenuItem onSelect={handleSignOut} className="gap-2 text-destructive focus:text-destructive">
+                <LogOut className="size-3.5" />
+                Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
