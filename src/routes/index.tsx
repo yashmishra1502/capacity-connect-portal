@@ -58,21 +58,21 @@ export const Route = createFileRoute("/")({
 const portals = [
   {
     role: "Trainee",
-    to: "/trainee" as const,
+    to: "/login" as const,
     icon: GraduationCap,
     desc: "Courses, resources, assessments, certificates and progress tracking.",
     points: ["6 enrolled courses", "3 certificates earned", "72% average progress"],
   },
   {
     role: "Trainer",
-    to: "/trainer" as const,
+    to: "/login" as const,
     icon: Users,
     desc: "Course authoring, resource library, question bank and cohort insights.",
     points: ["6 active courses", "412 enrolled trainees", "4.7 average rating"],
   },
   {
     role: "Admin",
-    to: "/admin" as const,
+    to: "/admin-login" as const,
     icon: ShieldCheck,
     desc: "Users, approvals, analytics, competency mapping and trainer matching.",
     points: ["4,826 users", "17 pending approvals", "78% completion rate"],
@@ -223,10 +223,10 @@ function Landing() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Button asChild variant="outline" size="sm">
-              <Link to="/trainee">Admin Login</Link>
+              <Link to="/admin-login">Admin Login</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to="/trainee">
+              <Link to="/login">
                 Trainee/Trainer <ArrowRight className="ml-1 size-4" />
               </Link>
             </Button>
@@ -268,7 +268,7 @@ function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="shadow-lg shadow-primary/25">
-                <Link to="/trainee">
+                <Link to="/login">
                   Explore platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
               </Button>
@@ -574,9 +574,9 @@ function Landing() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/trainee" className="hover:text-foreground">Trainee</Link></li>
-                <li><Link to="/trainer" className="hover:text-foreground">Trainer</Link></li>
-                <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
+                <li><Link to="/login" className="hover:text-foreground">Trainee</Link></li>
+                <li><Link to="/login" className="hover:text-foreground">Trainer</Link></li>
+                <li><Link to="/admin-login" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>
             <div>
