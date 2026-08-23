@@ -36,6 +36,7 @@ import {
 import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { useParallax, useTilt } from "@/hooks/use-landing-motion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
