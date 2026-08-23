@@ -8,17 +8,17 @@ export function loginPathFor(role: Role) {
 }
 
 export function RequireRole({ role, children }: { role: Role; children: ReactNode }) {
-  const session = useAuth();
+  const { profile, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session === undefined) return; // still checking
-    if (!session || session.role !== role) {
+    if (loading) return; // still checking
+    if (!profile || profile.role !== role) {
       navigate({ to: loginPathFor(role), replace: true });
     }
-  }, [session, role, navigate]);
+  }, [profile, loading, role, navigate]);
 
-  if (!session || session.role !== role) {
+  if (!profile || profile.role !== role) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/40">
         <p className="text-sm text-muted-foreground">Checking your session…</p>

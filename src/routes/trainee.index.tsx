@@ -28,7 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/stat-card";
 import { enrollmentTrend, categoryDistribution } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute("/trainee/")({
   head: () => ({
     meta: [{ title: "Dashboard — Administration · Capacity Connect" }],
   }),
