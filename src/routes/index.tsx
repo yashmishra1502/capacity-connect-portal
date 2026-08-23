@@ -398,7 +398,12 @@ function Landing() {
             <h2 data-reveal className="font-display text-xl font-bold">Driving impact through learning</h2>
             <div className="mt-6 grid grid-cols-2 gap-6">
               {statBar.map((s, i) => (
-                <div key={s.label}>
+                <div
+                  key={s.label}
+                  data-reveal
+                  data-reveal-delay={i * 90}
+                  className="cc-glow-card rounded-xl border border-transparent bg-card/40 p-4"
+                >
                   <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i]?.bg}`}>
                     <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
