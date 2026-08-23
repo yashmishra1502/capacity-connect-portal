@@ -4,8 +4,8 @@ import { RequireRole } from "@/components/require-role";
 
 export const Route = createFileRoute("/trainee")({
   component: () => (
-    <RequireRole role="trainee">
-      <AppShell role="trainee" />
-    </RequireRole>
+    <RequireRole role="admin">
+  <AppShell role="admin" />
+</RequireRole>
   ),
 });
