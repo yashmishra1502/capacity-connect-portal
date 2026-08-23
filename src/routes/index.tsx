@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/accordion";
 import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -200,6 +201,8 @@ const trustStrip = [
 ];
 
 function Landing() {
+  useScrollReveal();
+
   return (
     <div className="min-h-screen bg-background">
       {/* ---------- HEADER ---------- */}
@@ -222,10 +225,10 @@ function Landing() {
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="cc-btn-ghost-glass">
               <Link to="/admin-login">Admin Login</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="cc-btn-glass">
               <Link to="/login">
                 Trainee/Trainer <ArrowRight className="ml-1 size-4" />
               </Link>
@@ -248,7 +251,7 @@ function Landing() {
         />
         <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-10 px-5 pt-16 pb-10 md:grid-cols-2 md:pt-16 md:pb-10">
           {/* Left copy */}
-          <div className="md:pt-6">
+          <div className="cc-hero-in md:pt-6">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
               <GraduationCap className="size-3.5" /> Smart Capacity Building for a Skilled Tomorrow
             </span>
@@ -267,12 +270,12 @@ function Landing() {
               and the people within them.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="shadow-lg shadow-primary/25">
+              <Button asChild size="lg" className="cc-btn-glass shadow-lg shadow-primary/25">
                 <Link to="/login">
                   Explore platform <ArrowRight className="ml-1.5 size-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="cc-btn-ghost-glass">
                 <a href="#how-it-works">How it works</a>
               </Button>
             </div>
@@ -294,20 +297,20 @@ function Landing() {
           </div>
 
           {/* Right: dashboard mockup + floating badges */}
-          <div className="relative hidden md:block">
-            <div className="absolute -left-6 top-4 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+          <div className="cc-hero-in cc-delay-2 relative hidden md:block">
+            <div className="cc-float-soft absolute -left-6 top-4 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <GraduationCap className="size-5 text-primary" />
             </div>
-            <div className="absolute -left-10 top-28 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="cc-float-slow absolute -left-10 top-28 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <BarChart3 className="size-5 text-violet-500" />
             </div>
-            <div className="absolute -left-6 top-52 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="cc-float-soft absolute -left-6 top-52 z-20 flex size-11 items-center justify-center rounded-xl bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <BookOpen className="size-5 text-amber-500" />
             </div>
-            <div className="absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="cc-float-slow absolute -right-4 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <Users className="size-5 text-indigo-500" />
             </div>
-            <div className="absolute -right-2 top-40 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
+            <div className="cc-float-soft absolute -right-2 top-40 z-20 flex size-11 items-center justify-center rounded-full bg-card shadow-lg shadow-black/10 ring-1 ring-black/5">
               <ShieldCheck className="size-5 text-emerald-500" />
             </div>
 
@@ -316,7 +319,7 @@ function Landing() {
               className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-primary/10 via-transparent to-accent/20 blur-2xl"
             />
 
-            <div className="relative rounded-2xl border border-black/5 bg-card p-2 shadow-2xl shadow-black/15">
+            <div className="cc-float relative rounded-2xl border border-black/5 bg-card p-2 shadow-2xl shadow-black/15">
               <div className="rounded-xl border bg-background p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -374,8 +377,8 @@ function Landing() {
       {/* ---------- TRUST STRIP ---------- */}
       <section className="border-y bg-muted/40 py-6 dark:border-white/5 dark:bg-[#0B1B33]">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 md:grid-cols-4">
-          {trustStrip.map((s) => (
-            <div key={s.title} className="flex items-start gap-3">
+          {trustStrip.map((s, i) => (
+            <div key={s.title} data-reveal data-reveal-delay={i * 80} className="flex items-start gap-3">
               <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${s.bg}`}>
                 <s.icon className={`size-4 ${s.fg}`} />
               </div>
@@ -392,10 +395,15 @@ function Landing() {
       <section className="border-b bg-background py-16 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 md:grid-cols-2">
           <div>
-            <h2 className="font-display text-xl font-bold">Driving impact through learning</h2>
+            <h2 data-reveal className="font-display text-xl font-bold">Driving impact through learning</h2>
             <div className="mt-6 grid grid-cols-2 gap-6">
               {statBar.map((s, i) => (
-                <div key={s.label}>
+                <div
+                  key={s.label}
+                  data-reveal
+                  data-reveal-delay={i * 90}
+                  className="cc-glow-card rounded-xl border border-transparent bg-card/40 p-4"
+                >
                   <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i]?.bg}`}>
                     <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
@@ -424,15 +432,17 @@ function Landing() {
 
       {/* ---------- PORTAL PICKER ---------- */}
       <section className="relative mx-auto max-w-6xl px-5 py-16 md:py-20">
-        <h2 className="font-display text-xl font-bold">Choose your portal</h2>
+        <h2 data-reveal className="font-display text-xl font-bold">Choose your portal</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Each role has a dedicated dashboard experience with its own navigation.
         </p>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {portals.map((p) => (
+          {portals.map((p, i) => (
             <Card
               key={p.role}
-              className="group flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              data-reveal
+              data-reveal-delay={i * 110}
+              className="cc-glow-card group flex flex-col overflow-hidden"
             >
               <div className="h-1 w-full bg-gradient-to-r from-primary to-accent opacity-70 transition-opacity duration-200 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-6">
@@ -449,7 +459,7 @@ function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="mt-6 w-full">
+                <Button asChild className="cc-btn-glass mt-6 w-full">
                   <Link to={p.to}>
                     Open {p.role} dashboard <ArrowRight className="ml-1.5 size-4" />
                   </Link>
@@ -468,14 +478,14 @@ function Landing() {
         />
         <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
-            <h2 className="font-display text-xl font-bold">How it works</h2>
+            <h2 data-reveal className="font-display text-xl font-bold">How it works</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               A simple four-step journey from registration to verified certification.
             </p>
           </div>
           <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
             {steps.map((s, i) => (
-              <div key={s.title} className="relative">
+              <div key={s.title} data-reveal data-reveal-delay={i * 100} className="relative">
                 {i < steps.length - 1 && (
                   <div className="absolute left-5 top-10 hidden h-px w-full bg-gradient-to-r from-border to-transparent md:block" />
                 )}
@@ -498,16 +508,18 @@ function Landing() {
       {/* ---------- FEATURES ---------- */}
       <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
         <div className="max-w-2xl">
-          <h2 className="font-display text-xl font-bold">Platform capabilities</h2>
+          <h2 data-reveal className="font-display text-xl font-bold">Platform capabilities</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Everything trainees, trainers and administrators need on a single platform.
           </p>
         </div>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-          {features.map((f) => (
+          {features.map((f, i) => (
             <Card
               key={f.title}
-              className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              data-reveal
+              data-reveal-delay={(i % 3) * 90}
+              className="cc-glow-card"
             >
               <CardContent className="p-6">
                 <div className="flex size-10 items-center justify-center rounded-md bg-accent">
@@ -528,7 +540,7 @@ function Landing() {
           className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
         />
         <div className="relative z-10 mx-auto max-w-3xl px-5">
-          <h2 className="font-display text-xl font-bold">Frequently asked questions</h2>
+          <h2 data-reveal className="font-display text-xl font-bold">Frequently asked questions</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Common questions from trainees, trainers and department administrators.
           </p>
