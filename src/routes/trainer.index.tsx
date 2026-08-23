@@ -1,116 +1,126 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Users, ClipboardList, Star, Plus, Clock, MessageSquare } from "lucide-react";
+import { BookOpen, Clock, Award, TrendingUp } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
+import { currentUsers, courses, weeklyProgress, skillRadar } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/trainer/")({
+export const Route = createFileRoute("/trainee/")({
   head: () => ({
-    meta: [{ title: "Dashboard — Trainer Portal · Capacity Connect" }],
+    meta: [{ title: "Dashboard — Trainee Portal · Capacity Connect" }],
   }),
-  component: TrainerDashboard,
+  component: TraineeDashboard,
 });
 
-const myCourses = [
-  { title: "Digital Leadership Basics", enrolled: 128, progress: 76, rating: 4.8 },
-  { title: "Communication Skills", enrolled: 94, progress: 61, rating: 4.6 },
-  { title: "Data Analysis Fundamentals", enrolled: 156, progress: 84, rating: 4.9 },
-  { title: "Public Financial Management", enrolled: 34, progress: 22, rating: 4.5 },
-];
+const tooltipStyle = {
+  background: "var(--color-card)",
+  border: "1px solid var(--color-border)",
+  borderRadius: 8,
+  fontSize: 12,
+};
 
-const upcoming = [
-  { title: "Live Q&A — Digital Leadership", time: "Today, 4:00 PM" },
-  { title: "Assessment review — Comm. Skills", time: "Tomorrow, 11:00 AM" },
-  { title: "Cohort onboarding call", time: "Fri, 2:30 PM" },
-];
+function TraineeDashboard() {
+  const user = currentUsers.trainee;
+  const myCourses = courses.slice(0, 3);
 
-function TrainerDashboard() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-xl font-bold">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            An overview of your courses, cohorts and upcoming sessions.
-          </p>
-        </div>
-        <Button size="sm" className="gap-1.5" asChild>
-          <a href="/trainer/courses/create">
-            <Plus className="size-4" /> New course
-          </a>
-        </Button>
+      <div>
+        <h1 className="font-display text-xl font-bold">Welcome back, {user.name.split(" ")[0]}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{user.title} · {user.dept}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={BookOpen} label="Active courses" value="6" trend="+1 this month" trendUp accent="indigo" />
-        <StatCard icon={Users} label="Enrolled trainees" value="412" trend="+38 this month" trendUp accent="violet" />
-        <StatCard icon={Star} label="Average rating" value="4.7" trend="Top 10%" trendUp accent="amber" />
-        <StatCard icon={ClipboardList} label="Pending reviews" value="9" trend="Due soon" accent="emerald" />
+        <StatCard icon={BookOpen} label="Enrolled courses" value="6" trend="2 in progress" accent="indigo" />
+        <StatCard icon={Clock} label="Learning hours" value="64 hrs" trend="+9 hrs this week" trendUp accent="violet" />
+        <StatCard icon={TrendingUp} label="Average score" value="86%" trend="Across 4 assessments" trendUp accent="emerald" />
+        <StatCard icon={Award} label="Certificates" value="3" trend="1 pending completion" accent="amber" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="font-display text-sm font-bold">My courses</CardTitle>
-            <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
-              <a href="/trainer/courses">View all</a>
-            </Button>
+          <CardHeader className="pb-2">
+            <CardTitle className="font-display text-sm font-bold">Learning trend</CardTitle>
+            <p className="text-xs text-muted-foreground">Weekly study hours and rolling assessment average</p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {myCourses.map((c) => (
-              <div key={c.title} className="rounded-md border p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-semibold leading-tight">{c.title}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{c.enrolled} trainees enrolled</p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-amber-600">
-                    <Star className="size-3.5 fill-amber-500 text-amber-500" /> {c.rating}
-                  </div>
-                </div>
-                <div className="mt-2.5">
-                  <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>Average completion</span>
-                    <span>{c.progress}%</span>
-                  </div>
-                  <Progress value={c.progress} className="h-1.5" />
-                </div>
-              </div>
-            ))}
+          <CardContent>
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={weeklyProgress} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="hoursFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="week" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="score" stroke="var(--color-chart-1)" fill="url(#scoreFill)" strokeWidth={2} name="Assessment score" />
+                <Area type="monotone" dataKey="hours" stroke="var(--color-chart-2)" fill="url(#hoursFill)" strokeWidth={2} name="Study hours" />
+              </AreaChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Upcoming</CardTitle>
+            <CardTitle className="font-display text-sm font-bold">Skill strength</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {upcoming.map((u) => (
-              <div key={u.title} className="flex items-start gap-2.5 rounded-md border p-2.5">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Clock className="size-3.5 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-medium leading-tight">{u.title}</p>
-                  <p className="text-[10px] text-muted-foreground">{u.time}</p>
-                </div>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" className="w-full text-xs">View full schedule</Button>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={230}>
+              <RadarChart data={skillRadar}>
+                <PolarGrid stroke="var(--color-border)" />
+                <PolarAngleAxis dataKey="skill" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
+                <PolarRadiusAxis tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
+                <Radar dataKey="value" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.35} />
+                <Tooltip contentStyle={tooltipStyle} />
+              </RadarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-display text-sm font-bold">Recent trainee feedback</CardTitle>
-          <MessageSquare className="size-4 text-muted-foreground" />
+          <CardTitle className="font-display text-sm font-bold">Continue where you left off</CardTitle>
+          <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
+            <a href="/trainee/courses">All courses</a>
+          </Button>
         </CardHeader>
-        <CardContent>
-          <div className="flex h-32 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
-            Feedback stream placeholder — hook up to submissions API
-          </div>
+        <CardContent className="space-y-3">
+          {myCourses.map((c) => (
+            <div key={c.id} className="flex items-center justify-between rounded-md border p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold leading-tight">{c.title}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code} · {c.trainer}</p>
+                <div className="mt-2 w-48">
+                  <Progress value={c.progress} className="h-1.5" />
+                </div>
+              </div>
+              <Badge variant="secondary" className="shrink-0 text-[10px]">{c.status}</Badge>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>
