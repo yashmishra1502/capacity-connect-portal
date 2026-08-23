@@ -263,7 +263,121 @@
     0 14px 34px -16px color-mix(in oklab, var(--primary) 60%, transparent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cc-hero-in, .cc-float, .cc-float-soft, .cc-float-slow { animation: none !important; }
-  [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+/* ---------------- Premium minimalist layer ---------------- */
+
+/* Animated aurora field */
+@keyframes cc-aurora {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  33%  { transform: translate3d(4%, -6%, 0) scale(1.12); }
+  66%  { transform: translate3d(-5%, 4%, 0) scale(0.95); }
+  100% { transform: translate3d(0,0,0) scale(1); }
 }
+.cc-aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform;
+  animation: cc-aurora 22s ease-in-out infinite;
+}
+.cc-aurora-2 { animation-duration: 28s; animation-delay: -6s; }
+.cc-aurora-3 { animation-duration: 34s; animation-delay: -14s; }
+
+/* Animated gradient headline */
+@keyframes cc-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.cc-gradient-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 45%, oklch(0.72 0.15 300)) 30%,
+    color-mix(in oklab, var(--primary) 40%, oklch(0.75 0.12 200)) 55%,
+    var(--primary) 85%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: cc-shimmer 9s linear infinite;
+}
+
+/* Parallax translate driven by the JS hook */
+[data-parallax] { transform: translate3d(0, var(--cc-py, 0px), 0); will-change: transform; }
+
+/* Reveal variants */
+[data-reveal="left"]  { transform: translate3d(-28px, 0, 0); }
+[data-reveal="right"] { transform: translate3d(28px, 0, 0); }
+[data-reveal="scale"] { transform: scale(0.96); }
+[data-reveal].cc-revealed { transform: none; }
+
+/* Focal tilt card */
+.cc-tilt {
+  transform: perspective(1100px) rotateX(var(--cc-rx, 0deg)) rotateY(var(--cc-ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.cc-tilt-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 30;
+  background: radial-gradient(
+    380px circle at var(--cc-mx, 50%) var(--cc-my, 50%),
+    color-mix(in oklab, white 22%, transparent),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.cc-tilt-sheen:hover::before { opacity: 1; }
+
+/* Ring pulse for the live badge */
+@keyframes cc-ping { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2.6); opacity: 0; } }
+.cc-ping { animation: cc-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+/* Hairline section transitions */
+.cc-hairline {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklab, var(--primary) 35%, transparent),
+    transparent
+  );
+}
+
+/* Micro-interaction: animated link underline */
+.cc-link {
+  position: relative;
+  transition: color 0.25s ease;
+}
+.cc-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1.5px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cc-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Number / icon micro-lift */
+.cc-lift { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.group:hover .cc-lift { transform: translateY(-3px) scale(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-hero-in, .cc-float, .cc-float-soft, .cc-float-slow,
+  .cc-aurora, .cc-gradient-text, .cc-ping { animation: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  [data-parallax] { transform: none !important; }
+  .cc-tilt { transform: none !important; }
+}
+
