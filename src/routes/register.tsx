@@ -29,7 +29,7 @@ function Register() {
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -43,7 +43,7 @@ function Register() {
     }
 
     setSubmitting(true);
-    const result = register({ role, name, email, password, dept });
+    const result = await register({ role, name, email, password, dept });
 
     if (!result.ok) {
       setError(result.message);

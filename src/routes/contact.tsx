@@ -79,7 +79,7 @@ function Contact() {
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <Link to="/" className="hover:text-foreground">Home</Link>
             <Link to="/about" className="hover:text-foreground">About</Link>
-            <Link to="/#how-it-works" className="hover:text-foreground">How it works</Link>
+            <Link to="/" hash="how-it-works" className="hover:text-foreground">How it works</Link>
             <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Contact</a>
           </nav>
 

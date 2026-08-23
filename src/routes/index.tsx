@@ -396,8 +396,8 @@ function Landing() {
             <div className="mt-6 grid grid-cols-2 gap-6">
               {statBar.map((s, i) => (
                 <div key={s.label}>
-                  <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i].bg}`}>
-                    <s.icon className={`size-4 ${impactStats[i].fg}`} />
+                  <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i]?.bg}`}>
+                    <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
                   <p className="mt-2 font-display text-2xl font-bold">{s.value}+</p>
                   <p className="text-xs text-muted-foreground">{s.sub}</p>

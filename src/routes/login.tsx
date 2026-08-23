@@ -27,12 +27,12 @@ function TraineeTrainerLogin() {
 
   const demo = demoCredentials(role);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
 
-    const result = login(role, email, password);
+    const result = await login(role, email, password);
     if (!result.ok) {
       setError(result.message);
       setSubmitting(false);
