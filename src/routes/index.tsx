@@ -396,16 +396,21 @@ function Landing() {
 
 
       {/* ---------- TRUST STRIP ---------- */}
-      <section className="border-y bg-muted/40 py-6 dark:border-white/5 dark:bg-[#0B1B33]">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 md:grid-cols-4">
+      <section className="border-b border-border/60 bg-muted/30 py-10 dark:bg-white/[0.02]">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 md:grid-cols-4">
           {trustStrip.map((s, i) => (
-            <div key={s.title} data-reveal data-reveal-delay={i * 80} className="flex items-start gap-3">
-              <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${s.bg}`}>
+            <div
+              key={s.title}
+              data-reveal
+              data-reveal-delay={i * 80}
+              className="group flex items-start gap-3"
+            >
+              <div className={`cc-lift flex size-9 shrink-0 items-center justify-center rounded-xl ${s.bg}`}>
                 <s.icon className={`size-4 ${s.fg}`} />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-foreground dark:text-white">{s.title}</p>
-                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground dark:text-white/50">{s.desc}</p>
+                <p className="text-[13px] font-semibold text-foreground">{s.title}</p>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -413,74 +418,89 @@ function Landing() {
       </section>
 
       {/* ---------- IMPACT + ABOUT ---------- */}
-      <section className="border-b bg-background py-16 md:py-20">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 md:grid-cols-2">
+      <section className="relative overflow-hidden py-24 md:py-32">
+        <div
+          aria-hidden="true"
+          data-parallax="0.18"
+          className="pointer-events-none absolute left-[-12%] top-1/3 z-0 size-[420px] rounded-full bg-primary/[0.07] blur-3xl"
+        />
+        <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-16 px-5 md:grid-cols-[1.15fr_1fr]">
           <div>
-            <h2 data-reveal className="font-display text-xl font-bold">Driving impact through learning</h2>
-            <div className="mt-6 grid grid-cols-2 gap-6">
+            <Eyebrow>Impact</Eyebrow>
+            <h2 data-reveal className="mt-4 max-w-md font-display text-3xl font-bold tracking-[-0.03em] md:text-[2.6rem] md:leading-[1.08]">
+              Driving impact through learning
+            </h2>
+            <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10">
               {statBar.map((s, i) => (
                 <div
                   key={s.label}
                   data-reveal
                   data-reveal-delay={i * 90}
-                  className="cc-glow-card rounded-xl border border-transparent bg-card/40 p-4"
+                  className="group"
                 >
-                  <div className={`flex size-10 items-center justify-center rounded-full ${impactStats[i]?.bg}`}>
+                  <div className={`cc-lift flex size-10 items-center justify-center rounded-xl ${impactStats[i]?.bg}`}>
                     <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
-                  <p className="mt-2 font-display text-2xl font-bold">{s.value}+</p>
-                  <p className="text-xs text-muted-foreground">{s.sub}</p>
+                  <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em]">{s.value}+</p>
+                  <p className="mt-1 text-[13px] text-muted-foreground">{s.sub}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-xl border bg-muted/20 p-6">
-            <h3 className="font-display text-base font-bold">About Capacity Connect</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <div
+            data-reveal="right"
+            className="cc-glow-card rounded-2xl border border-border/70 bg-card/60 p-8 backdrop-blur-xl"
+          >
+            <h3 className="font-display text-lg font-bold tracking-tight">About Capacity Connect</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               An initiative of the Capacity Building Commission, Capacity Connect brings a
               seamless digital experience to training, assessments and knowledge sharing —
               so every department can plan competency growth in one place.
             </p>
-            <Button asChild variant="link" className="mt-3 px-0">
+            <Button asChild variant="link" className="mt-4 px-0">
               <Link to="/about">
                 Learn more about us <ArrowRight className="ml-1 size-3.5" />
               </Link>
             </Button>
           </div>
         </div>
+        <div className="cc-hairline mx-auto max-w-6xl" />
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
-      <section className="relative mx-auto max-w-6xl px-5 py-16 md:py-20">
-        <h2 data-reveal className="font-display text-xl font-bold">Choose your portal</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <section className="relative mx-auto max-w-6xl px-5 py-24 md:py-32">
+        <Eyebrow>Portals</Eyebrow>
+        <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] md:text-[2.6rem]">
+          Choose your portal
+        </h2>
+        <p className="mt-3 max-w-lg text-[15px] text-muted-foreground">
           Each role has a dedicated dashboard experience with its own navigation.
         </p>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
           {portals.map((p, i) => (
             <Card
               key={p.role}
               data-reveal
               data-reveal-delay={i * 110}
-              className="cc-glow-card group flex flex-col overflow-hidden"
+              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card/60 backdrop-blur-xl"
             >
-              <div className="h-1 w-full bg-gradient-to-r from-primary to-accent opacity-70 transition-opacity duration-200 group-hover:opacity-100" />
-              <CardContent className="flex flex-1 flex-col p-6">
-                <div className="flex size-11 items-center justify-center rounded-md bg-accent transition-transform duration-200 group-hover:scale-105">
+              <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
+              <CardContent className="flex flex-1 flex-col p-7">
+                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-accent">
                   <p.icon className="size-5 text-accent-foreground" />
                 </div>
-                <h3 className="mt-4 font-display text-lg font-semibold">{p.role}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{p.desc}</p>
-                <ul className="mt-4 flex-1 space-y-1.5 text-xs text-muted-foreground">
+                <h3 className="mt-5 font-display text-lg font-semibold tracking-tight">{p.role}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-muted-foreground">
                   {p.points.map((pt) => (
-                    <li key={pt} className="flex items-center gap-2">
-                      <span className="size-1.5 rounded-full bg-primary" />
+                    <li key={pt} className="flex items-center gap-2.5">
+                      <span className="size-1 rounded-full bg-primary" />
                       {pt}
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="cc-btn-glass mt-6 w-full">
+                <Button asChild className="cc-btn-glass mt-7 h-11 w-full rounded-xl">
                   <Link to={p.to}>
                     Open {p.role} dashboard <ArrowRight className="ml-1.5 size-4" />
                   </Link>
@@ -492,34 +512,41 @@ function Landing() {
       </section>
 
       {/* ---------- HOW IT WORKS ---------- */}
-      <section id="how-it-works" className="relative overflow-hidden border-y bg-muted/30 py-16 md:py-20">
+      <section
+        id="how-it-works"
+        className="relative overflow-hidden border-y border-border/60 bg-muted/25 py-24 dark:bg-white/[0.02] md:py-32"
+      >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[380px] -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
+          data-parallax="0.22"
+          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[420px] -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
         />
         <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
-            <h2 data-reveal className="font-display text-xl font-bold">How it works</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <Eyebrow>Journey</Eyebrow>
+            <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] md:text-[2.6rem]">
+              How it works
+            </h2>
+            <p className="mt-3 text-[15px] text-muted-foreground">
               A simple four-step journey from registration to verified certification.
             </p>
           </div>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+          <div className="mt-16 grid gap-10 sm:grid-cols-2 md:grid-cols-4">
             {steps.map((s, i) => (
-              <div key={s.title} data-reveal data-reveal-delay={i * 100} className="relative">
+              <div key={s.title} data-reveal data-reveal-delay={i * 100} className="group relative">
                 {i < steps.length - 1 && (
-                  <div className="absolute left-5 top-10 hidden h-px w-full bg-gradient-to-r from-border to-transparent md:block" />
+                  <div className="absolute left-6 top-6 hidden h-px w-full bg-gradient-to-r from-border to-transparent md:block" />
                 )}
-                <div className="relative flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm shadow-primary/30">
+                <div className="relative flex items-center gap-4">
+                  <div className="cc-lift flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
                     <s.icon className="size-5" />
                   </div>
-                  <span className="font-display text-2xl font-bold text-muted-foreground/30">
+                  <span className="font-display text-3xl font-bold text-foreground/10">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
-                <h3 className="mt-4 font-display text-sm font-semibold">{s.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+                <h3 className="mt-6 font-display text-base font-semibold tracking-tight">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -527,32 +554,36 @@ function Landing() {
       </section>
 
       {/* ---------- FEATURES ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-24 md:py-32">
         <div className="max-w-2xl">
-          <h2 data-reveal className="font-display text-xl font-bold">Platform capabilities</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <Eyebrow>Capabilities</Eyebrow>
+          <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] md:text-[2.6rem]">
+            Platform capabilities
+          </h2>
+          <p className="mt-3 text-[15px] text-muted-foreground">
             Everything trainees, trainers and administrators need on a single platform.
           </p>
         </div>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           {features.map((f, i) => (
             <Card
               key={f.title}
               data-reveal
               data-reveal-delay={(i % 3) * 90}
-              className="cc-glow-card"
+              className="cc-glow-card group rounded-2xl border-border/70 bg-card/60 backdrop-blur-xl"
             >
-              <CardContent className="p-6">
-                <div className="flex size-10 items-center justify-center rounded-md bg-accent">
+              <CardContent className="p-7">
+                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-accent">
                   <f.icon className="size-5 text-accent-foreground" />
                 </div>
-                <h3 className="mt-4 font-display text-sm font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
+                <h3 className="mt-5 font-display text-base font-semibold tracking-tight">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
+
 
       {/* ---------- FAQ ---------- */}
       <section className="relative overflow-hidden bg-muted/30 py-16 md:py-20">
