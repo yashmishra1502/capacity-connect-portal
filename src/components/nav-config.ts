@@ -38,20 +38,14 @@ export const navConfig: Record<Role, NavItem[]> = {
     { label: "Dashboard", to: "/admin", group: "Overview" },
     { label: "Analytics", to: "/admin/analytics", group: "Overview" },
     { label: "Reports", to: "/admin/reports", group: "Overview" },
-    { label: "User Management", to: "/admin/users", group: "People" },
+    
     { label: "Trainee Management", to: "/admin/trainees", group: "People" },
     { label: "Trainer Management", to: "/admin/trainers", group: "People" },
-    { label: "Role Management", to: "/admin/roles", group: "People" },
+   
     { label: "Approvals", to: "/admin/approvals", group: "Governance" },
-    { label: "Content Approval", to: "/admin/content-approval", group: "Governance" },
+    
     { label: "Announcements", to: "/admin/announcements", group: "Governance" },
-    { label: "Course Management", to: "/admin/courses", group: "Academics" },
-    { label: "Enrollments", to: "/admin/enrollments", group: "Academics" },
-    { label: "Assessments", to: "/admin/assessments", group: "Academics" },
-    { label: "Certificates", to: "/admin/certificates", group: "Academics" },
-    { label: "Achievements", to: "/admin/achievements", group: "Academics" },
-    { label: "Competency Mapping", to: "/admin/competency", group: "Capacity" },
-    { label: "Trainer Matching", to: "/admin/matching", group: "Capacity" },
+    
     { label: "Notifications", to: "/admin/notifications", group: "Account" },
     { label: "Settings", to: "/admin/settings", group: "Account" },
   ],
