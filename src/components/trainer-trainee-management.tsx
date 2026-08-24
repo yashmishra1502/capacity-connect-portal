@@ -1,0 +1,456 @@
+import { useMemo, useState } from "react";
+import {
+  Users,
+  UserCog,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  Link2,
+  X,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { StatCard } from "@/components/stat-card";
+
+// ---------------------------------------------------------------------------
+// Types & mock data
+// TODO: replace with real API data
+// ---------------------------------------------------------------------------
+
+type Status = "active" | "inactive" | "pending";
+type Role = "trainer" | "trainee";
+
+interface Person {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  department: string;
+  status: Status;
+  assignedTo: string | null; // trainee -> trainer id
+  joinedOn: string;
+}
+
+const initialPeople: Person[] = [
+  { id: "t1", name: "Anita Sharma", email: "anita.sharma@capacityconnect.io", role: "trainer", department: "Engineering", status: "active", assignedTo: null, joinedOn: "2025-02-11" },
+  { id: "t2", name: "Rohit Verma", email: "rohit.verma@capacityconnect.io", role: "trainer", department: "Sales", status: "active", assignedTo: null, joinedOn: "2025-04-03" },
+  { id: "t3", name: "Priya Nair", email: "priya.nair@capacityconnect.io", role: "trainer", department: "Design", status: "pending", assignedTo: null, joinedOn: "2026-01-20" },
+  { id: "e1", name: "Karan Mehta", email: "karan.mehta@capacityconnect.io", role: "trainee", department: "Engineering", status: "active", assignedTo: "t1", joinedOn: "2025-11-02" },
+  { id: "e2", name: "Sneha Iyer", email: "sneha.iyer@capacityconnect.io", role: "trainee", department: "Engineering", status: "active", assignedTo: "t1", joinedOn: "2025-12-14" },
+  { id: "e3", name: "Devansh Gupta", email: "devansh.gupta@capacityconnect.io", role: "trainee", department: "Sales", status: "inactive", assignedTo: "t2", joinedOn: "2025-09-18" },
+  { id: "e4", name: "Meera Joshi", email: "meera.joshi@capacityconnect.io", role: "trainee", department: "Design", status: "pending", assignedTo: null, joinedOn: "2026-02-01" },
+];
+
+const departments = ["Engineering", "Sales", "Design", "Operations", "Support"];
+
+const statusStyles: Record<Status, string> = {
+  active: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  inactive: "bg-muted text-muted-foreground border-border",
+  pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+};
+
+function emptyDraft(role: Role): Omit<Person, "id" | "joinedOn"> {
+  return { name: "", email: "", role, department: departments[0], status: "pending", assignedTo: null };
+}
+
+// ---------------------------------------------------------------------------
+// Trainer / Trainee management (shared component)
+// Used by: /admin (dashboard preview), /admin/trainers, /admin/trainees
+// ---------------------------------------------------------------------------
+
+interface TrainerTraineeManagementProps {
+  /** Which tab is active on first render. Defaults to "trainer". */
+  defaultTab?: Role;
+  /** Hide the tab switcher and lock to defaultTab (useful for dedicated pages). */
+  lockTab?: boolean;
+  /** Show the top stat cards row. Defaults to true. */
+  showStats?: boolean;
+  /** Optional heading shown above the card (dedicated pages only). */
+  title?: string;
+  description?: string;
+}
+
+export function TrainerTraineeManagement({
+  defaultTab = "trainer",
+  lockTab = false,
+  showStats = true,
+  title,
+  description,
+}: TrainerTraineeManagementProps) {
+  const [people, setPeople] = useState<Person[]>(initialPeople);
+  const [tab, setTab] = useState<Role>(defaultTab);
+  const [query, setQuery] = useState("");
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Omit<Person, "id" | "joinedOn">>(emptyDraft(defaultTab));
+
+  const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
+  const [assignTarget, setAssignTarget] = useState<Person | null>(null);
+  const [assignTrainerId, setAssignTrainerId] = useState<string>("");
+
+  const trainers = useMemo(() => people.filter((p) => p.role === "trainer"), [people]);
+  const trainees = useMemo(() => people.filter((p) => p.role === "trainee"), [people]);
+
+  const visible = useMemo(() => {
+    const list = tab === "trainer" ? trainers : trainees;
+    if (!query.trim()) return list;
+    const q = query.toLowerCase();
+    return list.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.email.toLowerCase().includes(q) ||
+        p.department.toLowerCase().includes(q)
+    );
+  }, [tab, trainers, trainees, query]);
+
+  const traineeCountFor = (trainerId: string) =>
+    trainees.filter((e) => e.assignedTo === trainerId).length;
+
+  const trainerNameFor = (trainerId: string | null) =>
+    trainerId ? trainers.find((t) => t.id === trainerId)?.name ?? "Unassigned" : "Unassigned";
+
+  function openCreate() {
+    setEditingId(null);
+    setDraft(emptyDraft(tab));
+    setDialogOpen(true);
+  }
+
+  function openEdit(person: Person) {
+    setEditingId(person.id);
+    setDraft({
+      name: person.name,
+      email: person.email,
+      role: person.role,
+      department: person.department,
+      status: person.status,
+      assignedTo: person.assignedTo,
+    });
+    setDialogOpen(true);
+  }
+
+  function saveDraft() {
+    if (!draft.name.trim() || !draft.email.trim()) return;
+    if (editingId) {
+      setPeople((prev) => prev.map((p) => (p.id === editingId ? { ...p, ...draft } : p)));
+    } else {
+      const id = `${draft.role === "trainer" ? "t" : "e"}${Date.now()}`;
+      setPeople((prev) => [...prev, { ...draft, id, joinedOn: new Date().toISOString().slice(0, 10) }]);
+    }
+    setDialogOpen(false);
+  }
+
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    setPeople((prev) =>
+      prev
+        .filter((p) => p.id !== deleteTarget.id)
+        .map((p) => (p.assignedTo === deleteTarget.id ? { ...p, assignedTo: null } : p))
+    );
+    setDeleteTarget(null);
+  }
+
+  function openAssign(person: Person) {
+    setAssignTarget(person);
+    setAssignTrainerId(person.assignedTo ?? "");
+  }
+
+  function saveAssignment() {
+    if (!assignTarget) return;
+    setPeople((prev) =>
+      prev.map((p) => (p.id === assignTarget.id ? { ...p, assignedTo: assignTrainerId || null } : p))
+    );
+    setAssignTarget(null);
+  }
+
+  const activeTrainers = trainers.filter((t) => t.status === "active").length;
+  const unassignedTrainees = trainees.filter((e) => !e.assignedTo).length;
+
+  return (
+    <div className="space-y-6">
+      {(title || description) && (
+        <div>
+          {title && <h1 className="font-display text-xl font-bold">{title}</h1>}
+          {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        </div>
+      )}
+
+      {showStats && (
+        <div className="grid gap-4 sm:grid-cols-4">
+          <StatCard icon={UserCog} label="Trainers" value={String(trainers.length)} accent="violet" />
+          <StatCard icon={Users} label="Trainees" value={String(trainees.length)} accent="emerald" />
+          <StatCard icon={UserCog} label="Active trainers" value={String(activeTrainers)} accent="violet" />
+          <StatCard icon={Users} label="Unassigned trainees" value={String(unassignedTrainees)} accent="amber" />
+        </div>
+      )}
+
+      <Card>
+        <CardHeader className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <CardTitle className="font-display text-sm font-bold">Trainers &amp; Trainees</CardTitle>
+            {!lockTab && (
+              <div className="flex gap-1 rounded-lg bg-muted p-1">
+                <button
+                  onClick={() => setTab("trainer")}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    tab === "trainer" ? "bg-background shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  Trainers
+                </button>
+                <button
+                  onClick={() => setTab("trainee")}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    tab === "trainee" ? "bg-background shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  Trainees
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search…"
+                className="h-8 pl-8 text-xs"
+              />
+            </div>
+            <Button onClick={openCreate} size="sm" className="h-8 gap-1.5">
+              <Plus className="size-3.5" />
+              Add
+            </Button>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          {visible.length === 0 ? (
+            <div className="flex h-[160px] items-center justify-center text-xs text-muted-foreground">
+              No {tab === "trainer" ? "trainers" : "trainees"} found
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b text-muted-foreground">
+                    <th className="pb-2 pr-4 font-medium">Name</th>
+                    <th className="pb-2 pr-4 font-medium">Department</th>
+                    <th className="pb-2 pr-4 font-medium">Status</th>
+                    <th className="pb-2 pr-4 font-medium">
+                      {tab === "trainer" ? "Trainees assigned" : "Assigned trainer"}
+                    </th>
+                    <th className="pb-2 pr-4 font-medium">Joined</th>
+                    <th className="pb-2 text-right font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visible.map((p) => (
+                    <tr key={p.id} className="border-b last:border-0">
+                      <td className="py-2.5 pr-4">
+                        <div className="font-medium">{p.name}</div>
+                        <div className="text-muted-foreground">{p.email}</div>
+                      </td>
+                      <td className="py-2.5 pr-4">{p.department}</td>
+                      <td className="py-2.5 pr-4">
+                        <Badge variant="outline" className={`capitalize ${statusStyles[p.status]}`}>
+                          {p.status}
+                        </Badge>
+                      </td>
+                      <td className="py-2.5 pr-4">
+                        {tab === "trainer" ? (
+                          <span>{traineeCountFor(p.id)} trainee(s)</span>
+                        ) : (
+                          <span className={p.assignedTo ? "" : "text-muted-foreground"}>
+                            {trainerNameFor(p.assignedTo)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 pr-4 text-muted-foreground">{p.joinedOn}</td>
+                      <td className="py-2.5">
+                        <div className="flex justify-end gap-1">
+                          {tab === "trainee" && (
+                            <Button variant="ghost" size="icon" className="size-7" onClick={() => openAssign(p)} title="Assign trainer">
+                              <Link2 className="size-3.5" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="size-7" onClick={() => openEdit(p)} title="Edit">
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-destructive hover:text-destructive"
+                            onClick={() => setDeleteTarget(p)}
+                            title="Delete"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Add / Edit dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base font-bold">
+              {editingId ? "Edit" : "Add"} {draft.role === "trainer" ? "trainer" : "trainee"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs">Full name</Label>
+              <Input id="name" value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} placeholder="e.g. Anita Sharma" />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs">Email</Label>
+              <Input id="email" type="email" value={draft.email} onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))} placeholder="name@capacityconnect.io" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Role</Label>
+                <Select
+                  value={draft.role}
+                  onValueChange={(v: Role) => setDraft((d) => ({ ...d, role: v, assignedTo: v === "trainer" ? null : d.assignedTo }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="trainer">Trainer</SelectItem>
+                    <SelectItem value="trainee">Trainee</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Status</Label>
+                <Select value={draft.status} onValueChange={(v: Status) => setDraft((d) => ({ ...d, status: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Department</Label>
+              <Select value={draft.department} onValueChange={(v) => setDraft((d) => ({ ...d, department: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {departments.map((dep) => (
+                    <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {draft.role === "trainee" && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">Assigned trainer (optional)</Label>
+                <Select value={draft.assignedTo ?? "none"} onValueChange={(v) => setDraft((d) => ({ ...d, assignedTo: v === "none" ? null : v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {trainers.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={saveDraft} disabled={!draft.name.trim() || !draft.email.trim()}>
+              {editingId ? "Save changes" : "Add"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign trainer dialog */}
+      <Dialog open={!!assignTarget} onOpenChange={(open) => !open && setAssignTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base font-bold">
+              Assign trainer to {assignTarget?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5 py-2">
+            <Label className="text-xs">Trainer</Label>
+            <Select value={assignTrainerId || "none"} onValueChange={(v) => setAssignTrainerId(v === "none" ? "" : v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Unassigned</SelectItem>
+                {trainers.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name} — {traineeCountFor(t.id)} trainee(s)
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignTarget(null)}>Cancel</Button>
+            <Button onClick={saveAssignment}>Save assignment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base font-bold flex items-center gap-2">
+              <X className="size-4 text-destructive" />
+              Delete {deleteTarget?.role}?
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will permanently remove <span className="font-medium text-foreground">{deleteTarget?.name}</span>.
+            {deleteTarget?.role === "trainer" && " Any trainees assigned to them will become unassigned."}
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
