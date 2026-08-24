@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { GraduationCap, ArrowRight, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BrandIcon } from "@/components/brand-logo";
 import { demoCredentials, login } from "@/lib/auth";
 import type { Role } from "@/lib/mock-data";
 

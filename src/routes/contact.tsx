@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  GraduationCap,
   ArrowRight,
   Mail,
   Phone,
@@ -12,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { BrandIcon } from "@/components/brand-logo";
 
 // ================================================================
 // PASTE: src/routes/contact.tsx  (naya file, already yahin bana hai)

@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  GraduationCap,
   Target,
   ShieldCheck,
   Users2,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BrandIcon } from "@/components/brand-logo";
 
 // ================================================================
 // PASTE: src/routes/about.tsx  (naya file banao)
