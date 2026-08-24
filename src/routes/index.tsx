@@ -37,6 +37,7 @@ import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax, useTilt } from "@/hooks/use-landing-motion";
+import { BrandIcon, BrandLogo } from "@/components/brand-logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
