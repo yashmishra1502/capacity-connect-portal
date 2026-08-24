@@ -215,12 +215,7 @@ function Landing() {
             <img
               src="/day.png"
               alt="Capacity Connect"
-              className="h-11 w-auto object-contain dark:hidden"
-            />
-            <img
-              src="/night.png"
-              alt="Capacity Connect"
-              className="hidden h-11 w-auto object-contain dark:block"
+              className="h-14 w-auto object-contain"
             />
           </Link>
           <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
@@ -620,8 +615,7 @@ function Landing() {
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
               <Link to="/">
-                <img src="/day.png" alt="Capacity Connect" className="h-11 w-auto object-contain dark:hidden" />
-                <img src="/night.png" alt="Capacity Connect" className="hidden h-11 w-auto object-contain dark:block" />
+                <img src="/day.png" alt="Capacity Connect" className="h-14 w-auto object-contain" />
               </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
