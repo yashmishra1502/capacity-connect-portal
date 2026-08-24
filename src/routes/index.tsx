@@ -212,15 +212,13 @@ function Landing() {
       {/* ---------- HEADER ---------- */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-primary shadow-sm shadow-primary/30">
-              <GraduationCap className="size-5 text-primary-foreground" />
-            </div>
+          <Link to="/" className="flex items-center gap-2.5">
+            <BrandIcon size={36} className="rounded-xl bg-primary p-1.5 shadow-sm shadow-primary/30" />
             <div>
               <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
             </div>
-          </div>
+          </Link>
           <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="cc-link text-foreground">Home</a>
             <Link to="/about" className="cc-link hover:text-foreground">About</Link>
@@ -319,8 +317,8 @@ function Landing() {
               className="pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-to-tr from-primary/15 via-transparent to-violet-500/20 blur-3xl"
             />
 
-            <div className="cc-float-soft absolute -left-8 top-6 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
-              <GraduationCap className="size-5 text-primary" />
+            <div className="cc-float-soft absolute -left-8 top-6 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md p-2">
+              <BrandIcon size={28} />
             </div>
             <div className="cc-float-slow absolute -left-12 top-1/2 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
               <BarChart3 className="size-5 text-violet-500" />
@@ -617,12 +615,10 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
-              <div className="flex items-center gap-2.5">
-                <div className="flex size-8 items-center justify-center rounded-md bg-primary">
-                  <GraduationCap className="size-4 text-primary-foreground" />
-                </div>
+              <Link to="/" className="flex items-center gap-2.5">
+                <BrandIcon size={32} className="rounded-md bg-primary p-1" />
                 <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
-              </div>
+              </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
                 Capacity Building Commission.
