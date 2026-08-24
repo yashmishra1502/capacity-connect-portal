@@ -37,8 +37,17 @@ import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax, useTilt } from "@/hooks/use-landing-motion";
-import { BrandIcon, BrandLogo } from "@/components/brand-logo";
-
+<Link to="/" className="flex items-center gap-2.5">
+  <img
+    src="/night.png"
+    alt="Capacity Connect"
+    className="size-9 rounded-xl object-contain shadow-sm shadow-primary/30"
+  />
+  <div>
+    <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
+    <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
+  </div>
+</Link>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
