@@ -213,14 +213,15 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
             <img
+              src="/day.png"
+              alt="Capacity Connect"
+              className="size-9 rounded-xl object-contain shadow-sm shadow-primary/30 dark:hidden"
+            />
+            <img
               src="/night.png"
               alt="Capacity Connect"
-              className="size-9 rounded-xl object-contain shadow-sm shadow-primary/30"
+              className="hidden size-9 rounded-xl object-contain shadow-sm shadow-primary/30 dark:block"
             />
-            <div>
-              <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
-              <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
-            </div>
           </Link>
           <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="cc-link text-foreground">Home</a>
@@ -618,9 +619,9 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
-              <Link to="/" className="flex items-center gap-2.5">
-                <img src="/night.png" alt="Capacity Connect" className="size-9 rounded-xl object-contain" />
-                <span className="font-display text-sm font-bold tracking-tight">Capacity Connect</span>
+              <Link to="/">
+                <img src="/day.png" alt="Capacity Connect" className="size-9 rounded-xl object-contain dark:hidden" />
+                <img src="/night.png" alt="Capacity Connect" className="hidden size-9 rounded-xl object-contain dark:block" />
               </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
