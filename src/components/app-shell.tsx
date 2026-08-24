@@ -49,9 +49,7 @@ export function AppShell({ role }: { role: Role }) {
   const sidebar = (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-4">
-        <div className="flex size-9 items-center justify-center rounded-md bg-sidebar-primary">
-          <GraduationCap className="size-5 text-sidebar-primary-foreground" />
-        </div>
+        <BrandIcon size={36} className="rounded-md bg-sidebar-primary p-1" />
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
           <p className="truncate text-[11px] text-sidebar-foreground/60">{roleLabel[role]}</p>
