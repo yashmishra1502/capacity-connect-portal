@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  GraduationCap,
   Target,
   ShieldCheck,
   Users2,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BrandIcon } from "@/components/brand-logo";
 
 // ================================================================
 // PASTE: src/routes/about.tsx  (naya file banao)
@@ -83,15 +83,13 @@ function About() {
       {/* ---------- HEADER ---------- */}
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-md bg-primary">
-              <GraduationCap className="size-5 text-primary-foreground" />
-            </div>
+          <Link to="/" className="flex items-center gap-2.5">
+            <BrandIcon size={36} className="rounded-md bg-primary p-1.5" />
             <div>
               <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
             </div>
-          </div>
+          </Link>
 
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <Link to="/" className="hover:text-foreground">Home</Link>

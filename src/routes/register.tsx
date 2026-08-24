@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { GraduationCap, ArrowRight, Eye, EyeOff, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BrandIcon } from "@/components/brand-logo";
 import { register } from "@/lib/auth";
 import type { Role } from "@/lib/mock-data";
 
@@ -79,9 +80,7 @@ function Register() {
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-md bg-primary shadow-sm shadow-primary/30">
-              <GraduationCap className="size-5 text-primary-foreground" />
-            </div>
+            <BrandIcon size={36} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
             <div className="text-left">
               <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>

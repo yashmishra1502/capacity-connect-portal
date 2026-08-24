@@ -1,7 +1,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, LogOut, Menu, Search, X, GraduationCap } from "lucide-react";
+import { Bell, LogOut, Menu, Search, X } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BrandIcon } from "@/components/brand-logo";
 import { navConfig, roleLabel } from "@/components/nav-config";
 import { currentUsers, notifications, type Role } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -48,9 +49,7 @@ export function AppShell({ role }: { role: Role }) {
   const sidebar = (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-4">
-        <div className="flex size-9 items-center justify-center rounded-md bg-sidebar-primary">
-          <GraduationCap className="size-5 text-sidebar-primary-foreground" />
-        </div>
+        <BrandIcon size={36} className="rounded-md bg-sidebar-primary p-1" />
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
           <p className="truncate text-[11px] text-sidebar-foreground/60">{roleLabel[role]}</p>
