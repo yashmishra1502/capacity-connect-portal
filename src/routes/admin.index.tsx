@@ -18,7 +18,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 export const Route = createFileRoute("/admin/")({
@@ -33,9 +32,28 @@ const departmentProgress: { name: string; pct: number }[] = [];
 const enrollmentTrend: { month: string; enrollments: number; completions: number }[] = [];
 const categoryDistribution: { name: string; value: number }[] = [];
 
-// Single soft accent, used sparingly, plus neutral grays for everything else
-const accent = "var(--color-primary, #6366f1)"; // indigo-ish soft accent — swap token if your theme differs
-const pieColors = [accent, "#a5b4fc", "#c7d2fe", "#e0e7ff", "var(--color-muted-foreground)"];
+const accent = "#818cf8"; // soft indigo accent for glass highlights
+const pieColors = [accent, "#a5b4fc", "#c7d2fe", "#e0e7ff", "#94a3b8"];
+
+// Reusable glass panel — frosted background, soft border, subtle shadow
+function Glass({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={
+        "rounded-2xl border border-white/30 bg-white/40 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5 " +
+        className
+      }
+    >
+      {children}
+    </div>
+  );
+}
 
 function EmptyState({ label }: { label: string }) {
   return (
@@ -55,26 +73,27 @@ function StatCard({
   value: string;
 }) {
   return (
-    <Card className="border-none shadow-sm ring-1 ring-border/60">
-      <CardContent className="flex items-center gap-4 p-5">
-        <div
-          className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-          style={{ backgroundColor: "color-mix(in srgb, var(--color-primary, #6366f1) 12%, transparent)" }}
-        >
-          <Icon className="size-5" style={{ color: accent }} />
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="font-display text-xl font-bold">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <Glass className="flex items-center gap-4 p-5">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/40 bg-white/50 backdrop-blur-md dark:border-white/10 dark:bg-white/10">
+        <Icon className="size-5" style={{ color: accent }} />
+      </div>
+      <div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="font-display text-xl font-bold">{value}</p>
+      </div>
+    </Glass>
   );
 }
 
 function AdminDashboard() {
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6 rounded-3xl p-6"
+      style={{
+        background:
+          "radial-gradient(circle at 15% 10%, rgba(129,140,248,0.25), transparent 45%), radial-gradient(circle at 85% 30%, rgba(56,189,248,0.18), transparent 40%), radial-gradient(circle at 50% 90%, rgba(217,119,255,0.15), transparent 45%)",
+      }}
+    >
       <div>
         <h1 className="font-display text-xl font-bold">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -87,11 +106,9 @@ function AdminDashboard() {
         <StatCard icon={Award} label="Completion rate" value="—" />
       </div>
 
-      <Card className="border-none shadow-sm ring-1 ring-border/60">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm font-bold">Department completion</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Glass className="p-5">
+        <h2 className="font-display text-sm font-bold">Department completion</h2>
+        <div className="mt-4 space-y-4">
           {departmentProgress.length === 0 ? (
             <EmptyState label="No department data available yet" />
           ) : (
@@ -101,23 +118,18 @@ function AdminDashboard() {
                   <span className="font-medium">{d.name}</span>
                   <span className="text-muted-foreground">{d.pct}%</span>
                 </div>
-                <Progress
-                  value={d.pct}
-                  className="h-1.5 [&>div]:bg-[var(--color-primary,#6366f1)]"
-                />
+                <Progress value={d.pct} className="h-1.5 bg-white/40 [&>div]:bg-[#818cf8]" />
               </div>
             ))
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Glass>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="border-none shadow-sm ring-1 ring-border/60 lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Enrollment &amp; completion trend</CardTitle>
-            <p className="text-xs text-muted-foreground">Monthly enrollments vs completions</p>
-          </CardHeader>
-          <CardContent>
+        <Glass className="p-5 lg:col-span-2">
+          <h2 className="font-display text-sm font-bold">Enrollment &amp; completion trend</h2>
+          <p className="text-xs text-muted-foreground">Monthly enrollments vs completions</p>
+          <div className="mt-3">
             {enrollmentTrend.length === 0 ? (
               <EmptyState label="No enrollment data available yet" />
             ) : (
@@ -125,38 +137,37 @@ function AdminDashboard() {
                 <AreaChart data={enrollmentTrend} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="enrollFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={accent} stopOpacity={0.3} />
+                      <stop offset="5%" stopColor={accent} stopOpacity={0.4} />
                       <stop offset="95%" stopColor={accent} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="completeFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-muted-foreground)" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="var(--color-muted-foreground)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.25)" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
                   <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
                   <Tooltip
                     contentStyle={{
-                      background: "var(--color-card)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: 8,
+                      background: "rgba(255,255,255,0.7)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid rgba(255,255,255,0.4)",
+                      borderRadius: 12,
                       fontSize: 12,
                     }}
                   />
                   <Area type="monotone" dataKey="enrollments" stroke={accent} fill="url(#enrollFill)" strokeWidth={2} name="Enrollments" />
-                  <Area type="monotone" dataKey="completions" stroke="var(--color-muted-foreground)" fill="url(#completeFill)" strokeWidth={2} name="Completions" />
+                  <Area type="monotone" dataKey="completions" stroke="#38bdf8" fill="url(#completeFill)" strokeWidth={2} name="Completions" />
                 </AreaChart>
               </ResponsiveContainer>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </Glass>
 
-        <Card className="border-none shadow-sm ring-1 ring-border/60">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Courses by category</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Glass className="p-5">
+          <h2 className="font-display text-sm font-bold">Courses by category</h2>
+          <div className="mt-3">
             {categoryDistribution.length === 0 ? (
               <EmptyState label="No course data available yet" />
             ) : (
@@ -169,17 +180,18 @@ function AdminDashboard() {
                       nameKey="name"
                       innerRadius={45}
                       outerRadius={75}
-                      paddingAngle={2}
+                      paddingAngle={3}
                     >
                       {categoryDistribution.map((_, i) => (
-                        <Cell key={i} fill={pieColors[i % pieColors.length]} />
+                        <Cell key={i} fill={pieColors[i % pieColors.length]} fillOpacity={0.85} />
                       ))}
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "var(--color-card)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: 8,
+                        background: "rgba(255,255,255,0.7)",
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid rgba(255,255,255,0.4)",
+                        borderRadius: 12,
                         fontSize: 12,
                       }}
                     />
@@ -198,33 +210,31 @@ function AdminDashboard() {
                 </div>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </Glass>
       </div>
 
-      <Card className="border-none shadow-sm ring-1 ring-border/60">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm font-bold">System status</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex items-center gap-2 text-xs">
+      <Glass className="p-5">
+        <h2 className="font-display text-sm font-bold">System status</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/30 px-3 py-2 text-xs backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             <CheckCircle2 className="size-4" style={{ color: accent }} />
             <span>Certificate issuance — Operational</span>
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/30 px-3 py-2 text-xs backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             <CheckCircle2 className="size-4" style={{ color: accent }} />
             <span>Assessment engine — Operational</span>
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/30 px-3 py-2 text-xs backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             <Clock className="size-4 text-muted-foreground" />
             <span>Trainer matching — Sync in progress</span>
           </div>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/30 px-3 py-2 text-xs backdrop-blur-md dark:border-white/10 dark:bg-white/5">
             <ShieldCheck className="size-4" style={{ color: accent }} />
             <span>Access control — Verified</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Glass>
     </div>
   );
 }
