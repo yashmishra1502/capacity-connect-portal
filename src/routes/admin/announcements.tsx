@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Megaphone, Plus, Pin, Calendar } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Glass, GlassBackground, accent } from "@/components/glass-ui";
 
 export const Route = createFileRoute("/admin/announcements")({
   head: () => ({
@@ -30,12 +30,16 @@ function audienceBadge(audience: Announcement["audience"]) {
     trainers: "Trainers",
     admins: "Admins",
   };
-  return <Badge variant="secondary">{labelMap[audience]}</Badge>;
+  return (
+    <Badge className="border border-white/30 bg-white/30 text-foreground backdrop-blur-md dark:border-white/15 dark:bg-white/[0.08]">
+      {labelMap[audience]}
+    </Badge>
+  );
 }
 
 function Announcements() {
   return (
-    <div className="space-y-6">
+    <GlassBackground>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-xl font-bold">Announcements</h1>
@@ -43,17 +47,18 @@ function Announcements() {
             Broadcast updates and notices across the platform.
           </p>
         </div>
-        <Button size="sm" className="gap-1.5">
-          <Plus className="size-4" />
+        <Button
+          size="sm"
+          className="gap-1.5 border border-white/40 bg-white/50 text-foreground backdrop-blur-md hover:bg-white/70 dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/20"
+        >
+          <Plus className="size-4" style={{ color: accent }} />
           New Announcement
         </Button>
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm font-bold">All announcements</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Glass className="p-5">
+        <h2 className="font-display text-sm font-bold">All announcements</h2>
+        <div className="mt-4">
           {announcements.length === 0 ? (
             <div className="flex h-[200px] flex-col items-center justify-center gap-2 text-center">
               <Megaphone className="size-8 text-muted-foreground/50" />
@@ -64,7 +69,7 @@ function Announcements() {
               {announcements.map((a) => (
                 <div
                   key={a.id}
-                  className="rounded-lg border border-border p-4 transition-colors hover:bg-muted/40"
+                  className="rounded-xl border border-white/30 bg-white/30 p-4 backdrop-blur-md transition-colors hover:bg-white/40 dark:border-white/15 dark:bg-white/[0.06] dark:hover:bg-white/[0.1]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -72,7 +77,7 @@ function Announcements() {
                         {a.pinned && <Pin className="size-3.5 text-amber-500" />}
                         <h3 className="text-sm font-semibold">{a.title}</h3>
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{a.body}</p>
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{a.body}</p>
                     </div>
                     {audienceBadge(a.audience)}
                   </div>
@@ -94,8 +99,8 @@ function Announcements() {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </Glass>
+    </GlassBackground>
   );
 }
