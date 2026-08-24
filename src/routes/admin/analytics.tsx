@@ -49,7 +49,7 @@ function Analytics() {
         <StatCard icon={Users} label="Active users" value="—" accent="violet" />
         <StatCard icon={BookOpen} label="Avg. completion rate" value="—" accent="emerald" />
         <StatCard icon={Clock} label="Avg. hours / trainee" value="—" accent="amber" />
-        <StatCard icon={TrendingUp} label="Engagement growth" value="—" accent="blue" />
+        <StatCard icon={TrendingUp} label="Engagement growth" value="—" accent="violet" />
       </div>
 
       <Card>
