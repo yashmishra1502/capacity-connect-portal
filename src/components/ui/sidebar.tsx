@@ -25,15 +25,15 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
-// Glass look for the sidebar surface itself — frosted, translucent,
-// heavily blurred, saturated, with a faint inner highlight edge so the
-// "frosted glass pane" reads clearly even over a flat background.
-// Reused for both the desktop panel and the mobile sheet below.
-const SIDEBAR_GLASS_CLASSES =
-  "border-r border-white/15 bg-white/[0.07] text-sidebar-foreground " +
-  "backdrop-blur-2xl backdrop-saturate-150 " +
-  "shadow-[inset_1px_0_0_0_rgba(255,255,255,0.10),4px_0_24px_-8px_rgba(0,0,0,0.35)] " +
-  "dark:border-white/[0.08] dark:bg-white/[0.045] dark:backdrop-blur-2xl dark:backdrop-saturate-150";
+// Glass look — forced via inline style so it renders no matter what
+// (does not depend on Tailwind dark: class or any theme setup).
+const SIDEBAR_GLASS_STYLE: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.08)",
+  backdropFilter: "blur(20px) saturate(180%)",
+  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+  borderRight: "1px solid rgba(255, 255, 255, 0.18)",
+  boxShadow: "4px 0 30px -10px rgba(0,0,0,0.5)",
+};
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -79,8 +79,6 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen);
     const open = openProp ?? _open;
     const setOpen = React.useCallback(
@@ -91,19 +89,15 @@ const SidebarProvider = React.forwardRef<
         } else {
           _setOpen(openState);
         }
-
-        // This sets the cookie to keep the sidebar state.
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
       [setOpenProp, open],
     );
 
-    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
       return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
     }, [isMobile, setOpen, setOpenMobile]);
 
-    // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
@@ -116,8 +110,6 @@ const SidebarProvider = React.forwardRef<
       return () => window.removeEventListener("keydown", handleKeyDown);
     }, [toggleSidebar]);
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
 
     const contextValue = React.useMemo<SidebarContextProps>(
@@ -145,12 +137,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              // Gradient app-shell background so the glass sidebar has something
-              // colorful/textured behind it to actually blur — a flat solid
-              // background makes backdrop-blur invisible.
-              "group/sidebar-wrapper flex min-h-svh w-full",
-              "bg-[radial-gradient(circle_at_15%_0%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_85%_100%,rgba(56,189,248,0.14),transparent_45%)]",
-              "bg-[#0b0f1a] has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
               className,
             )}
             ref={ref}
@@ -189,11 +176,8 @@ const Sidebar = React.forwardRef<
     if (collapsible === "none") {
       return (
         <div
-          className={cn(
-            "flex h-full w-(--sidebar-width) flex-col border-r",
-            SIDEBAR_GLASS_CLASSES,
-            className,
-          )}
+          className={cn("flex h-full w-(--sidebar-width) flex-col text-sidebar-foreground", className)}
+          style={SIDEBAR_GLASS_STYLE}
           ref={ref}
           {...props}
         >
@@ -208,10 +192,11 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className={cn("w-(--sidebar-width) p-0 [&>button]:hidden", SIDEBAR_GLASS_CLASSES)}
+            className={cn("w-(--sidebar-width) p-0 text-sidebar-foreground [&>button]:hidden", className)}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+                ...SIDEBAR_GLASS_STYLE,
               } as React.CSSProperties
             }
             side={side}
@@ -235,7 +220,6 @@ const Sidebar = React.forwardRef<
         data-variant={variant}
         data-side={side}
       >
-        {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
             "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
@@ -252,10 +236,9 @@ const Sidebar = React.forwardRef<
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
             className,
           )}
           {...props}
@@ -265,22 +248,18 @@ const Sidebar = React.forwardRef<
             className={cn(
               "relative flex h-full w-full flex-col overflow-hidden",
               "group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow",
-              SIDEBAR_GLASS_CLASSES,
             )}
+            style={SIDEBAR_GLASS_STYLE}
           >
-            {/* Ambient glow behind the frosted panel — same accent family used
-                across the rest of the admin UI, boosted so it's clearly visible
-                through the blur. */}
             <div
               className="pointer-events-none absolute inset-0 -z-10"
               style={{
                 background:
-                  "radial-gradient(circle at 20% 0%, rgba(129,140,248,0.4), transparent 60%), " +
-                  "radial-gradient(circle at 80% 100%, rgba(56,189,248,0.28), transparent 55%)",
+                  "radial-gradient(circle at 20% 0%, rgba(129,140,248,0.5), transparent 60%), " +
+                  "radial-gradient(circle at 80% 100%, rgba(56,189,248,0.35), transparent 55%)",
               }}
             />
-            {/* Thin top highlight strip — classic glass-pane sheen */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
             {children}
           </div>
         </div>
@@ -382,12 +361,7 @@ SidebarInput.displayName = "SidebarInput";
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
   ({ className, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        data-sidebar="header"
-        className={cn("flex flex-col gap-2 p-2", className)}
-        {...props}
-      />
+      <div ref={ref} data-sidebar="header" className={cn("flex flex-col gap-2 p-2", className)} {...props} />
     );
   },
 );
@@ -396,12 +370,7 @@ SidebarHeader.displayName = "SidebarHeader";
 const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
   ({ className, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        data-sidebar="footer"
-        className={cn("flex flex-col gap-2 p-2", className)}
-        {...props}
-      />
+      <div ref={ref} data-sidebar="footer" className={cn("flex flex-col gap-2 p-2", className)} {...props} />
     );
   },
 );
@@ -442,12 +411,7 @@ SidebarContent.displayName = "SidebarContent";
 const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
   ({ className, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        data-sidebar="group"
-        className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
-        {...props}
-      />
+      <div ref={ref} data-sidebar="group" className={cn("relative flex w-full min-w-0 flex-col p-2", className)} {...props} />
     );
   },
 );
@@ -486,7 +450,6 @@ const SidebarGroupAction = React.forwardRef<
       data-sidebar="group-action"
       className={cn(
         "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring cursor-pointer transition-transform hover:bg-white/20 dark:hover:bg-white/[0.08] focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         className,
@@ -499,42 +462,25 @@ SidebarGroupAction.displayName = "SidebarGroupAction";
 
 const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      data-sidebar="group-content"
-      className={cn("w-full text-sm", className)}
-      {...props}
-    />
+    <div ref={ref} data-sidebar="group-content" className={cn("w-full text-sm", className)} {...props} />
   ),
 );
 SidebarGroupContent.displayName = "SidebarGroupContent";
 
 const SidebarMenu = React.forwardRef<HTMLUListElement, React.ComponentProps<"ul">>(
   ({ className, ...props }, ref) => (
-    <ul
-      ref={ref}
-      data-sidebar="menu"
-      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
-      {...props}
-    />
+    <ul ref={ref} data-sidebar="menu" className={cn("flex w-full min-w-0 flex-col gap-1", className)} {...props} />
   ),
 );
 SidebarMenu.displayName = "SidebarMenu";
 
 const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li">>(
   ({ className, ...props }, ref) => (
-    <li
-      ref={ref}
-      data-sidebar="menu-item"
-      className={cn("group/menu-item relative", className)}
-      {...props}
-    />
+    <li ref={ref} data-sidebar="menu-item" className={cn("group/menu-item relative", className)} {...props} />
   ),
 );
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
-// Glass-styled menu button: transparent + blurred hover, and a frosted
-// accent-tinted pill for the active route (instead of a flat solid fill).
 const sidebarMenuButtonVariants = cva(
   "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring cursor-pointer backdrop-blur-md transition-[background-color,box-shadow] hover:bg-white/25 dark:hover:bg-white/[0.08] focus-visible:ring-2 active:bg-white/30 dark:active:bg-white/[0.12] disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-[#818cf8]/25 data-[active=true]:font-medium data-[active=true]:text-foreground data-[active=true]:shadow-sm dark:data-[active=true]:bg-[#818cf8]/20 data-[state=open]:hover:bg-white/25 dark:data-[state=open]:hover:bg-white/[0.08] group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
@@ -566,15 +512,7 @@ const SidebarMenuButton = React.forwardRef<
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
-    {
-      asChild = false,
-      isActive = false,
-      variant = "default",
-      size = "default",
-      tooltip,
-      className,
-      ...props
-    },
+    { asChild = false, isActive = false, variant = "default", size = "default", tooltip, className, ...props },
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
@@ -596,20 +534,13 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      };
+      tooltip = { children: tooltip };
     }
 
     return (
       <Tooltip>
         <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
+        <TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile} {...tooltip} />
       </Tooltip>
     );
   },
@@ -631,7 +562,6 @@ const SidebarMenuAction = React.forwardRef<
       data-sidebar="menu-action"
       className={cn(
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring cursor-pointer transition-transform hover:bg-white/20 dark:hover:bg-white/[0.08] focus-visible:ring-2 peer-hover/menu-button:text-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
@@ -673,27 +603,17 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean;
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`;
   }, []);
 
   return (
-    <div
-      ref={ref}
-      data-sidebar="menu-skeleton"
-      className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
-      {...props}
-    >
+    <div ref={ref} data-sidebar="menu-skeleton" className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)} {...props}>
       {showIcon && <Skeleton className="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"
-        style={
-          {
-            "--skeleton-width": width,
-          } as React.CSSProperties
-        }
+        style={{ "--skeleton-width": width } as React.CSSProperties}
       />
     </div>
   );
