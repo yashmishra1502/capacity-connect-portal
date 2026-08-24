@@ -1,7 +1,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, LogOut, Menu, Search, X, GraduationCap } from "lucide-react";
+import { Bell, LogOut, Menu, Search, X } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BrandIcon } from "@/components/brand-logo";
 import { navConfig, roleLabel } from "@/components/nav-config";
 import { currentUsers, notifications, type Role } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
