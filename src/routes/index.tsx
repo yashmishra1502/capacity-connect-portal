@@ -37,17 +37,7 @@ import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax, useTilt } from "@/hooks/use-landing-motion";
-<Link to="/" className="flex items-center gap-2.5">
-  <img
-    src="/night.png"
-    alt="Capacity Connect"
-    className="size-9 rounded-xl object-contain shadow-sm shadow-primary/30"
-  />
-  <div>
-    <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
-    <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
-  </div>
-</Link>
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -222,7 +212,11 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
-            <BrandIcon size={36} className="rounded-xl bg-primary p-1.5 shadow-sm shadow-primary/30" />
+            <img
+              src="/night.png"
+              alt="Capacity Connect"
+              className="size-9 rounded-xl object-contain shadow-sm shadow-primary/30"
+            />
             <div>
               <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
               <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
@@ -327,7 +321,7 @@ function Landing() {
             />
 
             <div className="cc-float-soft absolute -left-8 top-6 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md p-2">
-              <BrandIcon size={28} />
+              <img src="/night.png" alt="Capacity Connect" className="size-full rounded-xl object-contain" />
             </div>
             <div className="cc-float-slow absolute -left-12 top-1/2 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
               <BarChart3 className="size-5 text-violet-500" />
@@ -624,8 +618,9 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
-              <Link to="/">
-                <BrandLogo className="max-w-[180px]" />
+              <Link to="/" className="flex items-center gap-2.5">
+                <img src="/night.png" alt="Capacity Connect" className="size-9 rounded-xl object-contain" />
+                <span className="font-display text-sm font-bold tracking-tight">Capacity Connect</span>
               </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
