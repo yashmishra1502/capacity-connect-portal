@@ -1,0 +1,98 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { UserPlus, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
+export const Route = createFileRoute("/admin/trainer-management")({
+  head: () => ({
+    meta: [{ title: "Trainer Management — Administration · Capacity Connect" }],
+  }),
+  component: TrainerManagement,
+});
+
+// TODO: replace with real API data (useQuery)
+type Trainer = {
+  id: string;
+  name: string;
+  specialization: string;
+  assignedCourses: number;
+  status: "active" | "inactive";
+};
+
+const trainers: Trainer[] = [];
+
+function TrainerManagement() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-bold">Trainer Management</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            View, add, and manage trainer records and assignments.
+          </p>
+        </div>
+        <Button size="sm" className="gap-1.5">
+          <UserPlus className="size-4" />
+          Add Trainer
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input placeholder="Search trainers..." className="pl-8" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {trainers.length === 0 ? (
+            <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
+              No trainers found yet
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Specialization</TableHead>
+                  <TableHead>Assigned Courses</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {trainers.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell className="font-medium">{t.name}</TableCell>
+                    <TableCell>{t.specialization}</TableCell>
+                    <TableCell>{t.assignedCourses}</TableCell>
+                    <TableCell>
+                      <Badge variant={t.status === "active" ? "default" : "secondary"}>
+                        {t.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
