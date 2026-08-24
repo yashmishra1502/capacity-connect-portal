@@ -26,11 +26,14 @@ const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 // Glass look for the sidebar surface itself — frosted, translucent,
-// blurred, instead of the solid `bg-sidebar` color. Reused for both
-// the desktop panel and the mobile sheet below.
+// heavily blurred, saturated, with a faint inner highlight edge so the
+// "frosted glass pane" reads clearly even over a flat background.
+// Reused for both the desktop panel and the mobile sheet below.
 const SIDEBAR_GLASS_CLASSES =
-  "border-white/20 bg-white/40 text-sidebar-foreground backdrop-blur-xl " +
-  "dark:border-white/10 dark:bg-[#0b0f1a]/60 dark:backdrop-blur-2xl";
+  "border-r border-white/15 bg-white/[0.07] text-sidebar-foreground " +
+  "backdrop-blur-2xl backdrop-saturate-150 " +
+  "shadow-[inset_1px_0_0_0_rgba(255,255,255,0.10),4px_0_24px_-8px_rgba(0,0,0,0.35)] " +
+  "dark:border-white/[0.08] dark:bg-white/[0.045] dark:backdrop-blur-2xl dark:backdrop-saturate-150";
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -142,7 +145,12 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              // Gradient app-shell background so the glass sidebar has something
+              // colorful/textured behind it to actually blur — a flat solid
+              // background makes backdrop-blur invisible.
+              "group/sidebar-wrapper flex min-h-svh w-full",
+              "bg-[radial-gradient(circle_at_15%_0%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_85%_100%,rgba(56,189,248,0.14),transparent_45%)]",
+              "bg-[#0b0f1a] has-[[data-variant=inset]]:bg-sidebar",
               className,
             )}
             ref={ref}
@@ -261,16 +269,18 @@ const Sidebar = React.forwardRef<
             )}
           >
             {/* Ambient glow behind the frosted panel — same accent family used
-                across the rest of the admin UI, kept subtle since it sits
-                behind a narrow column. */}
+                across the rest of the admin UI, boosted so it's clearly visible
+                through the blur. */}
             <div
               className="pointer-events-none absolute inset-0 -z-10"
               style={{
                 background:
-                  "radial-gradient(circle at 20% 0%, rgba(129,140,248,0.25), transparent 55%), " +
-                  "radial-gradient(circle at 80% 100%, rgba(56,189,248,0.15), transparent 50%)",
+                  "radial-gradient(circle at 20% 0%, rgba(129,140,248,0.4), transparent 60%), " +
+                  "radial-gradient(circle at 80% 100%, rgba(56,189,248,0.28), transparent 55%)",
               }}
             />
+            {/* Thin top highlight strip — classic glass-pane sheen */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
             {children}
           </div>
         </div>
