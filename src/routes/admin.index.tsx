@@ -1,26 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  BookOpen,
-  Award,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-} from "lucide-react";
-import {
   AreaChart,
   Area,
   XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { StatCard } from "@/components/stat-card";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -34,172 +20,171 @@ const departmentProgress: { name: string; pct: number }[] = [];
 const enrollmentTrend: { month: string; enrollments: number; completions: number }[] = [];
 const categoryDistribution: { name: string; value: number }[] = [];
 
-const pieColors = [
-  "var(--color-chart-1)",
-  "var(--color-chart-2)",
-  "var(--color-chart-3)",
-  "var(--color-chart-4)",
-  "var(--color-chart-5)",
+const systemStatus = [
+  { label: "Certificate issuance", state: "ok" as const },
+  { label: "Assessment engine", state: "ok" as const },
+  { label: "Trainer matching", state: "pending" as const },
+  { label: "Access control", state: "ok" as const },
 ];
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
+    <div className="flex h-[160px] items-center justify-center text-xs text-muted-foreground">
       {label}
+    </div>
+  );
+}
+
+function StatBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-b border-border pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 last:border-none last:pr-0">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-2xl font-semibold tracking-tight">{value}</p>
     </div>
   );
 }
 
 function AdminDashboard() {
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-10">
       <div>
-        <h1 className="font-display text-xl font-bold">Dashboard</h1>
+        <h1 className="font-display text-xl font-semibold">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Platform-wide overview across courses and approvals.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard icon={BookOpen} label="Active courses" value="—" accent="violet" />
-        <StatCard icon={Award} label="Completion rate" value="—" accent="emerald" />
+      {/* Key numbers — plain, no cards, no color accents */}
+      <div className="grid grid-cols-2 gap-4 sm:flex sm:gap-6">
+        <StatBlock label="Active courses" value="—" />
+        <StatBlock label="Completion rate" value="—" />
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm font-bold">Department completion</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* Department completion — simple rows, thin bars, no card chrome */}
+      <div>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Department completion
+        </h2>
+        <div className="mt-4 space-y-4">
           {departmentProgress.length === 0 ? (
             <EmptyState label="No department data available yet" />
           ) : (
             departmentProgress.map((d) => (
               <div key={d.name}>
                 <div className="mb-1.5 flex items-center justify-between text-xs">
-                  <span className="font-medium">{d.name}</span>
-                  <span className="text-muted-foreground">{d.pct}%</span>
+                  <span>{d.name}</span>
+                  <span className="tabular-nums text-muted-foreground">{d.pct}%</span>
                 </div>
-                <Progress value={d.pct} className="h-1.5" />
+                <div className="h-px w-full bg-border">
+                  <div
+                    className="h-px bg-foreground"
+                    style={{ width: `${d.pct}%` }}
+                  />
+                </div>
               </div>
             ))
           )}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Enrollment &amp; completion trend</CardTitle>
-            <p className="text-xs text-muted-foreground">Monthly enrollments vs completions</p>
-          </CardHeader>
-          <CardContent>
-            {enrollmentTrend.length === 0 ? (
-              <EmptyState label="No enrollment data available yet" />
-            ) : (
-              <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={enrollmentTrend} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="enrollFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="completeFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-3)" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="var(--color-chart-3)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--color-card)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Area type="monotone" dataKey="enrollments" stroke="var(--color-chart-1)" fill="url(#enrollFill)" strokeWidth={2} name="Enrollments" />
-                  <Area type="monotone" dataKey="completions" stroke="var(--color-chart-3)" fill="url(#completeFill)" strokeWidth={2} name="Completions" />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Courses by category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {categoryDistribution.length === 0 ? (
-              <EmptyState label="No course data available yet" />
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie
-                      data={categoryDistribution}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={45}
-                      outerRadius={75}
-                      paddingAngle={2}
-                    >
-                      {categoryDistribution.map((_, i) => (
-                        <Cell key={i} fill={pieColors[i % pieColors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--color-card)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-2 space-y-1.5">
-                  {categoryDistribution.map((c, i) => (
-                    <div key={c.name} className="flex items-center justify-between text-[11px]">
-                      <span className="flex items-center gap-1.5">
-                        <span className="size-2 rounded-full" style={{ background: pieColors[i % pieColors.length] }} />
-                        {c.name}
-                      </span>
-                      <span className="text-muted-foreground">{c.value}%</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-sm font-bold">System status</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex items-center gap-2 text-xs">
-            <CheckCircle2 className="size-4 text-emerald-500" />
-            <span>Certificate issuance — Operational</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <CheckCircle2 className="size-4 text-emerald-500" />
-            <span>Assessment engine — Operational</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <Clock className="size-4 text-amber-500" />
-            <span>Trainer matching — Sync in progress</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <ShieldCheck className="size-4 text-emerald-500" />
-            <span>Access control — Verified</span>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Enrollment trend — single line, no fill gradient, no grid noise */}
+      <div>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Enrollment &amp; completion
+        </h2>
+        <div className="mt-4">
+          {enrollmentTrend.length === 0 ? (
+            <EmptyState label="No enrollment data available yet" />
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={enrollmentTrend} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="enrollFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-foreground)" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="var(--color-foreground)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11 }}
+                  stroke="var(--color-muted-foreground)"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 4,
+                    fontSize: 12,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="enrollments"
+                  stroke="var(--color-foreground)"
+                  fill="url(#enrollFill)"
+                  strokeWidth={1.5}
+                  name="Enrollments"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="completions"
+                  stroke="var(--color-muted-foreground)"
+                  fill="transparent"
+                  strokeWidth={1.5}
+                  strokeDasharray="3 3"
+                  name="Completions"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* Category distribution — plain list, no donut chart */}
+      <div>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Courses by category
+        </h2>
+        <div className="mt-4">
+          {categoryDistribution.length === 0 ? (
+            <EmptyState label="No course data available yet" />
+          ) : (
+            <div className="space-y-2">
+              {categoryDistribution.map((c) => (
+                <div key={c.name} className="flex items-center justify-between text-xs">
+                  <span>{c.name}</span>
+                  <span className="tabular-nums text-muted-foreground">{c.value}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* System status — text + dot, no icon library, no color-coded icons */}
+      <div>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          System status
+        </h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {systemStatus.map((s) => (
+            <div key={s.label} className="flex items-center gap-2 text-xs">
+              <span
+                className={
+                  "size-1.5 rounded-full " +
+                  (s.state === "ok" ? "bg-foreground" : "bg-muted-foreground")
+                }
+              />
+              <span>{s.label}</span>
+              <span className="ml-auto text-muted-foreground">
+                {s.state === "ok" ? "Operational" : "Syncing"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
