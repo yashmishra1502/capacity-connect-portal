@@ -615,9 +615,8 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
-              <Link to="/" className="flex items-center gap-2.5">
-                <BrandIcon size={32} className="rounded-md bg-primary p-1" />
-                <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
+              <Link to="/">
+                <BrandLogo className="max-w-[180px]" />
               </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
