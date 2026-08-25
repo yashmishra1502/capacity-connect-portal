@@ -212,12 +212,9 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
-            <img
-              src="/day.png"
-              alt="Capacity Connect"
-              className="h-14 w-auto object-contain"
-            />
+            <BrandLogo className="h-14 w-auto max-w-[220px]" />
           </Link>
+
           <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
             <a href="#" className="cc-link text-foreground">Home</a>
             <Link to="/about" className="cc-link hover:text-foreground">About</Link>
