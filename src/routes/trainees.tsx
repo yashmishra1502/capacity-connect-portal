@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/admin/trainees")({
+export const Route = createFileRoute("/trainees")({
   head: () => ({
     meta: [{ title: "Trainee Management — Administration · Capacity Connect" }],
   }),
