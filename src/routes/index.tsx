@@ -37,6 +37,7 @@ import { adminStats } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax, useTilt } from "@/hooks/use-landing-motion";
+import { BrandIcon, BrandLogo } from "@/components/brand-logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -314,7 +315,7 @@ function Landing() {
             />
 
             <div className="cc-float-soft absolute -left-8 top-6 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md p-2">
-              <img src="/night.png" alt="Capacity Connect" className="size-full rounded-xl object-contain" />
+              <BrandIcon size={28} className="size-full rounded-xl" />
             </div>
             <div className="cc-float-slow absolute -left-12 top-1/2 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
               <BarChart3 className="size-5 text-violet-500" />
@@ -612,7 +613,7 @@ function Landing() {
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
               <Link to="/">
-                <img src="/day.png" alt="Capacity Connect" className="h-14 w-auto object-contain" />
+                <BrandLogo className="h-14 w-auto max-w-[220px]" />
               </Link>
               <p className="mt-3 max-w-xs text-xs text-muted-foreground">
                 A digital capacity building and learning management initiative under the
