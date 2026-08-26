@@ -319,7 +319,8 @@ function Landing() {
           data-parallax="0.06"
           className="absolute inset-0 z-0 bg-cover bg-center opacity-60 md:opacity-100"
           style={{
-            backgroundImage: "url('/hero-training.jpg')",
+            backgroundImage:
+              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Group%20picture%20of%20trainers%20and%20teachers.jpg')",
             filter: "saturate(1.15) contrast(1.08) brightness(0.85)",
             maskImage:
               "radial-gradient(ellipse 85% 75% at 50% 45%, black 45%, rgba(0,0,0,0.55) 70%, transparent 100%)",
