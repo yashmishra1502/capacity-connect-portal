@@ -15,14 +15,12 @@ export function useParallax() {
       document.querySelectorAll<HTMLElement>("[data-parallax]"),
     );
     if (nodes.length === 0) return;
-
     let ticking = false;
     const update = () => {
       ticking = false;
       const vh = window.innerHeight;
       for (const el of nodes) {
         const rect = el.getBoundingClientRect();
-        if (rect.bottom < -200 || rect.top > vh + 200) continue;
         const speed = Number(el.dataset["parallax"] ?? 0.1);
         const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
         el.style.setProperty("--cc-py", `${(-progress * speed * 100).toFixed(2)}px`);
@@ -33,7 +31,6 @@ export function useParallax() {
       ticking = true;
       requestAnimationFrame(update);
     };
-
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
@@ -47,12 +44,10 @@ export function useParallax() {
 /** Pointer-driven 3D tilt for a focal element. */
 export function useTilt<T extends HTMLElement>(max = 8) {
   const ref = useRef<T | null>(null);
-
   useEffect(() => {
     const el = ref.current;
     if (!el || reduced()) return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
-
     let frame = 0;
     const onMove = (e: PointerEvent) => {
       if (frame) return;
@@ -73,7 +68,6 @@ export function useTilt<T extends HTMLElement>(max = 8) {
       el.style.setProperty("--cc-mx", "50%");
       el.style.setProperty("--cc-my", "50%");
     };
-
     el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerleave", onLeave);
     return () => {
@@ -82,6 +76,5 @@ export function useTilt<T extends HTMLElement>(max = 8) {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [max]);
-
   return ref;
 }
