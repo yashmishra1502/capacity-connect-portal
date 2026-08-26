@@ -283,33 +283,37 @@ function Landing() {
       `}</style>
 
       {/* ---------- GLOBAL ANIMATED BACKGROUND (fixed, spans whole page) ---------- */}
+      {/* NOTE: blob opacity/mix values below were reduced (~65-70%) from the
+          original so the hero's photo/scrim doesn't create a hard visual
+          "seam" once you scroll past it into sections with a transparent
+          background. Animation timing/position/size left untouched. */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-background" />
         <div
           className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 85%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%)",
             animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-32 top-1/4 size-[600px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, rgba(139,92,246,0.8), transparent 70%)",
+            background: "radial-gradient(circle, rgba(139,92,246,0.22), transparent 70%)",
             animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
           }}
         />
         <div
           className="absolute left-1/3 top-2/3 size-[650px] rounded-full blur-[130px]"
           style={{
-            background: "radial-gradient(circle, rgba(56,189,248,0.65), transparent 70%)",
+            background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 70%)",
             animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-20 bottom-0 size-[550px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
           }}
         />
