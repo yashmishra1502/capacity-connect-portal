@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export function BrandIcon({ className, size = 70 }: { className?: string; size?: number }) {
+export function BrandIcon({ className, size = 56 }: { className?: string; size?: number }) {
   return (
     <img
       src="/day.png"
