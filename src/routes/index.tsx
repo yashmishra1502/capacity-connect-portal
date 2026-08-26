@@ -403,6 +403,12 @@ function Landing() {
           }}
         />
 
+        {/* smooth fade at the bottom of the hero so the photo doesn't cut off abruptly into the next section */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-48 bg-gradient-to-b from-transparent to-background md:h-64"
+        />
+
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-10 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
