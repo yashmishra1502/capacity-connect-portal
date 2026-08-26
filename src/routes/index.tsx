@@ -270,7 +270,7 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07080d]/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2.5">
           <Link to="/" className="flex items-center gap-2.5">
-            <BrandLogo className="h-16 w-auto max-w-[220px]" />
+            <BrandLogo className="h-[4.5rem] w-auto max-w-[240px]" />
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium text-white/60 md:flex">
