@@ -222,7 +222,7 @@ function Landing() {
   const tiltRef = useTilt<HTMLDivElement>(7);
 
   return (
-    <div className="relative min-h-screen bg-[#07080d] text-white">
+    <div className="relative min-h-screen bg-background text-foreground">
       <style>{`
         @keyframes cc-drift-1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -244,7 +244,7 @@ function Landing() {
 
       {/* ---------- GLOBAL ANIMATED BACKGROUND (fixed, spans whole page) ---------- */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[#07080d]" />
+        <div className="absolute inset-0 bg-background" />
         <div
           className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
           style={{
@@ -278,31 +278,31 @@ function Landing() {
           className="absolute inset-0 opacity-[0.08]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
       </div>
 
       {/* ---------- HEADER ---------- */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07080d]/60 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2.5">
           <Link to="/" className="flex items-center gap-2.5">
             <BrandLogo className="h-[4.5rem] w-auto max-w-[240px]" />
           </Link>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-white/60 md:flex">
-            <a href="#" className="cc-link text-white">Home</a>
-            <Link to="/about" className="cc-link hover:text-white">About</Link>
-            <a href="#how-it-works" className="cc-link hover:text-white">How it works</a>
-            <Link to="/contact" className="cc-link hover:text-white">Contact</Link>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-foreground/60 md:flex">
+            <a href="#" className="cc-link text-foreground">Home</a>
+            <Link to="/about" className="cc-link hover:text-foreground">About</Link>
+            <a href="#how-it-works" className="cc-link hover:text-foreground">How it works</a>
+            <Link to="/contact" className="cc-link hover:text-foreground">Contact</Link>
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm" className="border-white/15 bg-white/5 text-white hover:bg-white/10 hidden sm:inline-flex">
+            <Button asChild variant="outline" size="sm" className="border-foreground/15 bg-foreground/5 text-foreground hover:bg-foreground/10 hidden sm:inline-flex">
               <Link to="/admin-login">Admin Login</Link>
             </Button>
-            <Button asChild size="sm" className="rounded-full bg-white text-black hover:bg-white/90">
+            <Button asChild size="sm" className="rounded-full bg-foreground text-background hover:bg-foreground/90">
               <Link to="/login">
                 Sign in <ArrowRight className="ml-1 size-4" />
               </Link>
@@ -335,7 +335,7 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "linear-gradient(90deg, #07080d 0%, rgba(7,8,13,0.95) 24%, rgba(7,8,13,0.72) 44%, rgba(7,8,13,0.38) 64%, rgba(7,8,13,0.22) 100%), linear-gradient(180deg, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.1) 28%, rgba(7,8,13,0.22) 60%, #07080d 100%)",
+              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 95%, transparent) 24%, color-mix(in oklab, var(--background) 72%, transparent) 44%, color-mix(in oklab, var(--background) 38%, transparent) 64%, color-mix(in oklab, var(--background) 22%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 10%, transparent) 28%, color-mix(in oklab, var(--background) 22%, transparent) 60%, var(--background) 100%)",
           }}
         />
 
@@ -365,13 +365,13 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
 
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+          <span className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-foreground/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
               <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
               <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
@@ -379,7 +379,7 @@ function Landing() {
             Capacity Building Commission
           </span>
 
-          <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl md:text-[4.5rem]">
+          <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-6xl md:text-[4.5rem]">
             Empowering people.
             <br />
             Building capacity.
@@ -387,7 +387,7 @@ function Landing() {
             <span className="cc-gradient-text">Connecting futures.</span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/60">
+          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/60">
             A centralised digital platform for training management, competency
             development and knowledge sharing — built to empower departments and
             the people within them.
@@ -397,7 +397,7 @@ function Landing() {
             <Button
               asChild
               size="lg"
-              className="h-12 rounded-full bg-white px-7 text-[15px] font-medium text-black shadow-xl hover:bg-white/90"
+              className="h-12 rounded-full bg-foreground px-7 text-[15px] font-medium text-background shadow-xl hover:bg-foreground/90"
             >
               <Link to="/login">
                 Explore platform <ArrowRight className="ml-1.5 size-4" />
@@ -407,37 +407,37 @@ function Landing() {
               asChild
               variant="outline"
               size="lg"
-              className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-[15px] text-white backdrop-blur-sm hover:bg-white/10"
+              className="h-12 rounded-full border-foreground/15 bg-foreground/5 px-7 text-[15px] text-foreground backdrop-blur-sm hover:bg-foreground/10"
             >
               <a href="#how-it-works">How it works</a>
             </Button>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 backdrop-blur-sm">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-foreground/10 bg-foreground/[0.04] px-5 py-3 backdrop-blur-sm">
             {heroBadges.map((b, i) => (
               <div key={b.label} className="flex items-center gap-4">
-                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                <span className="flex items-center gap-2 text-[13px] font-medium text-foreground/85">
                   <b.icon className="size-4 text-sky-300" />
                   {b.label}
                 </span>
                 {i < heroBadges.length - 1 && (
-                  <span className="hidden h-4 w-px bg-white/15 sm:block" />
+                  <span className="hidden h-4 w-px bg-foreground/15 sm:block" />
                 )}
               </div>
             ))}
           </div>
 
-          <div className="mt-16 w-full border-t border-white/10 pt-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+          <div className="mt-16 w-full border-t border-foreground/10 pt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
               Trusted by government departments across India
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
               {govDepartments.map((d) => (
                 <div key={d.name} className="flex flex-col items-center gap-1.5 opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0">
-                  <div className="flex size-12 items-center justify-center rounded-full border border-white/20 bg-white/[0.04]">
-                    <d.icon className="size-5 text-white/70" />
+                  <div className="flex size-12 items-center justify-center rounded-full border border-foreground/20 bg-foreground/[0.04]">
+                    <d.icon className="size-5 text-foreground/70" />
                   </div>
-                  <span className="max-w-[72px] text-center text-[10px] leading-tight text-white/50">{d.name}</span>
+                  <span className="max-w-[72px] text-center text-[10px] leading-tight text-foreground/50">{d.name}</span>
                 </div>
               ))}
             </div>
@@ -446,7 +446,7 @@ function Landing() {
       </section>
 
       {/* ---------- TRUST STRIP ---------- */}
-      <section className="relative z-10 border-b border-white/10 bg-white/[0.01] py-10 backdrop-blur-sm">
+      <section className="relative z-10 border-b border-foreground/10 bg-foreground/[0.01] py-10 backdrop-blur-sm">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 md:grid-cols-4">
           {trustStrip.map((s, i) => (
             <div key={s.title} data-reveal data-reveal-delay={i * 80} className="group flex items-start gap-3">
@@ -454,8 +454,8 @@ function Landing() {
                 <s.icon className={`size-4 ${s.fg}`} />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-white">{s.title}</p>
-                <p className="mt-1 text-[11px] leading-snug text-white/50">{s.desc}</p>
+                <p className="text-[13px] font-semibold text-foreground">{s.title}</p>
+                <p className="mt-1 text-[11px] leading-snug text-foreground/50">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -472,7 +472,7 @@ function Landing() {
         <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-16 px-5 md:grid-cols-[1.15fr_1fr]">
           <div>
             <Eyebrow>Impact</Eyebrow>
-            <h2 data-reveal className="mt-4 max-w-md font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem] md:leading-[1.08]">
+            <h2 data-reveal className="mt-4 max-w-md font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem] md:leading-[1.08]">
               Driving impact through learning
             </h2>
             <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10">
@@ -481,16 +481,16 @@ function Landing() {
                   <div className={`cc-lift flex size-10 items-center justify-center rounded-xl ${impactStats[i]?.bg}`}>
                     <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
-                  <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em] text-white">{s.value}+</p>
-                  <p className="mt-1 text-[13px] text-white/50">{s.sub}</p>
+                  <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em] text-foreground">{s.value}+</p>
+                  <p className="mt-1 text-[13px] text-foreground/50">{s.sub}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
-            <h3 className="font-display text-lg font-bold tracking-tight text-white">About Capacity Connect</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/60">
+          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-foreground/10 bg-foreground/[0.03] p-8 backdrop-blur-xl">
+            <h3 className="font-display text-lg font-bold tracking-tight text-foreground">About Capacity Connect</h3>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/60">
               An initiative of the Capacity Building Commission, Capacity Connect brings a
               seamless digital experience to training, assessments and knowledge sharing —
               so every department can plan competency growth in one place.
@@ -502,16 +502,16 @@ function Landing() {
             </Button>
           </div>
         </div>
-        <div className="mx-auto max-w-6xl border-t border-white/10" />
+        <div className="mx-auto max-w-6xl border-t border-foreground/10" />
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 py-24 md:py-32">
         <Eyebrow>Portals</Eyebrow>
-        <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem]">
+        <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
           Choose your portal
         </h2>
-        <p className="mt-3 max-w-lg text-[15px] text-white/50">
+        <p className="mt-3 max-w-lg text-[15px] text-foreground/50">
           Each role has a dedicated dashboard experience with its own navigation.
         </p>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -520,16 +520,16 @@ function Landing() {
               key={p.role}
               data-reveal
               data-reveal-delay={i * 110}
-              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-white/10 bg-white/[0.03] backdrop-blur-xl"
+              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-foreground/10 bg-foreground/[0.03] backdrop-blur-xl"
             >
               <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-7">
-                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-white/5">
-                  <p.icon className="size-5 text-white" />
+                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-foreground/5">
+                  <p.icon className="size-5 text-foreground" />
                 </div>
-                <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-white">{p.role}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{p.desc}</p>
-                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-white/55">
+                <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-foreground">{p.role}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{p.desc}</p>
+                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-foreground/55">
                   {p.points.map((pt) => (
                     <li key={pt} className="flex items-center gap-2.5">
                       <span className="size-1 rounded-full bg-primary" />
@@ -537,7 +537,7 @@ function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="mt-7 h-11 w-full rounded-xl bg-white text-black hover:bg-white/90">
+                <Button asChild className="mt-7 h-11 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90">
                   <Link to={p.to}>
                     Open {p.role} dashboard <ArrowRight className="ml-1.5 size-4" />
                   </Link>
@@ -551,7 +551,7 @@ function Landing() {
       {/* ---------- HOW IT WORKS ---------- */}
       <section
         id="how-it-works"
-        className="relative z-10 overflow-hidden border-y border-white/10 bg-white/[0.01] py-24 md:py-32 backdrop-blur-sm"
+        className="relative z-10 overflow-hidden border-y border-foreground/10 bg-foreground/[0.01] py-24 md:py-32 backdrop-blur-sm"
       >
         <div
           aria-hidden="true"
@@ -561,10 +561,10 @@ function Landing() {
         <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
             <Eyebrow>Journey</Eyebrow>
-            <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem]">
+            <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
               How it works
             </h2>
-            <p className="mt-3 text-[15px] text-white/50">
+            <p className="mt-3 text-[15px] text-foreground/50">
               A simple four-step journey from registration to verified certification.
             </p>
           </div>
@@ -572,18 +572,18 @@ function Landing() {
             {steps.map((s, i) => (
               <div key={s.title} data-reveal data-reveal-delay={i * 100} className="group relative">
                 {i < steps.length - 1 && (
-                  <div className="absolute left-6 top-6 hidden h-px w-full bg-gradient-to-r from-white/15 to-transparent md:block" />
+                  <div className="absolute left-6 top-6 hidden h-px w-full bg-gradient-to-r from-foreground/15 to-transparent md:block" />
                 )}
                 <div className="relative flex items-center gap-4">
                   <div className="cc-lift flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
                     <s.icon className="size-5" />
                   </div>
-                  <span className="font-display text-3xl font-bold text-white/10">
+                  <span className="font-display text-3xl font-bold text-foreground/10">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
-                <h3 className="mt-6 font-display text-base font-semibold tracking-tight text-white">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{s.desc}</p>
+                <h3 className="mt-6 font-display text-base font-semibold tracking-tight text-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -594,10 +594,10 @@ function Landing() {
       <section className="relative z-10 mx-auto max-w-6xl px-5 py-24 md:py-32">
         <div className="max-w-2xl">
           <Eyebrow>Capabilities</Eyebrow>
-          <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem]">
+          <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
             Platform capabilities
           </h2>
-          <p className="mt-3 text-[15px] text-white/50">
+          <p className="mt-3 text-[15px] text-foreground/50">
             Everything trainees, trainers and administrators need on a single platform.
           </p>
         </div>
@@ -607,14 +607,14 @@ function Landing() {
               key={f.title}
               data-reveal
               data-reveal-delay={(i % 3) * 90}
-              className="cc-glow-card group rounded-2xl border-white/10 bg-white/[0.03] backdrop-blur-xl"
+              className="cc-glow-card group rounded-2xl border-foreground/10 bg-foreground/[0.03] backdrop-blur-xl"
             >
               <CardContent className="p-7">
-                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-white/5">
-                  <f.icon className="size-5 text-white" />
+                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-foreground/5">
+                  <f.icon className="size-5 text-foreground" />
                 </div>
-                <h3 className="mt-5 font-display text-base font-semibold tracking-tight text-white">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{f.desc}</p>
+                <h3 className="mt-5 font-display text-base font-semibold tracking-tight text-foreground">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{f.desc}</p>
               </CardContent>
             </Card>
           ))}
@@ -622,21 +622,21 @@ function Landing() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="relative z-10 overflow-hidden bg-white/[0.01] py-16 md:py-20 backdrop-blur-sm">
+      <section className="relative z-10 overflow-hidden bg-foreground/[0.01] py-16 md:py-20 backdrop-blur-sm">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.08] blur-3xl"
         />
         <div className="relative z-10 mx-auto max-w-3xl px-5">
-          <h2 data-reveal className="font-display text-xl font-bold text-white">Frequently asked questions</h2>
-          <p className="mt-2 text-sm text-white/50">
+          <h2 data-reveal className="font-display text-xl font-bold text-foreground">Frequently asked questions</h2>
+          <p className="mt-2 text-sm text-foreground/50">
             Common questions from trainees, trainers and department administrators.
           </p>
-          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-white/10 bg-white/[0.03] px-5">
+          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/10 bg-foreground/[0.03] px-5">
             {faqs.map((f, i) => (
-              <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-white/10" : "border-white/10"}>
-                <AccordionTrigger className="text-sm text-white hover:no-underline">{f.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-white/55">{f.a}</AccordionContent>
+              <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-foreground/10" : "border-foreground/10"}>
+                <AccordionTrigger className="text-sm text-foreground hover:no-underline">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-foreground/55">{f.a}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -644,7 +644,7 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="relative z-10 overflow-hidden border-t border-white/10 bg-[#07080d]/70 backdrop-blur-sm">
+      <footer className="relative z-10 overflow-hidden border-t border-foreground/10 bg-background/70 backdrop-blur-sm">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
@@ -655,30 +655,30 @@ function Landing() {
               <Link to="/">
                 <BrandLogo className="h-24 w-auto max-w-[340px]" />
               </Link>
-              <p className="mt-3 max-w-xs text-xs text-white/45">
+              <p className="mt-3 max-w-xs text-xs text-foreground/45">
                 A digital capacity building and learning management initiative under the
                 Capacity Building Commission.
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-white">Platform</p>
-              <ul className="mt-3 space-y-2 text-sm text-white/55">
-                <li><Link to="/about" className="hover:text-white">About</Link></li>
-                <li><a href="#how-it-works" className="hover:text-white">How it works</a></li>
-                <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
+              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
+                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+                <li><a href="#how-it-works" className="hover:text-foreground">How it works</a></li>
+                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
               </ul>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-white">Portals</p>
-              <ul className="mt-3 space-y-2 text-sm text-white/55">
-                <li><Link to="/login" className="hover:text-white">Trainee</Link></li>
-                <li><Link to="/login" className="hover:text-white">Trainer</Link></li>
-                <li><Link to="/admin-login" className="hover:text-white">Admin</Link></li>
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
+              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
+                <li><Link to="/login" className="hover:text-foreground">Trainee</Link></li>
+                <li><Link to="/login" className="hover:text-foreground">Trainer</Link></li>
+                <li><Link to="/admin-login" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-white">Contact</p>
-              <ul className="mt-3 space-y-2 text-sm text-white/55">
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Contact</p>
+              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
                 <li className="flex items-center gap-2">
                   <Mail className="size-3.5" /> support@capacityconnect.gov.in
                 </li>
@@ -691,14 +691,14 @@ function Landing() {
               </ul>
             </div>
           </div>
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 sm:flex-row">
-            <p className="text-xs text-white/45">
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-foreground/10 pt-6 sm:flex-row">
+            <p className="text-xs text-foreground/45">
               Capacity Connect · Demonstration interface with sample data
             </p>
-            <div className="flex items-center gap-5 text-xs text-white/55">
-              <a href="#" className="hover:text-white">Privacy policy</a>
-              <a href="#" className="hover:text-white">Terms of use</a>
-              <a href="#" className="hover:text-white">Accessibility</a>
+            <div className="flex items-center gap-5 text-xs text-foreground/55">
+              <a href="#" className="hover:text-foreground">Privacy policy</a>
+              <a href="#" className="hover:text-foreground">Terms of use</a>
+              <a href="#" className="hover:text-foreground">Accessibility</a>
             </div>
           </div>
         </div>
