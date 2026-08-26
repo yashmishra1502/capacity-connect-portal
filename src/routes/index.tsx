@@ -319,12 +319,12 @@ function Landing() {
           data-parallax="0.06"
           className="absolute inset-0 z-0 bg-cover bg-center opacity-45 md:bg-[position:78%_center] md:opacity-100"
           style={{
-            backgroundImage:
-              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Building%20of%20The%20Supreme%20Court%20of%20India.jpg')",
+            backgroundImage: "url('/supreme-court.jpg')",
+            filter: "saturate(1.25) contrast(1.12) brightness(0.9)",
             maskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0,0,0,0.25) 48%, rgba(0,0,0,0.7) 68%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 25%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.8) 65%, black 100%)",
             WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0,0,0,0.25) 48%, rgba(0,0,0,0.7) 68%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 25%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.8) 65%, black 100%)",
           }}
         />
 
@@ -334,7 +334,25 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "linear-gradient(90deg, #07080d 0%, rgba(7,8,13,0.97) 22%, rgba(7,8,13,0.85) 42%, rgba(7,8,13,0.55) 62%, rgba(7,8,13,0.4) 100%), linear-gradient(180deg, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.15) 30%, rgba(7,8,13,0.25) 60%, #07080d 100%)",
+              "linear-gradient(90deg, #07080d 0%, rgba(7,8,13,0.97) 22%, rgba(7,8,13,0.75) 42%, rgba(7,8,13,0.4) 62%, rgba(7,8,13,0.22) 100%), linear-gradient(180deg, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.1) 30%, rgba(7,8,13,0.2) 60%, #07080d 100%)",
+          }}
+        />
+
+        {/* blue colour-cast so the photo reads as part of the site's navy palette rather than plain grayscale */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 mix-blend-color"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(37,99,235,0.75) 60%, rgba(29,78,216,0.85) 100%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(7,15,35,0.3) 55%, rgba(7,15,35,0.12) 100%)",
           }}
         />
 
