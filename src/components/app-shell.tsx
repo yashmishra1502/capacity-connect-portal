@@ -1,12 +1,23 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, LogOut, Menu, Search, X } from "lucide-react";
+import {
+  Bell,
+  BookOpen,
+  FileCheck2,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Sparkles,
+  User,
+  Users,
+  ShieldCheck,
+  BarChart3,
+  X,
+} from "lucide-react";
 import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,19 +26,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { BrandIcon } from "@/components/brand-logo";
 import { navConfig, roleLabel } from "@/components/nav-config";
 import { currentUsers, notifications, type Role } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("");
-}
+type Primary = { label: string; to: string; icon: typeof BookOpen };
+
+const primaryNav: Record<Role, Primary[]> = {
+  trainee: [
+    { label: "Overview", to: "/", icon: Sparkles },
+    { label: "Dashboard", to: "/trainee", icon: LayoutDashboard },
+    { label: "Courses", to: "/trainee/courses", icon: BookOpen },
+    { label: "Assessments", to: "/trainee/assessment", icon: FileCheck2 },
+    { label: "Profile", to: "/trainee/profile", icon: User },
+  ],
+  trainer: [
+    { label: "Overview", to: "/", icon: Sparkles },
+    { label: "Dashboard", to: "/trainer", icon: LayoutDashboard },
+    { label: "Courses", to: "/trainer/courses", icon: BookOpen },
+    { label: "Questions", to: "/trainer/questions", icon: FileCheck2 },
+    { label: "Profile", to: "/trainer/profile", icon: User },
+  ],
+  admin: [
+    { label: "Overview", to: "/", icon: Sparkles },
+    { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
+    { label: "Trainees", to: "/admin/trainees", icon: Users },
+    { label: "Approvals", to: "/admin/approvals", icon: ShieldCheck },
+    { label: "Reports", to: "/admin/reports", icon: BarChart3 },
+  ],
+};
 
 export function AppShell({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
@@ -44,99 +72,100 @@ export function AppShell({ role }: { role: Role }) {
   }
 
   const active = (to: string) =>
-    to === `/${role}` ? pathname === to || pathname === `${to}/` : pathname === to;
-
-  const sidebar = (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-4">
-        <BrandIcon size={36} className="rounded-md bg-sidebar-primary p-1" />
-        <div className="min-w-0">
-          <p className="truncate font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
-          <p className="truncate text-[11px] text-sidebar-foreground/60">{roleLabel[role]}</p>
-        </div>
-      </div>
-      <ScrollArea className="flex-1 px-3 py-4">
-        {groups.map((group) => (
-          <div key={group} className="mb-4">
-            <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/45">
-              {group}
-            </p>
-            <div className="space-y-0.5">
-              {items
-                .filter((item) => item.group === group)
-                .map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "block rounded-md px-3 py-2 text-[13px] transition-colors",
-                      active(item.to)
-                        ? "bg-sidebar-primary font-semibold text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-            </div>
-          </div>
-        ))}
-      </ScrollArea>
-      <div className="border-t border-sidebar-border p-3 text-[11px] text-sidebar-foreground/50">
-        Government of India · Capacity Building Commission
-      </div>
-    </div>
-  );
+    to === "/" ? pathname === "/" : pathname === to || pathname === `${to}/`;
 
   return (
-    <div className="flex min-h-screen bg-muted/40">
-      <aside className="hidden w-64 shrink-0 lg:block">
-        <div className="fixed inset-y-0 w-64">{sidebar}</div>
-      </aside>
+    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      {/* ambient aurora field */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="cc-aurora size-[38rem] -left-40 -top-52 bg-primary/25" />
+        <div className="cc-aurora cc-aurora-2 size-[32rem] right-[-10rem] top-32 bg-info/20" />
+        <div className="cc-aurora cc-aurora-3 size-[34rem] bottom-[-12rem] left-1/3 bg-chart-5/15" />
+      </div>
 
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-navy/60" onClick={() => setOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-64">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setOpen(false)}
-              className="absolute -right-10 top-3"
-              aria-label="Close navigation"
-            >
-              <X className="size-4" />
-            </Button>
-            {sidebar}
-          </div>
-        </div>
-      )}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b bg-card px-4 md:px-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setOpen(true)}
-            aria-label="Open navigation"
+      <header className="sticky top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
+        <div className="mx-auto flex max-w-[1400px] items-center gap-1.5 rounded-2xl border border-border/70 bg-card/70 p-2 shadow-card backdrop-blur-xl md:gap-2 md:px-3">
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-background/70 px-2.5 py-1.5 transition-transform hover:-translate-y-0.5"
+            aria-label="Capacity Connect home"
           >
-            <Menu className="size-5" />
-          </Button>
-          <div className="relative hidden max-w-sm flex-1 md:block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search courses, trainees, resources…" className="pl-9" />
-          </div>
+            <BrandIcon size={30} className="rounded-md" />
+          </Link>
+
+          <nav className="hidden items-center gap-1 lg:flex">
+            {primaryNav[role].map((item) => {
+              const Icon = item.icon;
+              const on = active(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={cn(
+                    "relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300",
+                    on
+                      ? "bg-primary text-primary-foreground shadow-[0_10px_30px_-12px_var(--primary)]"
+                      : "text-muted-foreground hover:-translate-y-0.5 hover:bg-accent/60 hover:text-foreground",
+                  )}
+                >
+                  <Icon className="size-4" />
+                  {item.label}
+                  {on && (
+                    <span className="absolute -bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+
           <div className="flex-1" />
-          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+              <Button
+                variant="outline"
+                className="hidden h-10 gap-2 rounded-full border-border/70 bg-background/60 px-3 backdrop-blur sm:flex"
+              >
+                <User className="size-4 text-primary" />
+                <span className="text-sm font-semibold">{user.name.split(" ")[0]}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-60">
+              <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                {user.email} · {roleLabel[role]}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={`/${role}`}>Dashboard</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/${role}/profile`}>Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/${role}/settings`}>Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => void handleSignOut()}
+                className="gap-2 text-destructive focus:text-destructive"
+              >
+                <LogOut className="size-3.5" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full transition-transform hover:-translate-y-0.5"
+                aria-label="Notifications"
+              >
                 <Bell className="size-5" />
                 {unread > 0 && (
-                  <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                  <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
                     {unread}
                   </span>
                 )}
@@ -159,56 +188,86 @@ export function AppShell({ role }: { role: Role }) {
                   <span className="text-[10px] text-muted-foreground/70">{notification.time}</span>
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to={`/${role}`} className="justify-center text-xs font-medium">
-                  View all notifications
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-auto gap-2 px-1.5 py-1">
-                <Avatar className="size-8">
-                  <AvatarFallback className="bg-primary text-xs text-primary-foreground">
-                    {initials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden text-left sm:block">
-                  <span className="block text-xs font-semibold leading-tight">{user.name}</span>
-                  <span className="block text-[10px] leading-tight text-muted-foreground">{user.title}</span>
-                </span>
+          <div className="rounded-full border border-border/70 bg-background/60">
+            <ThemeToggle />
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => setOpen(true)}
+            aria-label="Open all sections"
+          >
+            <Menu className="size-5" />
+          </Button>
+        </div>
+      </header>
+
+      {/* full navigation drawer */}
+      {open && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          <aside className="absolute inset-y-0 right-0 flex w-[19rem] max-w-[88vw] flex-col border-l border-border bg-card/95 backdrop-blur-xl animate-[cc-hero-in_0.35s_ease-out]">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <div className="flex items-center gap-2">
+                <BrandIcon size={30} className="rounded-md" />
+                <div>
+                  <p className="font-display text-sm font-bold">CAPACITY CONNECT</p>
+                  <p className="text-[11px] text-muted-foreground">{roleLabel[role]}</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
+                <X className="size-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                {user.email}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to={`/${role}`}>Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/${role}`}>Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={() => void handleSignOut()}
-                className="gap-2 text-destructive focus:text-destructive"
-              >
-                <LogOut className="size-3.5" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </header>
+            </div>
+            <div className="flex-1 overflow-y-auto px-3 py-4">
+              {groups.map((group) => (
+                <div key={group} className="mb-4">
+                  <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                    {group}
+                  </p>
+                  <div className="space-y-0.5">
+                    {items
+                      .filter((item) => item.group === group)
+                      .map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "block rounded-lg px-3 py-2 text-[13px] transition-all duration-200",
+                            active(item.to)
+                              ? "bg-primary font-semibold text-primary-foreground"
+                              : "text-muted-foreground hover:translate-x-1 hover:bg-accent hover:text-foreground",
+                          )}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border p-4 text-[11px] text-muted-foreground">
+              Government of India · Capacity Building Commission
+            </div>
+          </aside>
+        </div>
+      )}
 
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 md:px-6 md:py-8">
-          <Outlet />
-        </main>
-      </div>
+      <main
+        key={pathname}
+        className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 md:px-6 md:py-8 cc-page-in"
+      >
+        <Outlet />
+      </main>
     </div>
   );
 }
