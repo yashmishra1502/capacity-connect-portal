@@ -15,7 +15,7 @@ export function BrandIcon({ className, size = 36 }: { className?: string; size?:
 export function BrandLogo({ className }: { className?: string }) {
   return (
     <img
-      src="/day.png"
+      src="/night.png"
       alt="Capacity Connect — Digital Capacity Building Portal"
       className={cn("inline-block h-auto w-full max-w-[280px] object-contain", className)}
     />
