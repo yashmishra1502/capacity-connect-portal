@@ -24,13 +24,15 @@ function useIsDark() {
 
 export function BrandIcon({ className, size = 56 }: { className?: string; size?: number }) {
   const isDark = useIsDark();
+  // Night logo renders visually smaller within its own canvas, so scale it up a bit.
+  const effectiveSize = isDark ? Math.round(size * 1.3) : size;
 
   return (
     <img
       src={isDark ? "/night.png" : "/day.png"}
       alt="Capacity Connect"
-      width={size}
-      height={size}
+      width={effectiveSize}
+      height={effectiveSize}
       className={cn("inline-block shrink-0 object-contain", className)}
     />
   );
@@ -43,7 +45,11 @@ export function BrandLogo({ className }: { className?: string }) {
     <img
       src={isDark ? "/night.png" : "/day.png"}
       alt="Capacity Connect — Digital Capacity Building Portal"
-      className={cn("inline-block h-auto w-full max-w-[560px] object-contain", className)}
+      className={cn(
+        "inline-block h-auto w-full max-w-[560px] object-contain",
+        isDark && "scale-125 origin-left",
+        className
+      )}
     />
   );
 }
