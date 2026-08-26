@@ -313,57 +313,21 @@ function Landing() {
 
       {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
       <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* Training / classroom photo — full-bleed, balanced visibility */}
+        {/* custom hero graphic — flag, Supreme Court, India map, books, wave motif */}
         <div
           aria-hidden="true"
-          data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-60 md:opacity-100"
-          style={{
-            backgroundImage:
-              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Group%20picture%20of%20trainers%20and%20teachers.jpg')",
-            filter: "saturate(1.15) contrast(1.08) brightness(0.85)",
-            maskImage:
-              "radial-gradient(ellipse 85% 75% at 50% 45%, black 45%, rgba(0,0,0,0.55) 70%, transparent 100%)",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 85% 75% at 50% 45%, black 45%, rgba(0,0,0,0.55) 70%, transparent 100%)",
-          }}
+          data-parallax="0.05"
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero-bg.png')" }}
         />
 
-        {/* balanced dark-navy blend — keeps the photo readable while the text stays the clear focus */}
+        {/* centered dark scrim so the white headline stays readable; corners (flag, building, books, wave) stay visible */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 60% 55% at 50% 40%, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.75) 55%, rgba(7,8,13,0.9) 100%), linear-gradient(180deg, rgba(7,8,13,0.7) 0%, rgba(7,8,13,0.25) 30%, rgba(7,8,13,0.35) 65%, #07080d 100%)",
-          }}
-        />
-
-        {/* blue colour-cast so the photo reads in the site's navy palette rather than plain grayscale */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 mix-blend-color"
-          style={{ backgroundColor: "rgba(37,99,235,0.55)" }}
-        />
-
-        {/* subtle cinematic blue glow */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 55% 45% at 50% 35%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
-          }}
-        />
-
-        {/* fine grid texture kept extremely subtle over the photo, matching the site's existing tech-grid motif */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
+              "radial-gradient(ellipse 65% 60% at 50% 42%, rgba(7,8,13,0.82) 0%, rgba(7,8,13,0.6) 45%, rgba(7,8,13,0.25) 72%, transparent 100%), linear-gradient(180deg, rgba(7,8,13,0.35) 0%, transparent 20%, transparent 70%, rgba(7,8,13,0.6) 100%)",
           }}
         />
 
