@@ -352,7 +352,7 @@ function Landing() {
       </header>
 
       {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
-      <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
+      <section className="relative z-10 isolate flex min-h-[78vh] items-center justify-center overflow-hidden bg-background">
         {/* Real photograph — Rashtrapati Bhavan (President House), right-aligned, fading toward center/left */}
         <div
           aria-hidden="true"
@@ -363,21 +363,14 @@ function Landing() {
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
             filter: "saturate(1.15) contrast(1.1) brightness(1.05)",
             maskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 34%, rgba(0,0,0,0.25) 52%, rgba(0,0,0,0.75) 70%, black 100%)",
             WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 34%, rgba(0,0,0,0.25) 52%, rgba(0,0,0,0.75) 70%, black 100%)",
           }}
         />
 
-        {/* balanced dark-navy scrim so the photo blends into the existing background instead of sitting as a separate card */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 90%, transparent) 24%, color-mix(in oklab, var(--background) 62%, transparent) 44%, color-mix(in oklab, var(--background) 30%, transparent) 64%, color-mix(in oklab, var(--background) 14%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 5%, transparent) 28%, color-mix(in oklab, var(--background) 14%, transparent) 60%, var(--background) 100%)",
-          }}
-        />
+        {/* photo already fades out via its own mask on the left — no separate scrim needed,
+            so the left side shows the same background as the rest of the page */}
 
         {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
         <div
@@ -410,7 +403,7 @@ function Landing() {
           }}
         />
 
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-10 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
               <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
