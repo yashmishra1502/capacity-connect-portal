@@ -163,10 +163,10 @@ const faqs = [
 ];
 
 const impactStats = [
-  { icon: Users, bg: "bg-indigo-500/15", fg: "text-indigo-300" },
-  { icon: UserCheck, bg: "bg-emerald-500/15", fg: "text-emerald-300" },
-  { icon: BookOpen, bg: "bg-violet-500/15", fg: "text-violet-300" },
-  { icon: Award, bg: "bg-amber-500/15", fg: "text-amber-300" },
+  { icon: Users, bg: "bg-indigo-500/20", fg: "text-indigo-300" },
+  { icon: UserCheck, bg: "bg-emerald-500/20", fg: "text-emerald-300" },
+  { icon: BookOpen, bg: "bg-violet-500/20", fg: "text-violet-300" },
+  { icon: Award, bg: "bg-amber-500/20", fg: "text-amber-300" },
 ];
 
 const heroBadges = [
@@ -190,28 +190,28 @@ const trustStrip = [
     icon: GraduationCap,
     title: "Centralised learning",
     desc: "Courses, resources and assessments in one platform.",
-    bg: "bg-indigo-500/20",
+    bg: "bg-indigo-500/25",
     fg: "text-indigo-300",
   },
   {
     icon: ShieldCheck,
     title: "Secure & role-based",
     desc: "Role-based access for trainers, trainees and admins.",
-    bg: "bg-emerald-500/20",
+    bg: "bg-emerald-500/25",
     fg: "text-emerald-300",
   },
   {
     icon: BarChart3,
     title: "Track & monitor",
     desc: "Real-time dashboards for performance and progress.",
-    bg: "bg-violet-500/20",
+    bg: "bg-violet-500/25",
     fg: "text-violet-300",
   },
   {
     icon: Bell,
     title: "Stay updated",
     desc: "Instant notifications on deadlines and achievements.",
-    bg: "bg-amber-500/20",
+    bg: "bg-amber-500/25",
     fg: "text-amber-300",
   },
 ];
@@ -237,8 +237,8 @@ function Landing() {
           50% { transform: translate(40px, -50px) scale(1.2); }
         }
         @keyframes cc-pulse-glow {
-          0%, 100% { opacity: 0.55; }
-          50% { opacity: 0.9; }
+          0%, 100% { opacity: 0.65; }
+          50% { opacity: 1; }
         }
       `}</style>
 
@@ -248,50 +248,50 @@ function Landing() {
         <div
           className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
             animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-32 top-1/4 size-[600px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, rgba(139,92,246,0.5), transparent 70%)",
+            background: "radial-gradient(circle, rgba(139,92,246,0.65), transparent 70%)",
             animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
           }}
         />
         <div
           className="absolute left-1/3 top-2/3 size-[650px] rounded-full blur-[130px]"
           style={{
-            background: "radial-gradient(circle, rgba(56,189,248,0.35), transparent 70%)",
+            background: "radial-gradient(circle, rgba(56,189,248,0.5), transparent 70%)",
             animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-20 bottom-0 size-[550px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
           }}
         />
         {/* fine grid overlay, subtle, whole page */}
         <div
-          className="absolute inset-0 opacity-[0.08]"
+          className="absolute inset-0 opacity-[0.1]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px)",
+              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
       </div>
 
       {/* ---------- HEADER ---------- */}
-      <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/60 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-foreground/15 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2.5">
           <Link to="/" className="flex items-center gap-2.5">
             <BrandLogo className="h-[4.5rem] w-auto max-w-[240px]" />
           </Link>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-foreground/60 md:flex">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-foreground/75 md:flex">
             <a href="#" className="cc-link text-foreground">Home</a>
             <Link to="/about" className="cc-link hover:text-foreground">About</Link>
             <a href="#how-it-works" className="cc-link hover:text-foreground">How it works</a>
@@ -299,7 +299,7 @@ function Landing() {
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm" className="border-foreground/15 bg-foreground/5 text-foreground hover:bg-foreground/10 hidden sm:inline-flex">
+            <Button asChild variant="outline" size="sm" className="border-foreground/20 bg-foreground/5 text-foreground hover:bg-foreground/10 hidden sm:inline-flex">
               <Link to="/admin-login">Admin Login</Link>
             </Button>
             <Button asChild size="sm" className="rounded-full bg-foreground text-background hover:bg-foreground/90">
@@ -317,11 +317,11 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-45 md:bg-[position:78%_center] md:opacity-100"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100"
           style={{
             backgroundImage:
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
-            filter: "saturate(1.2) contrast(1.1) brightness(0.9)",
+            filter: "saturate(1.5) contrast(1.25) brightness(1)",
             maskImage:
               "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
             WebkitMaskImage:
@@ -335,7 +335,7 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 95%, transparent) 24%, color-mix(in oklab, var(--background) 72%, transparent) 44%, color-mix(in oklab, var(--background) 38%, transparent) 64%, color-mix(in oklab, var(--background) 22%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 10%, transparent) 28%, color-mix(in oklab, var(--background) 22%, transparent) 60%, var(--background) 100%)",
+              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 90%, transparent) 24%, color-mix(in oklab, var(--background) 62%, transparent) 44%, color-mix(in oklab, var(--background) 30%, transparent) 64%, color-mix(in oklab, var(--background) 14%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 5%, transparent) 28%, color-mix(in oklab, var(--background) 14%, transparent) 60%, var(--background) 100%)",
           }}
         />
 
@@ -345,7 +345,7 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0 mix-blend-color"
           style={{
             background:
-              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(37,99,235,0.7) 60%, rgba(29,78,216,0.8) 100%)",
+              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(37,99,235,0.85) 60%, rgba(29,78,216,0.9) 100%)",
           }}
         />
 
@@ -355,23 +355,23 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%)",
+              "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
           }}
         />
 
         {/* fine grid texture kept extremely subtle over the photo */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.05]"
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.06]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 35%, transparent) 1px, transparent 1px)",
+              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
 
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-foreground/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
+          <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
               <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
               <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
@@ -387,7 +387,7 @@ function Landing() {
             <span className="cc-gradient-text">Connecting futures.</span>
           </h1>
 
-          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/60">
+          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/75">
             A centralised digital platform for training management, competency
             development and knowledge sharing — built to empower departments and
             the people within them.
@@ -407,37 +407,37 @@ function Landing() {
               asChild
               variant="outline"
               size="lg"
-              className="h-12 rounded-full border-foreground/15 bg-foreground/5 px-7 text-[15px] text-foreground backdrop-blur-sm hover:bg-foreground/10"
+              className="h-12 rounded-full border-foreground/20 bg-foreground/[0.08] px-7 text-[15px] text-foreground backdrop-blur-sm hover:bg-foreground/15"
             >
               <a href="#how-it-works">How it works</a>
             </Button>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-foreground/10 bg-foreground/[0.04] px-5 py-3 backdrop-blur-sm">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-foreground/15 bg-foreground/[0.07] px-5 py-3 backdrop-blur-sm">
             {heroBadges.map((b, i) => (
               <div key={b.label} className="flex items-center gap-4">
-                <span className="flex items-center gap-2 text-[13px] font-medium text-foreground/85">
+                <span className="flex items-center gap-2 text-[13px] font-medium text-foreground/90">
                   <b.icon className="size-4 text-sky-300" />
                   {b.label}
                 </span>
                 {i < heroBadges.length - 1 && (
-                  <span className="hidden h-4 w-px bg-foreground/15 sm:block" />
+                  <span className="hidden h-4 w-px bg-foreground/20 sm:block" />
                 )}
               </div>
             ))}
           </div>
 
-          <div className="mt-16 w-full border-t border-foreground/10 pt-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
+          <div className="mt-16 w-full border-t border-foreground/15 pt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/55">
               Trusted by government departments across India
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
               {govDepartments.map((d) => (
-                <div key={d.name} className="flex flex-col items-center gap-1.5 opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0">
-                  <div className="flex size-12 items-center justify-center rounded-full border border-foreground/20 bg-foreground/[0.04]">
-                    <d.icon className="size-5 text-foreground/70" />
+                <div key={d.name} className="flex flex-col items-center gap-1.5 opacity-90 grayscale transition hover:opacity-100 hover:grayscale-0">
+                  <div className="flex size-12 items-center justify-center rounded-full border border-foreground/25 bg-foreground/[0.07]">
+                    <d.icon className="size-5 text-foreground/80" />
                   </div>
-                  <span className="max-w-[72px] text-center text-[10px] leading-tight text-foreground/50">{d.name}</span>
+                  <span className="max-w-[72px] text-center text-[10px] leading-tight text-foreground/60">{d.name}</span>
                 </div>
               ))}
             </div>
@@ -446,7 +446,7 @@ function Landing() {
       </section>
 
       {/* ---------- TRUST STRIP ---------- */}
-      <section className="relative z-10 border-b border-foreground/10 bg-foreground/[0.01] py-10 backdrop-blur-sm">
+      <section className="relative z-10 border-b border-foreground/15 bg-foreground/[0.02] py-10 backdrop-blur-sm">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 md:grid-cols-4">
           {trustStrip.map((s, i) => (
             <div key={s.title} data-reveal data-reveal-delay={i * 80} className="group flex items-start gap-3">
@@ -455,7 +455,7 @@ function Landing() {
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-foreground">{s.title}</p>
-                <p className="mt-1 text-[11px] leading-snug text-foreground/50">{s.desc}</p>
+                <p className="mt-1 text-[11px] leading-snug text-foreground/60">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -467,7 +467,7 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.18"
-          className="pointer-events-none absolute left-[-12%] top-1/3 z-0 size-[420px] rounded-full bg-primary/[0.1] blur-3xl"
+          className="pointer-events-none absolute left-[-12%] top-1/3 z-0 size-[420px] rounded-full bg-primary/[0.18] blur-3xl"
         />
         <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-16 px-5 md:grid-cols-[1.15fr_1fr]">
           <div>
@@ -482,15 +482,15 @@ function Landing() {
                     <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
                   <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em] text-foreground">{s.value}+</p>
-                  <p className="mt-1 text-[13px] text-foreground/50">{s.sub}</p>
+                  <p className="mt-1 text-[13px] text-foreground/60">{s.sub}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-foreground/10 bg-foreground/[0.03] p-8 backdrop-blur-xl">
+          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-foreground/15 bg-foreground/[0.06] p-8 backdrop-blur-xl">
             <h3 className="font-display text-lg font-bold tracking-tight text-foreground">About Capacity Connect</h3>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/60">
+            <p className="mt-3 text-sm leading-relaxed text-foreground/75">
               An initiative of the Capacity Building Commission, Capacity Connect brings a
               seamless digital experience to training, assessments and knowledge sharing —
               so every department can plan competency growth in one place.
@@ -502,7 +502,7 @@ function Landing() {
             </Button>
           </div>
         </div>
-        <div className="mx-auto max-w-6xl border-t border-foreground/10" />
+        <div className="mx-auto max-w-6xl border-t border-foreground/15" />
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
@@ -511,7 +511,7 @@ function Landing() {
         <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
           Choose your portal
         </h2>
-        <p className="mt-3 max-w-lg text-[15px] text-foreground/50">
+        <p className="mt-3 max-w-lg text-[15px] text-foreground/60">
           Each role has a dedicated dashboard experience with its own navigation.
         </p>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -520,16 +520,16 @@ function Landing() {
               key={p.role}
               data-reveal
               data-reveal-delay={i * 110}
-              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-foreground/10 bg-foreground/[0.03] backdrop-blur-xl"
+              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl"
             >
-              <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-75 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-7">
-                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-foreground/5">
+                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-foreground/10">
                   <p.icon className="size-5 text-foreground" />
                 </div>
                 <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-foreground">{p.role}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{p.desc}</p>
-                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-foreground/55">
+                <p className="mt-2 text-sm leading-relaxed text-foreground/70">{p.desc}</p>
+                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-foreground/70">
                   {p.points.map((pt) => (
                     <li key={pt} className="flex items-center gap-2.5">
                       <span className="size-1 rounded-full bg-primary" />
@@ -551,12 +551,12 @@ function Landing() {
       {/* ---------- HOW IT WORKS ---------- */}
       <section
         id="how-it-works"
-        className="relative z-10 overflow-hidden border-y border-foreground/10 bg-foreground/[0.01] py-24 md:py-32 backdrop-blur-sm"
+        className="relative z-10 overflow-hidden border-y border-foreground/15 bg-foreground/[0.02] py-24 md:py-32 backdrop-blur-sm"
       >
         <div
           aria-hidden="true"
           data-parallax="0.22"
-          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[420px] -translate-y-1/2 rounded-full bg-primary/[0.12] blur-3xl"
+          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[420px] -translate-y-1/2 rounded-full bg-primary/[0.2] blur-3xl"
         />
         <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
@@ -564,7 +564,7 @@ function Landing() {
             <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
               How it works
             </h2>
-            <p className="mt-3 text-[15px] text-foreground/50">
+            <p className="mt-3 text-[15px] text-foreground/60">
               A simple four-step journey from registration to verified certification.
             </p>
           </div>
@@ -572,18 +572,18 @@ function Landing() {
             {steps.map((s, i) => (
               <div key={s.title} data-reveal data-reveal-delay={i * 100} className="group relative">
                 {i < steps.length - 1 && (
-                  <div className="absolute left-6 top-6 hidden h-px w-full bg-gradient-to-r from-foreground/15 to-transparent md:block" />
+                  <div className="absolute left-6 top-6 hidden h-px w-full bg-gradient-to-r from-foreground/25 to-transparent md:block" />
                 )}
                 <div className="relative flex items-center gap-4">
                   <div className="cc-lift flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
                     <s.icon className="size-5" />
                   </div>
-                  <span className="font-display text-3xl font-bold text-foreground/10">
+                  <span className="font-display text-3xl font-bold text-foreground/15">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
                 <h3 className="mt-6 font-display text-base font-semibold tracking-tight text-foreground">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{s.desc}</p>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/70">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -597,7 +597,7 @@ function Landing() {
           <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
             Platform capabilities
           </h2>
-          <p className="mt-3 text-[15px] text-foreground/50">
+          <p className="mt-3 text-[15px] text-foreground/60">
             Everything trainees, trainers and administrators need on a single platform.
           </p>
         </div>
@@ -607,14 +607,14 @@ function Landing() {
               key={f.title}
               data-reveal
               data-reveal-delay={(i % 3) * 90}
-              className="cc-glow-card group rounded-2xl border-foreground/10 bg-foreground/[0.03] backdrop-blur-xl"
+              className="cc-glow-card group rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl"
             >
               <CardContent className="p-7">
-                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-foreground/5">
+                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-foreground/10">
                   <f.icon className="size-5 text-foreground" />
                 </div>
                 <h3 className="mt-5 font-display text-base font-semibold tracking-tight text-foreground">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/55">{f.desc}</p>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/70">{f.desc}</p>
               </CardContent>
             </Card>
           ))}
@@ -622,21 +622,21 @@ function Landing() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="relative z-10 overflow-hidden bg-foreground/[0.01] py-16 md:py-20 backdrop-blur-sm">
+      <section className="relative z-10 overflow-hidden bg-foreground/[0.02] py-16 md:py-20 backdrop-blur-sm">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.08] blur-3xl"
+          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.15] blur-3xl"
         />
         <div className="relative z-10 mx-auto max-w-3xl px-5">
           <h2 data-reveal className="font-display text-xl font-bold text-foreground">Frequently asked questions</h2>
-          <p className="mt-2 text-sm text-foreground/50">
+          <p className="mt-2 text-sm text-foreground/60">
             Common questions from trainees, trainers and department administrators.
           </p>
-          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/10 bg-foreground/[0.03] px-5">
+          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/15 bg-foreground/[0.06] px-5">
             {faqs.map((f, i) => (
-              <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-foreground/10" : "border-foreground/10"}>
+              <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-foreground/15" : "border-foreground/15"}>
                 <AccordionTrigger className="text-sm text-foreground hover:no-underline">{f.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-foreground/55">{f.a}</AccordionContent>
+                <AccordionContent className="text-sm text-foreground/70">{f.a}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -644,10 +644,10 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="relative z-10 overflow-hidden border-t border-foreground/10 bg-background/70 backdrop-blur-sm">
+      <footer className="relative z-10 overflow-hidden border-t border-foreground/15 bg-background/70 backdrop-blur-sm">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
         />
         <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -655,14 +655,14 @@ function Landing() {
               <Link to="/">
                 <BrandLogo className="h-24 w-auto max-w-[340px]" />
               </Link>
-              <p className="mt-3 max-w-xs text-xs text-foreground/45">
+              <p className="mt-3 max-w-xs text-xs text-foreground/55">
                 A digital capacity building and learning management initiative under the
                 Capacity Building Commission.
               </p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
+              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
                 <li><Link to="/about" className="hover:text-foreground">About</Link></li>
                 <li><a href="#how-it-works" className="hover:text-foreground">How it works</a></li>
                 <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
@@ -670,7 +670,7 @@ function Landing() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
+              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
                 <li><Link to="/login" className="hover:text-foreground">Trainee</Link></li>
                 <li><Link to="/login" className="hover:text-foreground">Trainer</Link></li>
                 <li><Link to="/admin-login" className="hover:text-foreground">Admin</Link></li>
@@ -678,7 +678,7 @@ function Landing() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Contact</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/55">
+              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
                 <li className="flex items-center gap-2">
                   <Mail className="size-3.5" /> support@capacityconnect.gov.in
                 </li>
@@ -691,11 +691,11 @@ function Landing() {
               </ul>
             </div>
           </div>
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-foreground/10 pt-6 sm:flex-row">
-            <p className="text-xs text-foreground/45">
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-foreground/15 pt-6 sm:flex-row">
+            <p className="text-xs text-foreground/55">
               Capacity Connect · Demonstration interface with sample data
             </p>
-            <div className="flex items-center gap-5 text-xs text-foreground/55">
+            <div className="flex items-center gap-5 text-xs text-foreground/70">
               <a href="#" className="hover:text-foreground">Privacy policy</a>
               <a href="#" className="hover:text-foreground">Terms of use</a>
               <a href="#" className="hover:text-foreground">Accessibility</a>
