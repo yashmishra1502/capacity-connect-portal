@@ -356,7 +356,7 @@ function Landing() {
       </header>
 
       {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
-      <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
+      <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
         {/* Real photograph — Rashtrapati Bhavan (President House), right-aligned, fading toward center/left */}
         <div
           aria-hidden="true"
@@ -414,7 +414,7 @@ function Landing() {
           }}
         />
 
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-8 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
               <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
