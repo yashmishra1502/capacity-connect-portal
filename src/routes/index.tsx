@@ -351,8 +351,8 @@ function Landing() {
         </div>
       </header>
 
-      {/* ---------- HERO (content, layout, typography UNCHANGED; glass panel added around the text block) ---------- */}
-      <section className="relative z-10 isolate flex min-h-[78vh] items-center justify-center overflow-hidden bg-background">
+      {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
+      <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
         {/* Real photograph — Rashtrapati Bhavan (President House), right-aligned, fading toward center/left */}
         <div
           aria-hidden="true"
@@ -363,14 +363,21 @@ function Landing() {
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
             filter: "saturate(1.15) contrast(1.1) brightness(1.05)",
             maskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 34%, rgba(0,0,0,0.25) 52%, rgba(0,0,0,0.75) 70%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
             WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 34%, rgba(0,0,0,0.25) 52%, rgba(0,0,0,0.75) 70%, black 100%)",
+              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
           }}
         />
 
-        {/* photo already fades out via its own mask on the left — no separate scrim needed,
-            so the left side shows the same background as the rest of the page */}
+        {/* balanced dark-navy scrim so the photo blends into the existing background instead of sitting as a separate card */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 90%, transparent) 24%, color-mix(in oklab, var(--background) 62%, transparent) 44%, color-mix(in oklab, var(--background) 30%, transparent) 64%, color-mix(in oklab, var(--background) 14%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 5%, transparent) 28%, color-mix(in oklab, var(--background) 14%, transparent) 60%, var(--background) 100%)",
+          }}
+        />
 
         {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
         <div
@@ -403,41 +410,7 @@ function Landing() {
           }}
         />
 
-        {/* smooth fade at the bottom of the hero so the photo doesn't cut off abruptly into the next section */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-48 bg-gradient-to-b from-transparent to-background md:h-64"
-        />
-
-        {/* Glassmorphism layer for the empty/white area on the left of the hero (where the photo fades out) */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[58%] md:block"
-          style={{
-            background:
-              "linear-gradient(135deg, color-mix(in oklab, var(--foreground) 14%, transparent) 0%, color-mix(in oklab, var(--background) 60%, transparent) 100%)",
-            backdropFilter: "blur(36px) saturate(180%)",
-            WebkitBackdropFilter: "blur(36px) saturate(180%)",
-            borderRight: "1px solid color-mix(in oklab, var(--foreground) 16%, transparent)",
-            boxShadow:
-              "inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent), inset -1px 0 0 color-mix(in oklab, var(--foreground) 10%, transparent)",
-            maskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
-          }}
-        />
-        {/* subtle glass sheen streak for extra glassmorphism feel */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[58%] md:block"
-          style={{
-            background:
-              "linear-gradient(115deg, transparent 18%, color-mix(in oklab, var(--foreground) 12%, transparent) 30%, transparent 42%)",
-            maskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
-          }}
-        />
-
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-10 text-center">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
             <span className="relative flex size-1.5">
               <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
