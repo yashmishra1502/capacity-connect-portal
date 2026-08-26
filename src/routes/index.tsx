@@ -317,9 +317,9 @@ function Landing() {
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
           }}
         />
-        {/* fine grid overlay, subtle, whole page */}
+        {/* fine grid overlay — visibility lowered from second section onward */}
         <div
-          className="absolute inset-0 opacity-[0.1]"
+          className="absolute inset-0 opacity-[0.035]"
           style={{
             backgroundImage:
               "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
