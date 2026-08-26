@@ -210,24 +210,24 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* ---------- HEADER ---------- */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+      <header className="fixed top-0 z-40 w-full border-b border-white/10 bg-transparent backdrop-blur-md transition-colors">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
             <BrandLogo className="h-14 w-auto max-w-[220px]" />
           </Link>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
-            <a href="#" className="cc-link text-foreground">Home</a>
-            <Link to="/about" className="cc-link hover:text-foreground">About</Link>
-            <a href="#how-it-works" className="cc-link hover:text-foreground">How it works</a>
-            <Link to="/contact" className="cc-link hover:text-foreground">Contact</Link>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-white/70 md:flex">
+            <a href="#" className="cc-link text-white">Home</a>
+            <Link to="/about" className="cc-link hover:text-white">About</Link>
+            <a href="#how-it-works" className="cc-link hover:text-white">How it works</a>
+            <Link to="/contact" className="cc-link hover:text-white">Contact</Link>
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm" className="cc-btn-ghost-glass hidden sm:inline-flex">
+            <Button asChild variant="outline" size="sm" className="border-white/25 bg-white/5 text-white backdrop-blur-sm hover:bg-white/10 hidden sm:inline-flex">
               <Link to="/admin-login">Admin Login</Link>
             </Button>
-            <Button asChild size="sm" className="cc-btn-glass">
+            <Button asChild size="sm" className="rounded-full bg-white text-black hover:bg-white/90">
               <Link to="/login">
                 Sign in <ArrowRight className="ml-1 size-4" />
               </Link>
@@ -237,159 +237,98 @@ function Landing() {
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="relative isolate overflow-hidden">
-        {/* aurora field */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
-          <div className="cc-aurora left-[-10%] top-[-18%] size-[520px] bg-primary/25 dark:bg-primary/20" />
-          <div className="cc-aurora cc-aurora-2 right-[-14%] top-[-8%] size-[460px] bg-violet-500/20" />
-          <div className="cc-aurora cc-aurora-3 bottom-[-30%] left-[35%] size-[420px] bg-sky-400/15" />
-        </div>
-        {/* fine grid */}
+      <section className="relative isolate flex min-h-[92vh] items-center justify-center overflow-hidden">
+        {/* Background image */}
+        <img
+          src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 z-0 h-full w-full object-cover"
+        />
+        {/* Dark cinematic overlay */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
+        {/* Glow accent (brand-colored) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.5] dark:opacity-[0.12]"
+          className="pointer-events-none absolute inset-0 z-0"
           style={{
-            backgroundImage:
-              "linear-gradient(to right, color-mix(in oklab, var(--border) 90%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border) 90%, transparent) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-            maskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 80%)",
+            background:
+              "radial-gradient(circle at 50% 65%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 60%)",
           }}
         />
 
-        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-14 px-5 pt-20 pb-24 md:grid-cols-[1.05fr_1fr] md:pt-28 md:pb-32">
-          {/* Left copy */}
-          <div className="cc-hero-in">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary backdrop-blur-sm">
-              <span className="relative flex size-1.5">
-                <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-              </span>
-              Capacity Building Commission
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 py-24 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+            <span className="relative flex size-1.5">
+              <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
             </span>
+            Capacity Building Commission
+          </span>
 
-            <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-6xl md:text-[4.1rem]">
-              Empowering people.
-              <br />
-              Building capacity.
-              <br />
-              <span className="cc-gradient-text">Connecting futures.</span>
-            </h1>
+          <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl md:text-[4.5rem]">
+            Empowering people.
+            <br />
+            Building capacity.
+            <br />
+            <span className="cc-gradient-text">Connecting futures.</span>
+          </h1>
 
-            <p className="mt-7 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-              A centralised digital platform for training management, competency
-              development and knowledge sharing — built to empower departments and
-              the people within them.
-            </p>
+          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/70">
+            A centralised digital platform for training management, competency
+            development and knowledge sharing — built to empower departments and
+            the people within them.
+          </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="cc-btn-glass h-12 rounded-xl px-6 text-[15px]">
-                <Link to="/login">
-                  Explore platform <ArrowRight className="ml-1.5 size-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="cc-btn-ghost-glass h-12 rounded-xl px-6 text-[15px]">
-                <a href="#how-it-works">How it works</a>
-              </Button>
-            </div>
-
-            <div className="mt-14 flex flex-wrap items-center gap-x-12 gap-y-4 border-t border-border/60 pt-7">
-              {[
-                { v: "4,826+", l: "Active users" },
-                { v: "86+", l: "Courses live" },
-                { v: "950+", l: "Certificates issued" },
-              ].map((s) => (
-                <div key={s.l} className="group">
-                  <p className="cc-lift font-display text-2xl font-bold tracking-tight text-foreground">{s.v}</p>
-                  <p className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">{s.l}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-full bg-white px-7 text-[15px] font-medium text-black shadow-xl hover:bg-white/90"
+            >
+              <Link to="/login">
+                Explore platform <ArrowRight className="ml-1.5 size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 rounded-full border-white/25 bg-white/5 px-7 text-[15px] text-white backdrop-blur-sm hover:bg-white/10"
+            >
+              <a href="#how-it-works">How it works</a>
+            </Button>
           </div>
 
-          {/* Right: interactive focal element */}
-          <div className="cc-hero-in cc-delay-2 relative hidden md:block" data-parallax="0.12">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-to-tr from-primary/15 via-transparent to-violet-500/20 blur-3xl"
-            />
+          <p className="mt-4 text-[11px] uppercase tracking-[0.14em] text-white/40">
+            Free for departments · Verified certification · Role-based access
+          </p>
 
-            <div className="cc-float-soft absolute -left-8 top-6 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md p-2">
-              <BrandIcon size={28} className="size-full rounded-xl" />
-            </div>
-            <div className="cc-float-slow absolute -left-12 top-1/2 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
-              <BarChart3 className="size-5 text-violet-500" />
-            </div>
-            <div className="cc-float-soft absolute -right-6 top-16 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
-              <ShieldCheck className="size-5 text-emerald-500" />
-            </div>
-            <div className="cc-float-slow absolute -right-8 bottom-10 z-30 flex size-11 items-center justify-center rounded-2xl border border-border/60 bg-card/80 shadow-xl shadow-black/10 backdrop-blur-md">
-              <Award className="size-5 text-amber-500" />
-            </div>
-
-            <div
-              ref={tiltRef}
-              className="cc-tilt cc-tilt-sheen relative rounded-3xl border border-border/70 bg-card/70 p-2.5 shadow-2xl shadow-black/20 backdrop-blur-xl"
-            >
-              <div className="rounded-2xl border border-border/60 bg-background/80 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[13px] font-semibold text-foreground">Welcome back, Ananya</p>
-                    <p className="text-[11px] text-muted-foreground">Let's continue learning</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-7 items-center justify-center rounded-full bg-muted">
-                      <Bell className="size-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="size-7 rounded-full bg-gradient-to-br from-primary to-violet-500" />
-                  </div>
-                </div>
-
-                <div className="mt-5 grid grid-cols-4 gap-2">
-                  <MiniStat label="Trainers" value="120+" sub="Active" />
-                  <MiniStat label="Trainees" value="1.2K+" sub="Enrolled" />
-                  <MiniStat label="Courses" value="85+" sub="Published" />
-                  <MiniStat label="Certificates" value="950+" sub="Issued" />
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-2.5">
-                  <div className="rounded-xl border border-border/60 p-3.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Recent activity
-                    </p>
-                    <div className="mt-2.5 space-y-2.5">
-                      <ActivityRow label="New course published" sub="Digital Leadership Basics" time="2h" />
-                      <ActivityRow label="Assessment completed" sub="Communication Skills" time="4h" />
-                      <ActivityRow label="Certificate issued" sub="Data Analysis Fundamentals" time="6h" />
-                    </div>
-                  </div>
-                  <div className="rounded-xl border border-border/60 p-3.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Progress
-                    </p>
-                    <div className="mt-2 flex items-center justify-center py-1">
-                      <div
-                        className="flex size-[74px] items-center justify-center rounded-full"
-                        style={{
-                          background:
-                            "conic-gradient(var(--primary) 0deg 270deg, color-mix(in oklab, var(--muted) 90%, transparent) 270deg 360deg)",
-                        }}
-                      >
-                        <div className="flex size-14 items-center justify-center rounded-full bg-card">
-                          <span className="font-display text-sm font-bold">75%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-center text-[10px] text-muted-foreground">Overall completion</p>
-                  </div>
-                </div>
+          {/* Stats row */}
+          <div className="mt-16 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 border-t border-white/10 pt-8">
+            {[
+              { v: "4,826+", l: "Active users" },
+              { v: "86+", l: "Courses live" },
+              { v: "950+", l: "Certificates issued" },
+            ].map((s) => (
+              <div key={s.l}>
+                <p className="font-display text-2xl font-bold tracking-tight text-white">{s.v}</p>
+                <p className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-white/50">{s.l}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
-        <div className="cc-hairline" />
-      </section>
 
+        {/* Bottom badge/logo strip */}
+        <div className="absolute inset-x-0 bottom-8 z-10 mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-8 px-5 opacity-50 grayscale transition-opacity hover:opacity-80">
+          {trustStrip.map((s) => (
+            <div key={s.title} className="flex items-center gap-2 text-white">
+              <s.icon className="size-4" />
+              <span className="text-[11px] font-medium">{s.title}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ---------- TRUST STRIP ---------- */}
       <section className="border-b border-border/60 bg-muted/30 py-10 dark:bg-white/[0.02]">
