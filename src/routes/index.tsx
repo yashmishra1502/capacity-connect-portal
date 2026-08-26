@@ -320,7 +320,7 @@ function Landing() {
           className="absolute inset-0 z-0 bg-cover bg-center opacity-45 md:bg-[position:78%_center] md:opacity-100"
           style={{
             backgroundImage:
-              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Building%20of%20The%20Supreme%20Court%20of%20India.jpg')",
+              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Indian%20Parliament%20Building%2C%20a%20night%20view.jpg')",
             filter: "saturate(1.2) contrast(1.1) brightness(0.9)",
             maskImage:
               "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
