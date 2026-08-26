@@ -138,12 +138,16 @@ export function AppShell({ role }: { role: Role }) {
               <DropdownMenuItem asChild>
                 <Link to={`/${role}`}>Dashboard</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/${role}/profile`}>Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/${role}/settings`}>Settings</Link>
-              </DropdownMenuItem>
+              {role === "trainee" && (
+                <DropdownMenuItem asChild>
+                  <Link to="/trainee/profile">Profile</Link>
+                </DropdownMenuItem>
+              )}
+              {role === "admin" && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/settings">Settings</Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={() => void handleSignOut()}
