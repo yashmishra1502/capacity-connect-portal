@@ -270,7 +270,7 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07080d]/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
-            <BrandLogo className="h-14 w-auto max-w-[220px]" />
+            <BrandLogo className="h-24 w-auto max-w-[340px]" />
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium text-white/60 md:flex">
@@ -577,7 +577,7 @@ function Landing() {
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
               <Link to="/">
-                <BrandLogo className="h-14 w-auto max-w-[220px]" />
+                <BrandLogo className="h-24 w-auto max-w-[340px]" />
               </Link>
               <p className="mt-3 max-w-xs text-xs text-white/45">
                 A digital capacity building and learning management initiative under the
