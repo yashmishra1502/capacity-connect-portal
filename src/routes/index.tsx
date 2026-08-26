@@ -313,21 +313,99 @@ function Landing() {
 
       {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
       <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* custom hero graphic — flag, Supreme Court, India map, books, wave motif */}
-        <div
+        {/* Fully code-generated hero scene — no external image file required */}
+        <svg
           aria-hidden="true"
-          data-parallax="0.05"
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero-bg.png')" }}
-        />
+          viewBox="0 0 1600 900"
+          preserveAspectRatio="xMidYMid slice"
+          className="absolute inset-0 z-0 h-full w-full"
+        >
+          <defs>
+            <linearGradient id="cc-hero-tricolor" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fb923c" />
+              <stop offset="45%" stopColor="#f8fafc" />
+              <stop offset="100%" stopColor="#34d399" />
+            </linearGradient>
+            <linearGradient id="cc-hero-wave" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.35" />
+            </linearGradient>
+            <radialGradient id="cc-hero-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-        {/* centered dark scrim so the white headline stays readable; corners (flag, building, books, wave) stay visible */}
+          {/* tricolor ribbon accent, top-left corner */}
+          <g opacity="0.16">
+            <polygon points="0,0 340,0 0,230" fill="url(#cc-hero-tricolor)" />
+          </g>
+
+          {/* dotted network motif, center — evokes a connected, nationwide platform */}
+          <g opacity="0.22" stroke="#7dd3fc" strokeWidth="1">
+            <line x1="760" y1="120" x2="900" y2="90" />
+            <line x1="900" y1="90" x2="1040" y2="150" />
+            <line x1="900" y1="90" x2="880" y2="220" />
+            <line x1="880" y1="220" x2="760" y2="260" />
+            <line x1="880" y1="220" x2="1010" y2="270" />
+            <line x1="1010" y1="270" x2="1040" y2="150" />
+            <line x1="760" y1="260" x2="700" y2="180" />
+            <line x1="700" y1="180" x2="760" y2="120" />
+          </g>
+          <g fill="#7dd3fc" opacity="0.5">
+            {[
+              [760, 120], [900, 90], [1040, 150], [880, 220],
+              [760, 260], [1010, 270], [700, 180],
+            ].map(([cx, cy], idx) => (
+              <circle key={idx} cx={cx} cy={cy} r={idx % 3 === 0 ? 4 : 2.5} />
+            ))}
+          </g>
+
+          {/* soft glow behind the dome */}
+          <circle cx="1180" cy="330" r="260" fill="url(#cc-hero-glow)" />
+
+          {/* generic domed institutional building silhouette, right side */}
+          <g opacity="0.55" fill="none" stroke="#cbd5e1" strokeWidth="1.5">
+            <path d="M980 560 L980 400 L1380 400 L1380 560" />
+            <path d="M1010 400 L1010 320 L1350 320 L1350 400" />
+            <circle cx="1180" cy="300" r="70" fill="none" />
+            <path d="M1110 300 A70 70 0 0 1 1250 300" />
+            <rect x="1170" y="190" width="6" height="40" fill="#cbd5e1" stroke="none" opacity="0.6" />
+            {[1040, 1090, 1140, 1190, 1240, 1290, 1340].map((x, i) => (
+              <line key={i} x1={x} y1="400" x2={x} y2="560" />
+            ))}
+            <path d="M950 585 L1410 585" strokeWidth="2" />
+          </g>
+
+          {/* stacked books icon, bottom-left */}
+          <g opacity="0.28" transform="translate(60 620)">
+            <rect x="0" y="60" width="220" height="18" rx="3" fill="none" stroke="#93c5fd" strokeWidth="1.5" />
+            <rect x="10" y="38" width="200" height="18" rx="3" fill="none" stroke="#93c5fd" strokeWidth="1.5" />
+            <rect x="0" y="16" width="220" height="18" rx="3" fill="none" stroke="#93c5fd" strokeWidth="1.5" />
+            <path d="M30 -10 L30 16 L150 16 L150 -10 Q90 -26 30 -10 Z" fill="none" stroke="#93c5fd" strokeWidth="1.5" />
+            <line x1="90" y1="-14" x2="90" y2="14" stroke="#93c5fd" strokeWidth="1.5" />
+          </g>
+
+          {/* bottom cinematic wave band, matches the site's blue palette */}
+          <path
+            d="M0 780 C 220 720, 420 840, 680 800 C 940 760, 1120 700, 1600 760 L1600 900 L0 900 Z"
+            fill="url(#cc-hero-wave)"
+            opacity="0.35"
+          />
+          <path
+            d="M0 830 C 260 790, 480 880, 760 840 C 1040 800, 1260 850, 1600 810 L1600 900 L0 900 Z"
+            fill="var(--primary)"
+            opacity="0.18"
+          />
+        </svg>
+
+        {/* centered dark scrim so the headline stays the clear visual focus */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 65% 60% at 50% 42%, rgba(7,8,13,0.82) 0%, rgba(7,8,13,0.6) 45%, rgba(7,8,13,0.25) 72%, transparent 100%), linear-gradient(180deg, rgba(7,8,13,0.35) 0%, transparent 20%, transparent 70%, rgba(7,8,13,0.6) 100%)",
+              "radial-gradient(ellipse 65% 60% at 50% 42%, rgba(7,8,13,0.82) 0%, rgba(7,8,13,0.6) 45%, rgba(7,8,13,0.25) 72%, transparent 100%), linear-gradient(180deg, #07080d 0%, transparent 22%, transparent 68%, #07080d 100%)",
           }}
         />
 
