@@ -29,6 +29,7 @@ import { Route as AdminTraineesRouteImport } from './routes/admin/trainees'
 import { Route as AdminTrainersRouteImport } from './routes/admin/trainers'
 import { Route as TraineeIndexRouteImport } from './routes/trainee.index'
 import { Route as TraineeCoursesRouteImport } from './routes/trainee.courses'
+import { Route as TraineeProfileRouteImport } from './routes/trainee.profile'
 import { Route as TrainerIndexRouteImport } from './routes/trainer.index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -131,6 +132,11 @@ const TraineeCoursesRoute = TraineeCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => TraineeRoute,
 } as any)
+const TraineeProfileRoute = TraineeProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => TraineeRoute,
+} as any)
 const TrainerIndexRoute = TrainerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/admin/trainees': typeof AdminTraineesRoute
   '/admin/trainers': typeof AdminTrainersRoute
   '/trainee/courses': typeof TraineeCoursesRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainer/': typeof TrainerIndexRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/admin/trainees': typeof AdminTraineesRoute
   '/admin/trainers': typeof AdminTrainersRoute
   '/trainee/courses': typeof TraineeCoursesRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/admin': typeof AdminIndexRoute
   '/trainee': typeof TraineeIndexRoute
   '/trainer': typeof TrainerIndexRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/admin/trainees': typeof AdminTraineesRoute
   '/admin/trainers': typeof AdminTrainersRoute
   '/trainee/courses': typeof TraineeCoursesRoute
+  '/trainee/profile': typeof TraineeProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/trainee/': typeof TraineeIndexRoute
   '/trainer/': typeof TrainerIndexRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/admin/trainees'
     | '/admin/trainers'
     | '/trainee/courses'
+    | '/trainee/profile'
     | '/admin/'
     | '/trainee/'
     | '/trainer/'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/admin/trainees'
     | '/admin/trainers'
     | '/trainee/courses'
+    | '/trainee/profile'
     | '/admin'
     | '/trainee'
     | '/trainer'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/admin/trainees'
     | '/admin/trainers'
     | '/trainee/courses'
+    | '/trainee/profile'
     | '/admin/'
     | '/trainee/'
     | '/trainer/'
@@ -428,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TraineeCoursesRouteImport
       parentRoute: typeof TraineeRoute
     }
+    '/trainee/profile': {
+      id: '/trainee/profile'
+      path: '/profile'
+      fullPath: '/trainee/profile'
+      preLoaderRoute: typeof TraineeProfileRouteImport
+      parentRoute: typeof TraineeRoute
+    }
     '/trainer/': {
       id: '/trainer/'
       path: '/'
@@ -464,11 +483,13 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface TraineeRouteChildren {
   TraineeCoursesRoute: typeof TraineeCoursesRoute
+  TraineeProfileRoute: typeof TraineeProfileRoute
   TraineeIndexRoute: typeof TraineeIndexRoute
 }
 
 const TraineeRouteChildren: TraineeRouteChildren = {
   TraineeCoursesRoute: TraineeCoursesRoute,
+  TraineeProfileRoute: TraineeProfileRoute,
   TraineeIndexRoute: TraineeIndexRoute,
 }
 
