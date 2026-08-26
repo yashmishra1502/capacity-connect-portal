@@ -20,6 +20,8 @@ import {
   Phone,
   MapPin,
   Bell,
+  Gift,
+  Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -167,6 +169,21 @@ const impactStats = [
   { icon: Award, bg: "bg-amber-500/15", fg: "text-amber-300" },
 ];
 
+const heroBadges = [
+  { icon: Gift, label: "Free for Departments" },
+  { icon: ShieldCheck, label: "Verified Certification" },
+  { icon: Users, label: "Role-based Access" },
+];
+
+const govDepartments = [
+  "Ministry of Home Affairs",
+  "Digital India",
+  "Ministry of Finance",
+  "Department of Personnel",
+  "Ministry of Defence",
+  "NITI Aayog",
+];
+
 const trustStrip = [
   {
     icon: GraduationCap,
@@ -293,17 +310,30 @@ function Landing() {
         </div>
       </header>
 
-      {/* ---------- HERO (abstract gradient, no photo) ---------- */}
+      {/* ---------- HERO (background image, moderate blue overlay) ---------- */}
       <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* extra hero-only glow, sits on top of global animated bg for emphasis */}
+        {/* background photo */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero-building.jpg')" }}
+        />
+        {/* lighter overlay so the photo stays visible, not a heavy dark-blue wash */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(0,0,0,0), transparent 70%)",
-            maskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 85%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 85%)",
+              "linear-gradient(180deg, rgba(7,8,13,0.75) 0%, rgba(7,8,13,0.55) 35%, rgba(7,8,13,0.4) 60%, rgba(7,8,13,0.85) 100%), linear-gradient(90deg, rgba(7,8,13,0.7) 0%, rgba(7,8,13,0.15) 55%, rgba(7,8,13,0.5) 100%)",
+          }}
+        />
+        {/* subtle radial glow accent, kept light */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 45% at 35% 30%, rgba(56,189,248,0.12), transparent 70%)",
           }}
         />
 
@@ -350,21 +380,32 @@ function Landing() {
             </Button>
           </div>
 
-          <p className="mt-4 text-[11px] uppercase tracking-[0.14em] text-white/35">
-            Free for departments · Verified certification · Role-based access
-          </p>
-
-          <div className="mt-16 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 border-t border-white/10 pt-8">
-            {[
-              { v: "4,826+", l: "Active users" },
-              { v: "86+", l: "Courses live" },
-              { v: "950+", l: "Certificates issued" },
-            ].map((s) => (
-              <div key={s.l}>
-                <p className="font-display text-2xl font-bold tracking-tight text-white">{s.v}</p>
-                <p className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-white/45">{s.l}</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 backdrop-blur-sm">
+            {heroBadges.map((b, i) => (
+              <div key={b.label} className="flex items-center gap-4">
+                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                  <b.icon className="size-4 text-sky-300" />
+                  {b.label}
+                </span>
+                {i < heroBadges.length - 1 && (
+                  <span className="hidden h-4 w-px bg-white/15 sm:block" />
+                )}
               </div>
             ))}
+          </div>
+
+          <div className="mt-16 w-full border-t border-white/10 pt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+              Trusted by government departments across India
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-80">
+              {govDepartments.map((d) => (
+                <span key={d} className="flex items-center gap-2 text-[13px] text-white/60">
+                  <Landmark className="size-4 text-white/40" />
+                  {d}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
