@@ -311,30 +311,51 @@ function Landing() {
         </div>
       </header>
 
-      {/* ---------- HERO (background image, moderate blue overlay) ---------- */}
+      {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
       <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* background photo */}
+        {/* Supreme Court of India — realistic photo, right-aligned, fading toward center/left */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero-building.jpg')" }}
-        />
-        {/* lighter overlay so the photo stays visible, not a heavy dark-blue wash */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0"
+          data-parallax="0.06"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-45 md:bg-[position:78%_center] md:opacity-100"
           style={{
-            background:
-              "linear-gradient(180deg, rgba(7,8,13,0.75) 0%, rgba(7,8,13,0.55) 35%, rgba(7,8,13,0.4) 60%, rgba(7,8,13,0.85) 100%), linear-gradient(90deg, rgba(7,8,13,0.7) 0%, rgba(7,8,13,0.15) 55%, rgba(7,8,13,0.5) 100%)",
+            backgroundImage:
+              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Building%20of%20The%20Supreme%20Court%20of%20India.jpg')",
+            maskImage:
+              "linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0,0,0,0.25) 48%, rgba(0,0,0,0.7) 68%, black 100%)",
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0,0,0,0.25) 48%, rgba(0,0,0,0.7) 68%, black 100%)",
           }}
         />
-        {/* subtle radial glow accent, kept light */}
+
+        {/* strong dark-navy blend so the photo reads as part of the existing background, not a card */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 55% 45% at 35% 30%, rgba(56,189,248,0.12), transparent 70%)",
+              "linear-gradient(90deg, #07080d 0%, rgba(7,8,13,0.97) 22%, rgba(7,8,13,0.85) 42%, rgba(7,8,13,0.55) 62%, rgba(7,8,13,0.4) 100%), linear-gradient(180deg, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.15) 30%, rgba(7,8,13,0.25) 60%, #07080d 100%)",
+          }}
+        />
+
+        {/* subtle cinematic blue glow around the building */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 70%)",
+          }}
+        />
+
+        {/* fine grid texture kept extremely subtle over the photo, matching the site's existing tech-grid motif */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
           }}
         />
 
