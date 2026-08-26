@@ -360,7 +360,7 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100 dark:opacity-60 dark:md:opacity-90"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100 dark:opacity-80 dark:md:opacity-100"
           style={{
             backgroundImage:
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
@@ -373,7 +373,7 @@ function Landing() {
         />
 
         {/* balanced scrim so the photo blends into the existing background instead of sitting as a separate card —
-            dark mode uses lighter mix percentages so the photo doesn't get crushed to near-black */}
+            dark mode now uses much lighter mix percentages so the photo stays visible instead of crushing to near-black */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 dark:hidden"
@@ -387,14 +387,14 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0 hidden dark:block"
           style={{
             background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 55%, transparent) 24%, color-mix(in oklab, var(--background) 28%, transparent) 44%, color-mix(in oklab, var(--background) 10%, transparent) 64%, transparent 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 15%, transparent) 0%, transparent 28%, color-mix(in oklab, var(--background) 5%, transparent) 60%, color-mix(in oklab, var(--background) 55%, transparent) 100%)",
+              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 32%, transparent) 24%, color-mix(in oklab, var(--background) 14%, transparent) 44%, transparent 64%, transparent 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 10%, transparent) 0%, transparent 28%, transparent 60%, color-mix(in oklab, var(--background) 22%, transparent) 100%)",
           }}
         />
 
         {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-100 dark:opacity-40"
+          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-100 dark:opacity-20"
           style={{
             background:
               "linear-gradient(100deg, transparent 0%, transparent 40%, rgba(37,99,235,0.35) 65%, rgba(29,78,216,0.4) 100%)",
@@ -404,7 +404,7 @@ function Landing() {
         {/* subtle cinematic blue glow around the building */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-40"
+          className="pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-25"
           style={{
             background:
               "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
