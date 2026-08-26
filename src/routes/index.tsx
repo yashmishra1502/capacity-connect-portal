@@ -289,28 +289,28 @@ function Landing() {
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-background" />
         <div
-          className="absolute -left-40 -top-40 size-[700px] rounded-full opacity-100 blur-[120px] dark:opacity-40"
+          className="absolute -left-40 -top-40 size-[700px] rounded-full opacity-100 blur-[120px] dark:opacity-20"
           style={{
             background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%)",
             animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
           }}
         />
         <div
-          className="absolute -right-32 top-1/4 size-[600px] rounded-full opacity-100 blur-[120px] dark:opacity-35"
+          className="absolute -right-32 top-1/4 size-[600px] rounded-full opacity-100 blur-[120px] dark:opacity-[0.18]"
           style={{
             background: "radial-gradient(circle, rgba(139,92,246,0.22), transparent 70%)",
             animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
           }}
         />
         <div
-          className="absolute left-1/3 top-2/3 size-[650px] rounded-full opacity-100 blur-[130px] dark:opacity-30"
+          className="absolute left-1/3 top-2/3 size-[650px] rounded-full opacity-100 blur-[130px] dark:opacity-[0.15]"
           style={{
             background: "radial-gradient(circle, rgba(56,189,248,0.18), transparent 70%)",
             animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
           }}
         />
         <div
-          className="absolute -right-20 bottom-0 size-[550px] rounded-full opacity-100 blur-[120px] dark:opacity-35"
+          className="absolute -right-20 bottom-0 size-[550px] rounded-full opacity-100 blur-[120px] dark:opacity-[0.18]"
           style={{
             background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
@@ -318,7 +318,7 @@ function Landing() {
         />
         {/* fine grid overlay — visibility lowered from second section onward, and further dimmed in dark mode */}
         <div
-          className="absolute inset-0 opacity-[0.035] dark:opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.035] dark:opacity-[0.015]"
           style={{
             backgroundImage:
               "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
@@ -360,7 +360,7 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100 dark:opacity-40 dark:md:opacity-70"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100 dark:opacity-60 dark:md:opacity-90"
           style={{
             backgroundImage:
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
@@ -387,14 +387,14 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0 hidden dark:block"
           style={{
             background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 82%, transparent) 24%, color-mix(in oklab, var(--background) 48%, transparent) 44%, color-mix(in oklab, var(--background) 20%, transparent) 64%, color-mix(in oklab, var(--background) 8%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 30%, transparent) 0%, transparent 28%, color-mix(in oklab, var(--background) 8%, transparent) 60%, var(--background) 100%)",
+              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 55%, transparent) 24%, color-mix(in oklab, var(--background) 28%, transparent) 44%, color-mix(in oklab, var(--background) 10%, transparent) 64%, transparent 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 15%, transparent) 0%, transparent 28%, color-mix(in oklab, var(--background) 5%, transparent) 60%, color-mix(in oklab, var(--background) 55%, transparent) 100%)",
           }}
         />
 
         {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-100 dark:opacity-70"
+          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-100 dark:opacity-40"
           style={{
             background:
               "linear-gradient(100deg, transparent 0%, transparent 40%, rgba(37,99,235,0.35) 65%, rgba(29,78,216,0.4) 100%)",
@@ -404,7 +404,7 @@ function Landing() {
         {/* subtle cinematic blue glow around the building */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-60"
+          className="pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-40"
           style={{
             background:
               "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
@@ -522,7 +522,7 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.18"
-          className="pointer-events-none absolute left-[-12%] top-1/3 z-0 size-[420px] rounded-full bg-primary/[0.18] blur-3xl dark:bg-primary/[0.10]"
+          className="pointer-events-none absolute left-[-12%] top-1/3 z-0 size-[420px] rounded-full bg-primary/[0.18] blur-3xl dark:bg-primary/[0.08]"
         />
         <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-16 px-5 md:grid-cols-[1.15fr_1fr]">
           <div>
@@ -543,7 +543,7 @@ function Landing() {
             </div>
           </div>
 
-          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-foreground/15 bg-foreground/[0.06] p-8 backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.04]">
+          <div data-reveal="right" className="cc-glow-card rounded-2xl border border-foreground/15 bg-foreground/[0.06] p-8 backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.05]">
             <h3 className="font-display text-lg font-bold tracking-tight text-foreground">About Capacity Connect</h3>
             <p className="mt-3 text-sm leading-relaxed text-foreground/75">
               An initiative of the Capacity Building Commission, Capacity Connect brings a
@@ -575,11 +575,11 @@ function Landing() {
               key={p.role}
               data-reveal
               data-reveal-delay={i * 110}
-              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.04]"
+              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.05]"
             >
               <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-75 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-7">
-                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-foreground/10 dark:bg-foreground/[0.08]">
+                <div className="cc-lift flex size-11 items-center justify-center rounded-xl bg-foreground/10 dark:bg-foreground/[0.1]">
                   <p.icon className="size-5 text-foreground" />
                 </div>
                 <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-foreground">{p.role}</h3>
@@ -611,7 +611,7 @@ function Landing() {
         <div
           aria-hidden="true"
           data-parallax="0.22"
-          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[420px] -translate-y-1/2 rounded-full bg-primary/[0.2] blur-3xl dark:bg-primary/[0.1]"
+          className="pointer-events-none absolute right-[-8%] top-1/2 z-0 size-[420px] -translate-y-1/2 rounded-full bg-primary/[0.2] blur-3xl dark:bg-primary/[0.08]"
         />
         <div className="relative z-10 mx-auto max-w-6xl px-5">
           <div className="max-w-2xl">
@@ -662,10 +662,10 @@ function Landing() {
               key={f.title}
               data-reveal
               data-reveal-delay={(i % 3) * 90}
-              className="cc-glow-card group rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.04]"
+              className="cc-glow-card group rounded-2xl border-foreground/15 bg-foreground/[0.06] backdrop-blur-xl dark:border-foreground/10 dark:bg-foreground/[0.05]"
             >
               <CardContent className="p-7">
-                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-foreground/10 dark:bg-foreground/[0.08]">
+                <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-foreground/10 dark:bg-foreground/[0.1]">
                   <f.icon className="size-5 text-foreground" />
                 </div>
                 <h3 className="mt-5 font-display text-base font-semibold tracking-tight text-foreground">{f.title}</h3>
@@ -680,14 +680,14 @@ function Landing() {
       <section className="relative z-10 overflow-hidden bg-foreground/[0.02] py-16 md:py-20 backdrop-blur-sm dark:bg-foreground/[0.015]">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.15] blur-3xl dark:bg-primary/[0.08]"
+          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.15] blur-3xl dark:bg-primary/[0.06]"
         />
         <div className="relative z-10 mx-auto max-w-3xl px-5">
           <h2 data-reveal className="font-display text-xl font-bold text-foreground">Frequently asked questions</h2>
           <p className="mt-2 text-sm text-foreground/60">
             Common questions from trainees, trainers and department administrators.
           </p>
-          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/15 bg-foreground/[0.06] px-5 dark:border-foreground/10 dark:bg-foreground/[0.04]">
+          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/15 bg-foreground/[0.06] px-5 dark:border-foreground/10 dark:bg-foreground/[0.05]">
             {faqs.map((f, i) => (
               <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-foreground/15" : "border-foreground/15"}>
                 <AccordionTrigger className="text-sm text-foreground hover:no-underline">{f.q}</AccordionTrigger>
