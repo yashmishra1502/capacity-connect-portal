@@ -409,67 +409,77 @@ function Landing() {
           className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-48 bg-gradient-to-b from-transparent to-background md:h-64"
         />
 
+        {/* Glassmorphism layer for the empty/white area on the left of the hero (where the photo fades out) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[55%] md:block"
+          style={{
+            background: "color-mix(in oklab, var(--foreground) 5%, transparent)",
+            backdropFilter: "blur(40px)",
+            WebkitBackdropFilter: "blur(40px)",
+            maskImage: "linear-gradient(90deg, black 0%, black 55%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 55%, transparent 100%)",
+          }}
+        />
+
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-10 text-center">
-          {/* Glass panel wrapping the hero copy — fills the empty space on the left/center and matches the "About" card style */}
-          <div className="cc-glow-card w-full rounded-3xl border border-foreground/15 bg-foreground/[0.07] px-6 py-10 shadow-xl backdrop-blur-xl sm:px-10 sm:py-12 md:px-14">
-            <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
-              <span className="relative flex size-1.5">
-                <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-              </span>
-              Capacity Building Commission
+          <span className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground backdrop-blur-sm">
+            <span className="relative flex size-1.5">
+              <span className="cc-ping absolute inline-flex size-1.5 rounded-full bg-primary" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
             </span>
+            Capacity Building Commission
+          </span>
 
-            <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-6xl md:text-[4.5rem]">
-              Empowering people.
-              <br />
-              Building capacity.
-              <br />
-              <span className="cc-gradient-text relative inline-block min-h-[1.1em]">
-                {typedText}
-                <span className="cc-caret ml-1 inline-block w-[3px] translate-y-[0.05em] bg-sky-300 align-middle" />
-              </span>
-            </h1>
+          <h1 className="mt-7 font-display text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-6xl md:text-[4.5rem]">
+            Empowering people.
+            <br />
+            Building capacity.
+            <br />
+            <span className="cc-gradient-text relative inline-block min-h-[1.1em]">
+              {typedText}
+              <span className="cc-caret ml-1 inline-block w-[3px] translate-y-[0.05em] bg-sky-300 align-middle" />
+            </span>
+          </h1>
 
-            <p className="mx-auto mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/75">
-              A centralised digital platform for training management, competency
-              development and knowledge sharing — built to empower departments and
-              the people within them.
-            </p>
+          <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/75">
+            A centralised digital platform for training management, competency
+            development and knowledge sharing — built to empower departments and
+            the people within them.
+          </p>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="h-12 rounded-full bg-foreground px-7 text-[15px] font-medium text-background shadow-xl hover:bg-foreground/90"
-              >
-                <Link to="/login">
-                  Explore platform <ArrowRight className="ml-1.5 size-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="h-12 rounded-full border-foreground/20 bg-foreground/[0.08] px-7 text-[15px] text-foreground backdrop-blur-sm hover:bg-foreground/15"
-              >
-                <a href="#how-it-works">How it works</a>
-              </Button>
-            </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-full bg-foreground px-7 text-[15px] font-medium text-background shadow-xl hover:bg-foreground/90"
+            >
+              <Link to="/login">
+                Explore platform <ArrowRight className="ml-1.5 size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 rounded-full border-foreground/20 bg-foreground/[0.08] px-7 text-[15px] text-foreground backdrop-blur-sm hover:bg-foreground/15"
+            >
+              <a href="#how-it-works">How it works</a>
+            </Button>
+          </div>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-foreground/15 bg-foreground/[0.07] px-5 py-3 backdrop-blur-sm">
-              {heroBadges.map((b, i) => (
-                <div key={b.label} className="flex items-center gap-4">
-                  <span className="flex items-center gap-2 text-[13px] font-medium text-foreground/90">
-                    <b.icon className="size-4 text-sky-300" />
-                    {b.label}
-                  </span>
-                  {i < heroBadges.length - 1 && (
-                    <span className="hidden h-4 w-px bg-foreground/20 sm:block" />
-                  )}
-                </div>
-              ))}
-            </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-foreground/15 bg-foreground/[0.07] px-5 py-3 backdrop-blur-sm">
+            {heroBadges.map((b, i) => (
+              <div key={b.label} className="flex items-center gap-4">
+                <span className="flex items-center gap-2 text-[13px] font-medium text-foreground/90">
+                  <b.icon className="size-4 text-sky-300" />
+                  {b.label}
+                </span>
+                {i < heroBadges.length - 1 && (
+                  <span className="hidden h-4 w-px bg-foreground/20 sm:block" />
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="mt-16 w-full border-t border-foreground/15 pt-8">
@@ -520,19 +530,16 @@ function Landing() {
             <h2 data-reveal className="mt-4 max-w-md font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem] md:leading-[1.08]">
               Driving impact through learning
             </h2>
-            {/* Glass panel wrapping the stat grid so this column visually matches the "About" card on the right */}
-            <div className="cc-glow-card mt-12 rounded-2xl border border-foreground/15 bg-foreground/[0.06] p-7 backdrop-blur-xl">
-              <div className="grid grid-cols-2 gap-x-8 gap-y-10">
-                {statBar.map((s, i) => (
-                  <div key={s.label} data-reveal data-reveal-delay={i * 90} className="group">
-                    <div className={`cc-lift flex size-10 items-center justify-center rounded-xl ${impactStats[i]?.bg}`}>
-                      <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
-                    </div>
-                    <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em] text-foreground">{s.value}+</p>
-                    <p className="mt-1 text-[13px] text-foreground/60">{s.sub}</p>
+            <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10">
+              {statBar.map((s, i) => (
+                <div key={s.label} data-reveal data-reveal-delay={i * 90} className="group">
+                  <div className={`cc-lift flex size-10 items-center justify-center rounded-xl ${impactStats[i]?.bg}`}>
+                    <s.icon className={`size-4 ${impactStats[i]?.fg}`} />
                   </div>
-                ))}
-              </div>
+                  <p className="mt-4 font-display text-4xl font-bold tracking-[-0.03em] text-foreground">{s.value}+</p>
+                  <p className="mt-1 text-[13px] text-foreground/60">{s.sub}</p>
+                </div>
+              ))}
             </div>
           </div>
 
