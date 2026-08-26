@@ -248,28 +248,28 @@ function Landing() {
         <div
           className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 85%, transparent), transparent 70%)",
             animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-32 top-1/4 size-[600px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, rgba(139,92,246,0.65), transparent 70%)",
+            background: "radial-gradient(circle, rgba(139,92,246,0.8), transparent 70%)",
             animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
           }}
         />
         <div
           className="absolute left-1/3 top-2/3 size-[650px] rounded-full blur-[130px]"
           style={{
-            background: "radial-gradient(circle, rgba(56,189,248,0.5), transparent 70%)",
+            background: "radial-gradient(circle, rgba(56,189,248,0.65), transparent 70%)",
             animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
           }}
         />
         <div
           className="absolute -right-20 bottom-0 size-[550px] rounded-full blur-[120px]"
           style={{
-            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
           }}
         />
@@ -321,7 +321,7 @@ function Landing() {
           style={{
             backgroundImage:
               "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
-            filter: "saturate(1.5) contrast(1.25) brightness(1)",
+            filter: "saturate(1.15) contrast(1.1) brightness(1.05)",
             maskImage:
               "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
             WebkitMaskImage:
@@ -339,13 +339,13 @@ function Landing() {
           }}
         />
 
-        {/* blue colour-cast so the photo reads in the site's navy palette rather than plain grayscale */}
+        {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 mix-blend-color"
           style={{
             background:
-              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(37,99,235,0.85) 60%, rgba(29,78,216,0.9) 100%)",
+              "linear-gradient(100deg, transparent 0%, transparent 40%, rgba(37,99,235,0.35) 65%, rgba(29,78,216,0.4) 100%)",
           }}
         />
 
