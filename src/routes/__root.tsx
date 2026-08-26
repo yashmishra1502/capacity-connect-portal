@@ -60,7 +60,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          
+          <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
@@ -126,93 +126,13 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function GlobalBackground() {
-  return (
-    <>
-      <style>{`
-        @keyframes cc-drift-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(60px, 40px) scale(1.15); }
-        }
-        @keyframes cc-drift-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-50px, 60px) scale(1.1); }
-        }
-        @keyframes cc-drift-3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, -50px) scale(1.2); }
-        }
-        @keyframes cc-pulse-glow {
-          0%, 100% { opacity: 0.65; }
-          50% { opacity: 1; }
-        }
-        @keyframes cc-caret-blink {
-          0%, 45% { opacity: 1; }
-          50%, 95% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-        .cc-caret {
-          height: 0.85em;
-          animation: cc-caret-blink 1s steps(1) infinite;
-        }
-      `}</style>
-
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-background" />
-        <div
-          className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
-          style={{
-            background:
-              "radial-gradient(circle, color-mix(in oklab, var(--primary) 85%, transparent), transparent 70%)",
-            animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute -right-32 top-1/4 size-[600px] rounded-full blur-[120px]"
-          style={{
-            background: "radial-gradient(circle, rgba(139,92,246,0.8), transparent 70%)",
-            animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute left-1/3 top-2/3 size-[650px] rounded-full blur-[130px]"
-          style={{
-            background: "radial-gradient(circle, rgba(56,189,248,0.65), transparent 70%)",
-            animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute -right-20 bottom-0 size-[550px] rounded-full blur-[120px]"
-          style={{
-            background:
-              "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
-            animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.1]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
-      </div>
-    </>
-  );
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="relative min-h-screen bg-background text-foreground">
-        <GlobalBackground />
-        <div className="relative z-10">
-          <Outlet />
-        </div>
-      </div>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
     </QueryClientProvider>
   );
 }
