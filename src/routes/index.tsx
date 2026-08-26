@@ -1,3 +1,4 @@
+import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   GraduationCap,
@@ -216,10 +217,40 @@ const trustStrip = [
   },
 ];
 
+const TYPED_PHRASES = ["Connecting futures.", "Empowering officers.", "Building excellence."];
+
+function useTypewriter(phrases: string[], typingSpeed = 70, deletingSpeed = 40, holdTime = 1800) {
+  const [text, setText] = React.useState("");
+  const [phraseIndex, setPhraseIndex] = React.useState(0);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  React.useEffect(() => {
+    const current = phrases[phraseIndex % phrases.length];
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting && text === current) {
+      timeout = setTimeout(() => setIsDeleting(true), holdTime);
+    } else if (isDeleting && text === "") {
+      setIsDeleting(false);
+      setPhraseIndex((p) => p + 1);
+    } else {
+      const next = isDeleting
+        ? current.slice(0, text.length - 1)
+        : current.slice(0, text.length + 1);
+      timeout = setTimeout(() => setText(next), isDeleting ? deletingSpeed : typingSpeed);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [text, isDeleting, phraseIndex, phrases, typingSpeed, deletingSpeed, holdTime]);
+
+  return text;
+}
+
 function Landing() {
   useScrollReveal();
   useParallax();
   const tiltRef = useTilt<HTMLDivElement>(7);
+  const typedText = useTypewriter(TYPED_PHRASES);
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -239,6 +270,15 @@ function Landing() {
         @keyframes cc-pulse-glow {
           0%, 100% { opacity: 0.65; }
           50% { opacity: 1; }
+        }
+        @keyframes cc-caret-blink {
+          0%, 45% { opacity: 1; }
+          50%, 95% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        .cc-caret {
+          height: 0.85em;
+          animation: cc-caret-blink 1s steps(1) infinite;
         }
       `}</style>
 
@@ -384,7 +424,10 @@ function Landing() {
             <br />
             Building capacity.
             <br />
-            <span className="cc-gradient-text">Connecting futures.</span>
+            <span className="cc-gradient-text relative inline-block min-h-[1.1em]">
+              {typedText}
+              <span className="cc-caret ml-1 inline-block w-[3px] translate-y-[0.05em] bg-sky-300 align-middle" />
+            </span>
           </h1>
 
           <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-foreground/75">
