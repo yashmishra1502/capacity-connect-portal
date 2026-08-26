@@ -412,13 +412,28 @@ function Landing() {
         {/* Glassmorphism layer for the empty/white area on the left of the hero (where the photo fades out) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[55%] md:block"
+          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[58%] md:block"
           style={{
-            background: "color-mix(in oklab, var(--foreground) 5%, transparent)",
-            backdropFilter: "blur(40px)",
-            WebkitBackdropFilter: "blur(40px)",
-            maskImage: "linear-gradient(90deg, black 0%, black 55%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 55%, transparent 100%)",
+            background:
+              "linear-gradient(135deg, color-mix(in oklab, var(--foreground) 14%, transparent) 0%, color-mix(in oklab, var(--background) 60%, transparent) 100%)",
+            backdropFilter: "blur(36px) saturate(180%)",
+            WebkitBackdropFilter: "blur(36px) saturate(180%)",
+            borderRight: "1px solid color-mix(in oklab, var(--foreground) 16%, transparent)",
+            boxShadow:
+              "inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent), inset -1px 0 0 color-mix(in oklab, var(--foreground) 10%, transparent)",
+            maskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
+          }}
+        />
+        {/* subtle glass sheen streak for extra glassmorphism feel */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[58%] md:block"
+          style={{
+            background:
+              "linear-gradient(115deg, transparent 18%, color-mix(in oklab, var(--foreground) 12%, transparent) 30%, transparent 42%)",
+            maskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(90deg, black 0%, black 58%, transparent 100%)",
           }}
         />
 
