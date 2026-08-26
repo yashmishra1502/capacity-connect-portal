@@ -307,7 +307,7 @@ function Landing() {
             </div>
           </div>
 
-          {/* Right: interactive focal element */}
+          {/* Right: interactive focal element — this is the ONLY glass element on the page, kept intentional */}
           <div className="cc-hero-in cc-delay-2 relative hidden md:block" data-parallax="0.12">
             <div
               aria-hidden="true"
@@ -444,9 +444,10 @@ function Landing() {
             </div>
           </div>
 
+          {/* FLAT — glass removed */}
           <div
             data-reveal="right"
-            className="cc-glow-card rounded-2xl border border-border/70 bg-card/60 p-8 backdrop-blur-xl"
+            className="rounded-2xl border border-border p-8 bg-card"
           >
             <h3 className="font-display text-lg font-bold tracking-tight">About Capacity Connect</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -479,7 +480,7 @@ function Landing() {
               key={p.role}
               data-reveal
               data-reveal-delay={i * 110}
-              className="cc-glow-card group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card/60 backdrop-blur-xl"
+              className="cc-hover-card group flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
             >
               <div className="h-[3px] w-full bg-gradient-to-r from-primary via-violet-500 to-sky-400 opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
               <CardContent className="flex flex-1 flex-col p-7">
@@ -566,7 +567,7 @@ function Landing() {
               key={f.title}
               data-reveal
               data-reveal-delay={(i % 3) * 90}
-              className="cc-glow-card group rounded-2xl border-border/70 bg-card/60 backdrop-blur-xl"
+              className="cc-hover-card group rounded-2xl border border-border bg-card"
             >
               <CardContent className="p-7">
                 <div className="cc-lift flex size-10 items-center justify-center rounded-xl bg-accent">
