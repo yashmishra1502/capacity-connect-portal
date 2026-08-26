@@ -1,27 +1,33 @@
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
-function useLogoSrc(dayLogo: string, nightLogo: string) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+function useIsDark() {
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const root = document.documentElement;
+    setIsDark(root.classList.contains("dark"));
+
+    // ThemeToggle just toggles a class on <html>, no custom event is fired,
+    // so watch for class attribute changes directly.
+    const observer = new MutationObserver(() => {
+      setIsDark(root.classList.contains("dark"));
+    });
+
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
   }, []);
 
-  // Avoid a flash/mismatch before the theme is known on the client.
-  if (!mounted) return dayLogo;
-
-  return resolvedTheme === "dark" ? nightLogo : dayLogo;
+  return isDark;
 }
 
 export function BrandIcon({ className, size = 56 }: { className?: string; size?: number }) {
-  const src = useLogoSrc("/day.png", "/night.png");
+  const isDark = useIsDark();
 
   return (
     <img
-      src={src}
+      src={isDark ? "/night.png" : "/day.png"}
       alt="Capacity Connect"
       width={size}
       height={size}
@@ -31,11 +37,11 @@ export function BrandIcon({ className, size = 56 }: { className?: string; size?:
 }
 
 export function BrandLogo({ className }: { className?: string }) {
-  const src = useLogoSrc("/day.png", "/night.png");
+  const isDark = useIsDark();
 
   return (
     <img
-      src={src}
+      src={isDark ? "/night.png" : "/day.png"}
       alt="Capacity Connect — Digital Capacity Building Portal"
       className={cn("inline-block h-auto w-full max-w-[560px] object-contain", className)}
     />
