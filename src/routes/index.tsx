@@ -313,56 +313,45 @@ function Landing() {
 
       {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
       <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* Supreme Court of India — realistic photo, right-aligned, fading toward center/left */}
+        {/* Training / classroom photo — full-bleed, balanced visibility */}
         <div
           aria-hidden="true"
           data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-45 md:bg-[position:78%_center] md:opacity-100"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-60 md:opacity-100"
           style={{
-            backgroundImage: "url('/supreme-court.jpg')",
-            filter: "saturate(1.25) contrast(1.12) brightness(0.9)",
+            backgroundImage: "url('/hero-training.jpg')",
+            filter: "saturate(1.15) contrast(1.08) brightness(0.85)",
             maskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 25%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.8) 65%, black 100%)",
+              "radial-gradient(ellipse 85% 75% at 50% 45%, black 45%, rgba(0,0,0,0.55) 70%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 25%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.8) 65%, black 100%)",
+              "radial-gradient(ellipse 85% 75% at 50% 45%, black 45%, rgba(0,0,0,0.55) 70%, transparent 100%)",
           }}
         />
 
-        {/* strong dark-navy blend so the photo reads as part of the existing background, not a card */}
+        {/* balanced dark-navy blend — keeps the photo readable while the text stays the clear focus */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "linear-gradient(90deg, #07080d 0%, rgba(7,8,13,0.97) 22%, rgba(7,8,13,0.75) 42%, rgba(7,8,13,0.4) 62%, rgba(7,8,13,0.22) 100%), linear-gradient(180deg, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.1) 30%, rgba(7,8,13,0.2) 60%, #07080d 100%)",
+              "radial-gradient(ellipse 60% 55% at 50% 40%, rgba(7,8,13,0.55) 0%, rgba(7,8,13,0.75) 55%, rgba(7,8,13,0.9) 100%), linear-gradient(180deg, rgba(7,8,13,0.7) 0%, rgba(7,8,13,0.25) 30%, rgba(7,8,13,0.35) 65%, #07080d 100%)",
           }}
         />
 
-        {/* blue colour-cast so the photo reads as part of the site's navy palette rather than plain grayscale */}
+        {/* blue colour-cast so the photo reads in the site's navy palette rather than plain grayscale */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 mix-blend-color"
-          style={{
-            background:
-              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(37,99,235,0.75) 60%, rgba(29,78,216,0.85) 100%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0"
-          style={{
-            background:
-              "linear-gradient(100deg, transparent 0%, transparent 30%, rgba(7,15,35,0.3) 55%, rgba(7,15,35,0.12) 100%)",
-          }}
+          style={{ backgroundColor: "rgba(37,99,235,0.55)" }}
         />
 
-        {/* subtle cinematic blue glow around the building */}
+        {/* subtle cinematic blue glow */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 70%)",
+              "radial-gradient(ellipse 55% 45% at 50% 35%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)",
           }}
         />
 
