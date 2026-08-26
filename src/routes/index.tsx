@@ -176,12 +176,13 @@ const heroBadges = [
 ];
 
 const govDepartments = [
-  "Ministry of Home Affairs",
-  "Digital India",
-  "Ministry of Finance",
-  "Department of Personnel",
-  "Ministry of Defence",
-  "NITI Aayog",
+  { name: "Home Affairs", icon: ShieldCheck },
+  { name: "Digital India", icon: Sparkles },
+  { name: "Finance", icon: Landmark },
+  { name: "Personnel & Training", icon: Users },
+  { name: "Defence", icon: BadgeCheck },
+  { name: "NITI Aayog", icon: Building2 },
+  { name: "Government of India", icon: Award },
 ];
 
 const trustStrip = [
@@ -398,12 +399,14 @@ function Landing() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
               Trusted by government departments across India
             </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-80">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
               {govDepartments.map((d) => (
-                <span key={d} className="flex items-center gap-2 text-[13px] text-white/60">
-                  <Landmark className="size-4 text-white/40" />
-                  {d}
-                </span>
+                <div key={d.name} className="flex flex-col items-center gap-1.5 opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0">
+                  <div className="flex size-12 items-center justify-center rounded-full border border-white/20 bg-white/[0.04]">
+                    <d.icon className="size-5 text-white/70" />
+                  </div>
+                  <span className="max-w-[72px] text-center text-[10px] leading-tight text-white/50">{d.name}</span>
+                </div>
               ))}
             </div>
           </div>
