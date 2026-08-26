@@ -204,9 +204,70 @@ function Landing() {
   const tiltRef = useTilt<HTMLDivElement>(7);
 
   return (
-    <div className="min-h-screen bg-[#07080d] text-white">
+    <div className="relative min-h-screen bg-[#07080d] text-white">
+      <style>{`
+        @keyframes cc-drift-1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(60px, 40px) scale(1.15); }
+        }
+        @keyframes cc-drift-2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-50px, 60px) scale(1.1); }
+        }
+        @keyframes cc-drift-3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, -50px) scale(1.2); }
+        }
+        @keyframes cc-pulse-glow {
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 0.9; }
+        }
+      `}</style>
+
+      {/* ---------- GLOBAL ANIMATED BACKGROUND (fixed, spans whole page) ---------- */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[#07080d]" />
+        <div
+          className="absolute -left-40 -top-40 size-[700px] rounded-full blur-[120px]"
+          style={{
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
+            animation: "cc-drift-1 18s ease-in-out infinite, cc-pulse-glow 9s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute -right-32 top-1/4 size-[600px] rounded-full blur-[120px]"
+          style={{
+            background: "radial-gradient(circle, rgba(139,92,246,0.5), transparent 70%)",
+            animation: "cc-drift-2 22s ease-in-out infinite, cc-pulse-glow 11s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute left-1/3 top-2/3 size-[650px] rounded-full blur-[130px]"
+          style={{
+            background: "radial-gradient(circle, rgba(56,189,248,0.35), transparent 70%)",
+            animation: "cc-drift-3 25s ease-in-out infinite, cc-pulse-glow 13s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute -right-20 bottom-0 size-[550px] rounded-full blur-[120px]"
+          style={{
+            background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
+            animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
+          }}
+        />
+        {/* fine grid overlay, subtle, whole page */}
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+          }}
+        />
+      </div>
+
       {/* ---------- HEADER ---------- */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07080d]/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07080d]/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5">
             <BrandLogo className="h-14 w-auto max-w-[220px]" />
@@ -233,28 +294,16 @@ function Landing() {
       </header>
 
       {/* ---------- HERO (abstract gradient, no photo) ---------- */}
-      <section className="relative isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
-        {/* base */}
-        <div className="absolute inset-0 z-0 bg-[#07080d]" />
-        {/* glow mesh */}
+      <section className="relative z-10 isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
+        {/* extra hero-only glow, sits on top of global animated bg for emphasis */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "radial-gradient(circle at 22% 20%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 55%), radial-gradient(circle at 80% 15%, rgba(139,92,246,0.28), transparent 50%), radial-gradient(circle at 50% 90%, rgba(56,189,248,0.18), transparent 55%)",
-          }}
-        />
-        {/* fine grid, masked */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.15]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 80%)",
+              "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(0,0,0,0), transparent 70%)",
+            maskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 35%, black, transparent 85%)",
           }}
         />
 
@@ -321,7 +370,7 @@ function Landing() {
       </section>
 
       {/* ---------- TRUST STRIP ---------- */}
-      <section className="border-b border-white/10 bg-white/[0.02] py-10">
+      <section className="relative z-10 border-b border-white/10 bg-white/[0.01] py-10 backdrop-blur-sm">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 md:grid-cols-4">
           {trustStrip.map((s, i) => (
             <div key={s.title} data-reveal data-reveal-delay={i * 80} className="group flex items-start gap-3">
@@ -338,7 +387,7 @@ function Landing() {
       </section>
 
       {/* ---------- IMPACT + ABOUT ---------- */}
-      <section className="relative overflow-hidden py-24 md:py-32">
+      <section className="relative z-10 overflow-hidden py-24 md:py-32">
         <div
           aria-hidden="true"
           data-parallax="0.18"
@@ -381,7 +430,7 @@ function Landing() {
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
-      <section className="relative mx-auto max-w-6xl px-5 py-24 md:py-32">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 py-24 md:py-32">
         <Eyebrow>Portals</Eyebrow>
         <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem]">
           Choose your portal
@@ -426,7 +475,7 @@ function Landing() {
       {/* ---------- HOW IT WORKS ---------- */}
       <section
         id="how-it-works"
-        className="relative overflow-hidden border-y border-white/10 bg-white/[0.02] py-24 md:py-32"
+        className="relative z-10 overflow-hidden border-y border-white/10 bg-white/[0.01] py-24 md:py-32 backdrop-blur-sm"
       >
         <div
           aria-hidden="true"
@@ -466,7 +515,7 @@ function Landing() {
       </section>
 
       {/* ---------- FEATURES ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-24 md:py-32">
+      <section className="relative z-10 mx-auto max-w-6xl px-5 py-24 md:py-32">
         <div className="max-w-2xl">
           <Eyebrow>Capabilities</Eyebrow>
           <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-white md:text-[2.6rem]">
@@ -497,7 +546,7 @@ function Landing() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="relative overflow-hidden bg-white/[0.02] py-16 md:py-20">
+      <section className="relative z-10 overflow-hidden bg-white/[0.01] py-16 md:py-20 backdrop-blur-sm">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.08] blur-3xl"
@@ -519,7 +568,7 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="relative overflow-hidden border-t border-white/10 bg-[#07080d]">
+      <footer className="relative z-10 overflow-hidden border-t border-white/10 bg-[#07080d]/70 backdrop-blur-sm">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
