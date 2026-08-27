@@ -1,46 +1,60 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import type { Session, User } from '@supabase/supabase-js';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // 1. Fetch active session on initial page load
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // 2. Listen for real-time auth changes (Sign-In, Sign-Out)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    setProfile(data);
-    setLoading(false);
+      if (error) {
+        console.error('Error fetching profile:', error.message);
+        setProfile(null);
+      } else {
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching profile:', err);
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return { user, profile, loading };
+  useEffect(() => {
+    let mounted = true;
+
+    // Supabase Listener for auth state changes (Initial Load, Login, Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, currentSession) => {
+        if (!mounted) return;
+
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          await fetchProfile(currentSession.user.id);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  return { session, user, profile, loading };
 };
