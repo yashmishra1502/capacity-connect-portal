@@ -11,6 +11,22 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import type { User, Session } from "@supabase/supabase-js";
+import type { Profile } from "@/lib/auth";
+
+// 1. Define Auth Context Type
+export interface RouterAuthContext {
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  loading: boolean;
+}
+
+// 2. Pass Auth to Root Route Context interface
+export interface MyRouterContext {
+  queryClient: QueryClient;
+  auth?: RouterAuthContext;
+}
 
 function NotFoundComponent() {
   return (
@@ -83,7 +99,8 @@ const themeInitScript = `
 })();
 `;
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+// 3. Updated Root Route with context awareness
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
