@@ -26,6 +26,7 @@ import {
   LogOut,
   ChevronDown,
   User as UserIcon,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -224,6 +225,15 @@ const trustStrip = [
 
 const TYPED_PHRASES = ["Connecting futures.", "Empowering officers.", "Building excellence."];
 
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-foreground/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-foreground">
+      <Sparkles className="size-3 text-primary" />
+      {children}
+    </span>
+  );
+}
+
 function useTypewriter(phrases: string[], typingSpeed = 70, deletingSpeed = 40, holdTime = 1800) {
   const [text, setText] = React.useState("");
   const [phraseIndex, setPhraseIndex] = React.useState(0);
@@ -251,7 +261,7 @@ function useTypewriter(phrases: string[], typingSpeed = 70, deletingSpeed = 40, 
   return text;
 }
 
-/* ---------- PROFILE DROPDOWN MENU (new) ---------- */
+/* ---------- PROFILE DROPDOWN MENU ---------- */
 function ProfileMenu({ profile }: { profile: any }) {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
@@ -281,6 +291,9 @@ function ProfileMenu({ profile }: { profile: any }) {
       .slice(0, 2)
       .toUpperCase() || "U";
 
+  const userRole = profile?.role || "trainee";
+  const dashboardPath = `/${userRole}`;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -294,15 +307,23 @@ function ProfileMenu({ profile }: { profile: any }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-foreground/15 bg-background p-2 shadow-lg">
+        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-foreground/15 bg-background p-2 shadow-lg z-50">
           <div className="px-2.5 py-2">
             <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-              <UserIcon className="size-3.5" />
+              <UserIcon className="size-3.5 text-primary" />
               {profile?.name || "User"}
             </p>
-            <p className="mt-0.5 text-xs capitalize text-foreground/55">{profile?.role}</p>
+            <p className="mt-0.5 text-xs capitalize text-foreground/55">Role: {userRole}</p>
           </div>
           <div className="my-1 h-px bg-foreground/10" />
+          <Link
+            to={dashboardPath}
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground hover:bg-foreground/5"
+          >
+            <LayoutDashboard className="size-3.5" />
+            Dashboard
+          </Link>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
@@ -323,6 +344,9 @@ function Landing() {
   const typedText = useTypewriter(TYPED_PHRASES);
   const navigate = useNavigate();
   const { session, profile, loading } = useAuth();
+
+  const userRole = profile?.role || "trainee";
+  const dashboardPath = `/${userRole}`;
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -354,7 +378,7 @@ function Landing() {
         }
       `}</style>
 
-      {/* ---------- GLOBAL ANIMATED BACKGROUND (fixed, spans whole page) ---------- */}
+      {/* ---------- GLOBAL ANIMATED BACKGROUND ---------- */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-background" />
         <div
@@ -408,6 +432,7 @@ function Landing() {
             <a href="#how-it-works" className="cc-link hover:text-foreground">How it works</a>
             <Link to="/contact" className="cc-link hover:text-foreground">Contact</Link>
           </nav>
+
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {loading ? null : session && profile ? (
@@ -415,7 +440,7 @@ function Landing() {
                 <Button
                   size="sm"
                   className="rounded-full bg-foreground text-background hover:bg-foreground/90"
-                  onClick={() => navigate({ to: `/${profile.role}` })}
+                  onClick={() => navigate({ to: dashboardPath })}
                 >
                   Dashboard
                 </Button>
@@ -439,32 +464,21 @@ function Landing() {
 
       {/* ---------- HERO ---------- */}
       <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
-        {/* Real photograph — Rashtrapati Bhavan, full visible, no side fade */}
-       <div
-  aria-hidden="true"
-  data-parallax="0.06"
-  className="absolute inset-0 z-0 bg-cover bg-center opacity-75"
-  style={{
-    backgroundImage:
-      "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
-  }}
-/>
-
-{/* light, white wash — light mode only, keeps everything airy and bright */}
-<div
-  aria-hidden="true"
-  className="pointer-events-none absolute inset-0 z-0 bg-white/50 dark:hidden"
-/>
-        {/* light blue colour-cast so the photo still fits the site's navy palette */}
+        <div
+          aria-hidden="true"
+          data-parallax="0.06"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-75"
+          style={{
+            backgroundImage:
+              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
+          }}
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-white/50 dark:hidden" />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-60 dark:opacity-20"
-          style={{
-            background: "rgba(29,78,216,0.35)",
-          }}
+          style={{ background: "rgba(29,78,216,0.35)" }}
         />
-
-        {/* subtle cinematic blue glow around the building */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 opacity-70 dark:opacity-25"
@@ -473,8 +487,6 @@ function Landing() {
               "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
           }}
         />
-
-        {/* fine grid texture kept extremely subtle over the photo */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.03]"
@@ -517,8 +529,8 @@ function Landing() {
               size="lg"
               className="h-12 rounded-full bg-foreground px-7 text-[15px] font-medium text-background shadow-xl hover:bg-foreground/90"
             >
-              <Link to="/login">
-                Explore platform <ArrowRight className="ml-1.5 size-4" />
+              <Link to={session ? dashboardPath : "/login"}>
+                {session ? "Go to Dashboard" : "Explore platform"} <ArrowRight className="ml-1.5 size-4" />
               </Link>
             </Button>
             <Button
@@ -620,7 +632,7 @@ function Landing() {
             </Button>
           </div>
         </div>
-        <div className="mx-auto max-w-6xl border-t border-foreground/15" />
+        <div className="mx-auto mt-20 max-w-6xl border-t border-foreground/15" />
       </section>
 
       {/* ---------- PORTAL PICKER ---------- */}
@@ -656,7 +668,7 @@ function Landing() {
                   ))}
                 </ul>
                 <Button asChild className="mt-7 h-11 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90">
-                  <Link to={p.to}>
+                  <Link to={session ? dashboardPath : p.to}>
                     Open {p.role} dashboard <ArrowRight className="ml-1.5 size-4" />
                   </Link>
                 </Button>
@@ -745,16 +757,26 @@ function Landing() {
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.15] blur-3xl dark:bg-primary/[0.06]"
         />
-        <div className="relative z-10 mx-auto max-w-3xl px-5">
-          <h2 data-reveal className="font-display text-xl font-bold text-foreground">Frequently asked questions</h2>
-          <p className="mt-2 text-sm text-foreground/60">
-            Common questions from trainees, trainers and department administrators.
-          </p>
-          <Accordion type="single" collapsible className="mt-8 rounded-lg border border-foreground/15 bg-foreground/[0.06] px-5 dark:border-foreground/10 dark:bg-foreground/[0.05]">
-            {faqs.map((f, i) => (
-              <AccordionItem key={f.q} value={`item-${i}`} className={i === faqs.length - 1 ? "border-b-0 border-foreground/15" : "border-foreground/15"}>
-                <AccordionTrigger className="text-sm text-foreground hover:no-underline">{f.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-foreground/70">{f.a}</AccordionContent>
+        <div className="relative z-10 mx-auto max-w-4xl px-5">
+          <div className="text-center">
+            <Eyebrow>Support</Eyebrow>
+            <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <Accordion type="single" collapsible className="mt-12 space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem
+                key={index}
+                value={`item-${index}`}
+                className="rounded-xl border border-foreground/15 bg-background/50 px-6 backdrop-blur-md"
+              >
+                <AccordionTrigger className="text-left font-display font-semibold hover:no-underline">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm leading-relaxed text-foreground/70">
+                  {faq.a}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -762,73 +784,14 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="relative z-10 overflow-hidden border-t border-foreground/15 bg-background/70 backdrop-blur-sm dark:border-foreground/10 dark:bg-background/85">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
-        />
-        <div className="mx-auto max-w-6xl px-5 py-12">
-          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
-            <div>
-              <Link to="/">
-                <BrandLogo className="h-24 w-auto max-w-[340px]" />
-              </Link>
-              <p className="mt-3 max-w-xs text-xs text-foreground/55">
-                A digital capacity building and learning management initiative under the
-                Capacity Building Commission.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Platform</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
-                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-                <li><a href="#how-it-works" className="hover:text-foreground">How it works</a></li>
-                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Portals</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
-                <li><Link to="/login" className="hover:text-foreground">Trainee</Link></li>
-                <li><Link to="/login" className="hover:text-foreground">Trainer</Link></li>
-                <li><Link to="/admin-login" className="hover:text-foreground">Admin</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-foreground">Contact</p>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
-                <li className="flex items-center gap-2">
-                  <Mail className="size-3.5" /> support@capacityconnect.gov.in
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="size-3.5" /> 1800-XXX-XXXX
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="size-3.5" /> New Delhi, India
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-foreground/15 pt-6 sm:flex-row">
-            <p className="text-xs text-foreground/55">
-              Capacity Connect · Demonstration interface with sample data
-            </p>
-            <div className="flex items-center gap-5 text-xs text-foreground/70">
-              <a href="#" className="hover:text-foreground">Privacy policy</a>
-              <a href="#" className="hover:text-foreground">Terms of use</a>
-              <a href="#" className="hover:text-foreground">Accessibility</a>
-            </div>
-          </div>
+      <footer className="relative z-10 border-t border-foreground/15 bg-background py-12">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 sm:flex-row">
+          <BrandLogo className="h-12 w-auto" />
+          <p className="text-xs text-foreground/60">
+            © {new Date().getFullYear()} Capacity Connect. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-      {children}
-    </p>
   );
 }
