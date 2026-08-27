@@ -43,25 +43,21 @@ function AdminLogin() {
   return (
     <div className="flex min-h-screen flex-col bg-navy">
       {/* Header */}
-      <header className="border-b border-navy-foreground/10 px-4 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <BrandIcon size={40} className="object-contain" />
-            <span className="font-display text-lg font-extrabold tracking-tight">
-              <span className="text-navy-foreground">CAPACITY </span>
-              <span className="text-primary">CONNECT</span>
-            </span>
-          </Link>
+     <header className="border-b border-navy-foreground/10 px-4 py-4">
+  <div className="mx-auto flex max-w-5xl items-center justify-between">
+    <Link to="/" className="flex items-center">
+      <BrandIcon size={56} className="object-contain" />
+    </Link>
 
-          <Link
-            to="/"
-            className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
-          >
-            <ArrowLeft className="size-3.5" />
-            Back to home
-          </Link>
-        </div>
-      </header>
+    <Link
+      to="/"
+      className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
+    >
+      <ArrowLeft className="size-3.5" />
+      Back to home
+    </Link>
+  </div>
+</header>
 
       {/* Main */}
       <main className="flex flex-1 items-center justify-center px-4 py-10">
