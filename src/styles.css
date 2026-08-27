@@ -380,3 +380,18 @@
   [data-parallax] { transform: none !important; }
   .cc-tilt { transform: none !important; }
 }
+/* ---------------- Low-glass override (every page EXCEPT homepage) ---------------- */
+body:not(:has(.cc-homepage)) [class*="backdrop-blur"] {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body:not(:has(.cc-homepage)) [class*="bg-white/1"],
+body:not(:has(.cc-homepage)) [class*="bg-white/2"] {
+  background-color: rgb(255 255 255 / 0.04) !important;
+}
+
+body:not(:has(.cc-homepage)) .dark [class*="bg-white/1"],
+body:not(:has(.cc-homepage)) .dark [class*="bg-white/2"] {
+  background-color: rgb(255 255 255 / 0.03) !important;
+}
