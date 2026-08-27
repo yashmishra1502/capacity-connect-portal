@@ -23,8 +23,6 @@ function AdminLogin() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const demo = demoCredentials("admin");
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -43,33 +41,33 @@ function AdminLogin() {
   return (
     <div className="flex min-h-screen flex-col bg-navy">
       {/* Header */}
-     <header className="border-b border-navy-foreground/10 px-4 py-4">
-  <div className="mx-auto flex max-w-5xl items-center justify-between">
-    <Link to="/" className="flex items-center">
-      <BrandIcon size={96} className="object-contain" />
-    </Link>
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-navy/60 px-4 py-4 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <BrandIcon size={96} className="object-contain" />
+          </Link>
 
-    <Link
-      to="/"
-      className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
-    >
-      <ArrowLeft className="size-3.5" />
-      Back to home
-    </Link>
-  </div>
-</header>
+          <Link
+            to="/"
+            className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
+          >
+            <ArrowLeft className="size-3.5" />
+            Back to home
+          </Link>
+        </div>
+      </header>
 
       {/* Main */}
       <main className="flex flex-1 items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
-          <div className="mb-5 flex items-center justify-center gap-1.5 rounded-full border border-navy-foreground/15 bg-navy-foreground/5 px-3 py-1 text-center">
+          <div className="mb-5 flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-center backdrop-blur-md">
             <ShieldCheck className="size-3.5 text-primary" />
             <span className="text-[11px] font-medium text-navy-foreground/70">
               Restricted administrator access
             </span>
           </div>
 
-          <Card className="shadow-lg shadow-black/20">
+          <Card className="border border-white/15 bg-white/5 shadow-xl shadow-black/30 backdrop-blur-xl">
             <CardContent className="p-6">
               <h1 className="font-display text-lg font-semibold">Admin sign in</h1>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -86,7 +84,7 @@ function AdminLogin() {
                     type="email"
                     autoComplete="username"
                     placeholder="name@gov-capacity.in"
-                    className="mt-1.5"
+                    className="mt-1.5 border-white/15 bg-white/5 backdrop-blur-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -106,7 +104,7 @@ function AdminLogin() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="pr-10"
+                      className="border-white/15 bg-white/5 pr-10 backdrop-blur-sm"
                     />
                     <button
                       type="button"
@@ -120,7 +118,7 @@ function AdminLogin() {
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                  <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive backdrop-blur-sm">
                     <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
                     <span>{error}</span>
                   </div>
@@ -131,12 +129,6 @@ function AdminLogin() {
                   {!submitting && <ArrowRight className="ml-1.5 size-4" />}
                 </Button>
               </form>
-
-              <div className="mt-5 rounded-md border bg-muted/50 px-3 py-2.5 text-[11px] text-muted-foreground">
-                <p className="font-medium text-foreground">Demo credentials</p>
-                <p className="mt-0.5">Email: {demo.email}</p>
-                <p>Password: {demo.password}</p>
-              </div>
 
               <p className="mt-5 text-center text-xs text-muted-foreground">
                 Not an administrator?{" "}
@@ -156,7 +148,7 @@ function AdminLogin() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-navy-foreground/10 px-4 py-4">
+      <footer className="border-t border-white/10 bg-navy/60 px-4 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 text-[11px] text-navy-foreground/50 sm:flex-row">
           <p>© {new Date().getFullYear()} Capacity Connect — Capacity Building Commission, Government of India</p>
           <div className="flex items-center gap-4">
