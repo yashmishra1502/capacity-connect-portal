@@ -28,8 +28,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BrandIcon } from "@/components/brand-logo";
 import { navConfig, roleLabel } from "@/components/nav-config";
-import { currentUsers, notifications, type Role } from "@/lib/mock-data";
+import { notifications, type Role } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 type Primary = { label: string; to: string; icon: typeof BookOpen };
 
@@ -61,7 +62,10 @@ export function AppShell({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const user = currentUsers[role];
+
+  // Bind dynamic authentication state instead of static mock data
+  const { profile, session } = useAuth();
+
   const items = navConfig[role];
   const groups = [...new Set(items.map((item) => item.group))];
   const unread = notifications.filter((notification) => notification.unread).length;
@@ -73,6 +77,10 @@ export function AppShell({ role }: { role: Role }) {
 
   const active = (to: string) =>
     to === "/" ? pathname === "/" : pathname === to || pathname === `${to}/`;
+
+  // Fallback ladder for display values during initial auth loads
+  const displayName = profile?.name || session?.user?.email?.split("@")[0] || "User";
+  const displayEmail = profile?.email || session?.user?.email || "";
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -127,12 +135,12 @@ export function AppShell({ role }: { role: Role }) {
                 className="hidden h-10 gap-2 rounded-full border-border/70 bg-background/60 px-3 backdrop-blur sm:flex"
               >
                 <User className="size-4 text-primary" />
-                <span className="text-sm font-semibold">{user.name.split(" ")[0]}</span>
+                <span className="text-sm font-semibold">{displayName.split(" ")[0]}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-60">
               <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                {user.email} · {roleLabel[role]}
+                {displayEmail} · {roleLabel[role]}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
