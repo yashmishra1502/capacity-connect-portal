@@ -57,13 +57,11 @@ function AdminLogin() {
 
   return (
     <div className="flex min-h-screen flex-col bg-navy">
-      {/* Header */}
+      {/* Header — icon only, no text */}
       <header className="border-b border-navy-foreground/10 px-4 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary">
-              <BrandIcon className="h-5 w-5 object-contain" />
-            </span>
+            <BrandIcon size={36} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
           </Link>
 
           <div className="flex items-center gap-4">
@@ -76,7 +74,7 @@ function AdminLogin() {
               <img
                 src={isDark ? "/night.png" : "/day.png"}
                 alt={isDark ? "Dark mode" : "Light mode"}
-                className="size-4 object-contain"
+                className="size-4"
               />
             </button>
 
