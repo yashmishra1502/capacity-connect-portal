@@ -35,7 +35,7 @@ const tooltipStyle = {
   fontSize: 12,
 };
 
-function TraineeDashboard() {
+function TrainerDashboard() {
   const user = currentUsers.trainee;
   const myCourses = courses.slice(0, 3);
 
