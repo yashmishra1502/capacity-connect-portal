@@ -11,7 +11,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { ChatWidget } from "@/components/chat-widget";
 
 function NotFoundComponent() {
   return (
@@ -118,6 +117,18 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.chtlConfig = { chatbotId: "2214813427" }`,
+          }}
+        />
+        <script
+          async
+          data-id="2214813427"
+          id="chtl-script"
+          type="text/javascript"
+          src="https://chatling.ai/js/embed.js"
+        ></script>
       </head>
       <body>
         {children}
@@ -133,7 +144,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      <ChatWidget />
     </QueryClientProvider>
   );
 }
