@@ -353,7 +353,7 @@ function Landing() {
       {/* ---------- HERO ---------- */}
 <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
   {/* Real photograph — Rashtrapati Bhavan, fully visible, no fade, no overlay */}
- <div
+<div
   aria-hidden="true"
   data-parallax="0.06"
   className="absolute inset-0 z-0 bg-cover bg-center opacity-75"
@@ -361,6 +361,12 @@ function Landing() {
     backgroundImage:
       "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
   }}
+/>
+
+{/* darkening overlay — only in light mode, so white text stays readable */}
+<div
+  aria-hidden="true"
+  className="pointer-events-none absolute inset-0 z-0 bg-black/35 dark:hidden"
 />
   <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-8 text-center">
     <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
