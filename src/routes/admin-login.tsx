@@ -42,17 +42,11 @@ function AdminLogin() {
 
   return (
     <div className="flex min-h-screen flex-col bg-navy">
-      {/* Header */}
+      {/* Header — icon only, no text */}
       <header className="border-b border-navy-foreground/10 px-4 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <BrandIcon size={32} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
-            <div className="text-left leading-tight">
-              <p className="font-display text-sm font-bold tracking-tight text-navy-foreground">
-                Capacity Connect
-              </p>
-              <p className="text-[11px] text-navy-foreground/60">Capacity Building Commission</p>
-            </div>
+          <Link to="/" className="flex items-center">
+            <BrandIcon size={36} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
           </Link>
           <Link
             to="/"
