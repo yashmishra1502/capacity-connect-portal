@@ -353,16 +353,15 @@ function Landing() {
       {/* ---------- HERO ---------- */}
       <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
         {/* Real photograph — Rashtrapati Bhavan, full visible, no side fade */}
-        <div
-          aria-hidden="true"
-          data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-100"
-          style={{
-            backgroundImage:
-              "url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Rashtrapati_Bhavan_Wide_New_Delhi_India.jpg/1600px-Rashtrapati_Bhavan_Wide_New_Delhi_India.jpg')",
-            filter: "saturate(1.15) contrast(1.1) brightness(1.05)",
-          }}
-        />
+       <div
+  aria-hidden="true"
+  data-parallax="0.06"
+  className="absolute inset-0 z-0 bg-cover bg-center"
+  style={{
+    backgroundImage:
+      "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
+  }}
+/>
 
         {/* light, uniform dark overlay so white text stays readable — no left/right fade */}
         <div
