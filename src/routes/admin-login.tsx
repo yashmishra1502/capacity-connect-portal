@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { ArrowRight, ArrowLeft, Eye, EyeOff, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,21 @@ function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const dark = stored ? stored === "dark" : true;
+    setIsDark(dark);
+    document.documentElement.classList.toggle("dark", dark);
+  }, []);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  }
 
   const demo = demoCredentials("admin");
 
@@ -48,13 +63,29 @@ function AdminLogin() {
           <Link to="/" className="flex items-center">
             <BrandIcon size={36} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
           </Link>
-          <Link
-            to="/"
-            className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
-          >
-            <ArrowLeft className="size-3.5" />
-            Back to home
-          </Link>
+
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="flex size-8 items-center justify-center rounded-full border border-navy-foreground/15 bg-navy-foreground/5 hover:bg-navy-foreground/10"
+            >
+              <img
+                src={isDark ? "/night.png" : "/day.png"}
+                alt={isDark ? "Dark mode" : "Light mode"}
+                className="size-4"
+              />
+            </button>
+
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-xs font-medium text-navy-foreground/70 hover:text-navy-foreground"
+            >
+              <ArrowLeft className="size-3.5" />
+              Back to home
+            </Link>
+          </div>
         </div>
       </header>
 
