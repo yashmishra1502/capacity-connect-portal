@@ -752,29 +752,29 @@ function Landing() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section className="relative z-10 overflow-hidden bg-foreground/[0.02] py-16 md:py-20 backdrop-blur-sm dark:bg-foreground/[0.015]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-0 z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.15] blur-3xl dark:bg-primary/[0.06]"
-        />
-        <div className="relative z-10 mx-auto max-w-4xl px-5">
+      <section className="relative z-10 border-t border-foreground/15 bg-foreground/[0.02] py-24 md:py-32 backdrop-blur-sm dark:border-foreground/10 dark:bg-foreground/[0.015]">
+        <div className="mx-auto max-w-4xl px-5">
           <div className="text-center">
-            <Eyebrow>Support</Eyebrow>
+            <Eyebrow>FAQ</Eyebrow>
             <h2 data-reveal className="mt-4 font-display text-3xl font-bold tracking-[-0.03em] text-foreground md:text-[2.6rem]">
-              Frequently Asked Questions
+              Frequently asked questions
             </h2>
+            <p className="mt-3 text-[15px] text-foreground/60">
+              Got questions about onboarding, certification or security?
+            </p>
           </div>
-          <Accordion type="single" collapsible className="mt-12 space-y-4">
-            {faqs.map((faq, index) => (
+
+          <Accordion type="single" collapsible className="mt-12 w-full space-y-4">
+            {faqs.map((faq, i) => (
               <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="rounded-xl border border-foreground/15 bg-background/50 px-6 backdrop-blur-md"
+                key={i}
+                value={`item-${i}`}
+                className="rounded-2xl border border-foreground/15 bg-foreground/[0.05] px-6 py-2 backdrop-blur-md dark:border-foreground/10 dark:bg-foreground/[0.03]"
               >
-                <AccordionTrigger className="text-left font-display font-semibold hover:no-underline">
+                <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm leading-relaxed text-foreground/70">
+                <AccordionContent className="text-sm leading-relaxed text-foreground/75">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -784,14 +784,25 @@ function Landing() {
       </section>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="relative z-10 border-t border-foreground/15 bg-background py-12">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 sm:flex-row">
-          <BrandLogo className="h-12 w-auto" />
-          <p className="text-xs text-foreground/60">
-            © {new Date().getFullYear()} Capacity Connect. All rights reserved.
-          </p>
+      <footer className="relative z-10 border-t border-foreground/15 bg-background py-12 dark:border-foreground/10">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="flex items-center gap-3">
+              <BrandLogo className="h-12 w-auto" />
+            </div>
+            <p className="text-xs text-foreground/60">
+              © {new Date().getFullYear()} Capacity Building Commission, Government of India. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6 text-xs font-medium text-foreground/70">
+              <Link to="/about" className="hover:text-foreground">About</Link>
+              <Link to="/contact" className="hover:text-foreground">Contact</Link>
+              <a href="#" className="hover:text-foreground">Privacy Policy</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
   );
 }
+
+export default Landing;
