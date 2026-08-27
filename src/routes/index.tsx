@@ -350,7 +350,7 @@ function Landing() {
         </div>
       </header>
 
-    {/* ---------- HERO ---------- */}
+ {/* ---------- HERO ---------- */}
 <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
   {/* Real photograph */}
   <div
@@ -363,54 +363,16 @@ function Landing() {
     }}
   />
 
-  {/* darkening overlay — light mode only, for text readability */}
+  {/* darkening overlay — light mode only, keeps white text readable */}
   <div
     aria-hidden="true"
     className="pointer-events-none absolute inset-0 z-0 bg-black/35 dark:hidden"
   />
 
-  {/* bottom fade — blends the photo smoothly into the next section, no hard cut */}
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-40"
-    style={{
-      background: "linear-gradient(to bottom, transparent, var(--background))",
-    }}
-  />
-
-  {/* light blue colour-cast so the photo fits the site's palette */}
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-40 dark:opacity-25"
-    style={{
-      background: "rgba(37,99,235,0.35)",
-    }}
-  />
-
-  {/* subtle cinematic blue glow */}
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute inset-0 z-0 opacity-70 dark:opacity-30"
-    style={{
-      background:
-        "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
-    }}
-  />
-
-  {/* fine grid texture */}
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.03]"
-    style={{
-      backgroundImage:
-        "linear-gradient(to right, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 45%, transparent) 1px, transparent 1px)",
-      backgroundSize: "56px 56px",
-    }}
-  />
-
-  {/* ... rest of hero content div (badge, h1, p, buttons, badges, gov departments) stays exactly the same as before ... */}
+  <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-5 pb-24 pt-8 text-center">
+    {/* ... baaki poora content (badge, h1, p, buttons, hero badges, gov departments) bilkul same rahega jo pehle tha ... */}
+  </div>
 </section>
-
       {/* ---------- TRUST STRIP ---------- */}
       <section className="relative z-10 border-b border-foreground/15 bg-foreground/[0.02] py-10 backdrop-blur-sm dark:border-foreground/10 dark:bg-foreground/[0.015]">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 md:grid-cols-4">
