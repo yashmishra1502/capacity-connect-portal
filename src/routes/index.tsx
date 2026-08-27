@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   GraduationCap,
   Users,
@@ -23,6 +23,9 @@ import {
   Bell,
   Gift,
   Landmark,
+  LogOut,
+  ChevronDown,
+  User as UserIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +40,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax, useTilt } from "@/hooks/use-landing-motion";
 import { BrandIcon, BrandLogo } from "@/components/brand-logo";
+import { useAuth } from "@/hooks/use-auth";
+import { logout } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -246,11 +251,78 @@ function useTypewriter(phrases: string[], typingSpeed = 70, deletingSpeed = 40, 
   return text;
 }
 
+/* ---------- PROFILE DROPDOWN MENU (new) ---------- */
+function ProfileMenu({ profile }: { profile: any }) {
+  const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  async function handleLogout() {
+    await logout();
+    setOpen(false);
+    navigate({ to: "/" });
+  }
+
+  const initials =
+    (profile?.name as string | undefined)
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/5 px-2.5 py-1.5 text-sm text-foreground hover:bg-foreground/10"
+      >
+        <span className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+          {initials}
+        </span>
+        <ChevronDown className="size-3.5 text-foreground/60" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-foreground/15 bg-background p-2 shadow-lg">
+          <div className="px-2.5 py-2">
+            <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <UserIcon className="size-3.5" />
+              {profile?.name || "User"}
+            </p>
+            <p className="mt-0.5 text-xs capitalize text-foreground/55">{profile?.role}</p>
+          </div>
+          <div className="my-1 h-px bg-foreground/10" />
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+          >
+            <LogOut className="size-3.5" />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Landing() {
   useScrollReveal();
   useParallax();
   const tiltRef = useTilt<HTMLDivElement>(7);
   const typedText = useTypewriter(TYPED_PHRASES);
+  const navigate = useNavigate();
+  const { session, profile, loading } = useAuth();
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -338,14 +410,29 @@ function Landing() {
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm" className="border-foreground/20 bg-foreground/5 text-foreground hover:bg-foreground/10 hidden sm:inline-flex">
-              <Link to="/admin-login">Admin Login</Link>
-            </Button>
-            <Button asChild size="sm" className="rounded-full bg-foreground text-background hover:bg-foreground/90">
-              <Link to="/login">
-                Sign in <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
+            {loading ? null : session && profile ? (
+              <>
+                <Button
+                  size="sm"
+                  className="rounded-full bg-foreground text-background hover:bg-foreground/90"
+                  onClick={() => navigate({ to: `/${profile.role}` })}
+                >
+                  Dashboard
+                </Button>
+                <ProfileMenu profile={profile} />
+              </>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm" className="border-foreground/20 bg-foreground/5 text-foreground hover:bg-foreground/10 hidden sm:inline-flex">
+                  <Link to="/admin-login">Admin Login</Link>
+                </Button>
+                <Button asChild size="sm" className="rounded-full bg-foreground text-background hover:bg-foreground/90">
+                  <Link to="/login">
+                    Sign in <ArrowRight className="ml-1 size-4" />
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
