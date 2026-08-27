@@ -1,6 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, type FormEvent } from "react";
-import { ArrowRight, ArrowLeft, Eye, EyeOff, ShieldAlert, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  ShieldCheck,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,11 +82,11 @@ function AdminLogin() {
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
               className="flex size-8 items-center justify-center rounded-full border border-black/10 bg-white/40 backdrop-blur-xl hover:bg-white/60 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
             >
-              <img
-                src={isDark ? "/night.png" : "/day.png"}
-                alt={isDark ? "Dark mode" : "Light mode"}
-                className="size-4 object-contain"
-              />
+              {isDark ? (
+                <Moon className="size-4 text-foreground/80" />
+              ) : (
+                <Sun className="size-4 text-foreground/80" />
+              )}
             </button>
 
             <Link
