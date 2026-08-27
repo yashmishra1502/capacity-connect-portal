@@ -73,9 +73,9 @@ function TraineeProfile() {
               <div key={skill.skill} className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{skill.skill}</span>
-                  <span className="text-muted-foreground">{skill.score}%</span>
+                  <span className="text-muted-foreground">{skill.value}%</span>
                 </div>
-                <Progress value={skill.score} className="h-2" />
+                <Progress value={skill.value} className="h-2" />
               </div>
             ))}
           </CardContent>
