@@ -46,7 +46,7 @@ function AdminLogin() {
      <header className="border-b border-navy-foreground/10 px-4 py-4">
   <div className="mx-auto flex max-w-5xl items-center justify-between">
     <Link to="/" className="flex items-center">
-      <BrandIcon size={56} className="object-contain" />
+      <BrandIcon size={96} className="object-contain" />
     </Link>
 
     <Link
