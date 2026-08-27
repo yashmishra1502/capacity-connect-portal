@@ -1,6 +1,6 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   BookOpen,
@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BrandIcon } from "@/components/brand-logo";
 import { navConfig, roleLabel } from "@/components/nav-config";
-import { currentUsers, notifications, type Role } from "@/lib/mock-data";
+import { notifications, type Role } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 type Primary = { label: string; to: string; icon: typeof BookOpen };
@@ -61,18 +62,47 @@ export function AppShell({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const user = currentUsers[role];
+
+  // Real session + profile from Supabase (replaces old mock currentUsers[role])
+  const { session, profile, loading } = useAuth();
+
   const items = navConfig[role];
   const groups = [...new Set(items.map((item) => item.group))];
   const unread = notifications.filter((notification) => notification.unread).length;
 
+  // ---- Route protection: redirect if not logged in or role mismatch ----
+  useEffect(() => {
+    if (loading) return; // wait until session check finishes
+    if (!session || !profile) {
+      navigate({ to: "/login", replace: true });
+      return;
+    }
+    if (profile.role !== role) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [loading, session, profile, role, navigate]);
+
   async function handleSignOut() {
     await logout();
-    await navigate({ to: "/" });
+    await navigate({ to: "/", replace: true });
   }
 
   const active = (to: string) =>
     to === "/" ? pathname === "/" : pathname === to || pathname === `${to}/`;
+
+  // While checking session, or if session/role isn't valid yet, render nothing
+  // (the effect above will redirect). This avoids flashing the portal UI
+  // with stale/fake data before the redirect happens.
+  if (loading || !session || !profile || profile.role !== role) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  const displayName: string = profile.name || profile.full_name || profile.email || "User";
+  const displayEmail: string = profile.email || session.user?.email || "";
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -127,12 +157,12 @@ export function AppShell({ role }: { role: Role }) {
                 className="hidden h-10 gap-2 rounded-full border-border/70 bg-background/60 px-3 backdrop-blur sm:flex"
               >
                 <User className="size-4 text-primary" />
-                <span className="text-sm font-semibold">{user.name.split(" ")[0]}</span>
+                <span className="text-sm font-semibold">{displayName.split(" ")[0]}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-60">
               <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                {user.email} · {roleLabel[role]}
+                {displayEmail} · {roleLabel[role]}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
