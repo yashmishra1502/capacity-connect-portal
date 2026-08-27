@@ -225,7 +225,7 @@ function useTypewriter(phrases: string[], typingSpeed = 70, deletingSpeed = 40, 
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   React.useEffect(() => {
-    const current = phrases[phraseIndex % phrases.length];
+    const current = phrases[phraseIndex % phrases.length] ?? "";
     let timeout: ReturnType<typeof setTimeout>;
 
     if (!isDeleting && text === current) {
