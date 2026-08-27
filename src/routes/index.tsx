@@ -283,9 +283,6 @@ function Landing() {
       `}</style>
 
       {/* ---------- GLOBAL ANIMATED BACKGROUND (fixed, spans whole page) ---------- */}
-      {/* Dark-mode fix: blob opacity is dropped further (via dark:opacity-*) and
-          the grid overlay is dimmed too, since the same values that read as a
-          soft glow on a light background stack into a dense haze on a dark one. */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-background" />
         <div
@@ -316,7 +313,6 @@ function Landing() {
             animation: "cc-drift-2 20s ease-in-out infinite reverse, cc-pulse-glow 10s ease-in-out infinite",
           }}
         />
-        {/* fine grid overlay — visibility lowered from second section onward, and further dimmed in dark mode */}
         <div
           className="absolute inset-0 opacity-[0.035] dark:opacity-[0.015]"
           style={{
@@ -354,57 +350,40 @@ function Landing() {
         </div>
       </header>
 
-      {/* ---------- HERO (content, layout, typography UNCHANGED) ---------- */}
+      {/* ---------- HERO ---------- */}
       <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
-        {/* Real photograph — Rashtrapati Bhavan (President House), right-aligned, fading toward center/left */}
+        {/* Real photograph — Rashtrapati Bhavan, full visible, no side fade */}
         <div
           aria-hidden="true"
           data-parallax="0.06"
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-55 md:bg-[position:78%_center] md:opacity-100 dark:opacity-80 dark:md:opacity-100"
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-100"
           style={{
             backgroundImage:
-              "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
+              "url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Rashtrapati_Bhavan_Wide_New_Delhi_India.jpg/1600px-Rashtrapati_Bhavan_Wide_New_Delhi_India.jpg')",
             filter: "saturate(1.15) contrast(1.1) brightness(1.05)",
-            maskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
-            WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0%, transparent 26%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0.78) 66%, black 100%)",
           }}
         />
 
-        {/* balanced scrim so the photo blends into the existing background instead of sitting as a separate card —
-            dark mode now uses much lighter mix percentages so the photo stays visible instead of crushing to near-black */}
+        {/* light, uniform dark overlay so white text stays readable — no left/right fade */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 dark:hidden"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 90%, transparent) 24%, color-mix(in oklab, var(--background) 62%, transparent) 44%, color-mix(in oklab, var(--background) 30%, transparent) 64%, color-mix(in oklab, var(--background) 14%, transparent) 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 45%, transparent) 0%, color-mix(in oklab, var(--background) 5%, transparent) 28%, color-mix(in oklab, var(--background) 14%, transparent) 60%, var(--background) 100%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 hidden dark:block"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 32%, transparent) 24%, color-mix(in oklab, var(--background) 14%, transparent) 44%, transparent 64%, transparent 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 10%, transparent) 0%, transparent 28%, transparent 60%, color-mix(in oklab, var(--background) 22%, transparent) 100%)",
-          }}
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{ background: "rgba(8,12,22,0.45)" }}
         />
 
-        {/* light blue colour-cast so the photo still fits the site's navy palette but keeps natural tones */}
+        {/* light blue colour-cast so the photo still fits the site's navy palette */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-100 dark:opacity-20"
+          className="pointer-events-none absolute inset-0 z-0 mix-blend-color opacity-60 dark:opacity-20"
           style={{
-            background:
-              "linear-gradient(100deg, transparent 0%, transparent 40%, rgba(37,99,235,0.35) 65%, rgba(29,78,216,0.4) 100%)",
+            background: "rgba(29,78,216,0.35)",
           }}
         />
 
         {/* subtle cinematic blue glow around the building */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-25"
+          className="pointer-events-none absolute inset-0 z-0 opacity-70 dark:opacity-25"
           style={{
             background:
               "radial-gradient(ellipse 40% 55% at 82% 45%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)",
