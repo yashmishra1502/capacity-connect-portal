@@ -25,7 +25,7 @@ export const Route = createFileRoute("/trainer/")({
   head: () => ({
     meta: [{ title: "Dashboard — Trainee Portal · Capacity Connect" }],
   }),
-  component: TraineeDashboard,
+  component: TrainerDashboard,
 });
 
 const tooltipStyle = {
