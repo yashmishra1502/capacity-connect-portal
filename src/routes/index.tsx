@@ -353,10 +353,10 @@ function Landing() {
       {/* ---------- HERO ---------- */}
 <section className="relative z-10 isolate flex min-h-[72vh] items-center justify-center overflow-hidden">
   {/* Real photograph — Rashtrapati Bhavan, fully visible, no fade, no overlay */}
-  <div
+ <div
   aria-hidden="true"
   data-parallax="0.06"
-  className="absolute inset-0 z-0 bg-cover bg-center opacity-60"
+  className="absolute inset-0 z-0 bg-cover bg-center opacity-75"
   style={{
     backgroundImage:
       "url('https://commons.wikimedia.org/wiki/Special:FilePath/Rashtrapati%20Bhavan%20Wide%20New%20Delhi%20India.jpg')",
