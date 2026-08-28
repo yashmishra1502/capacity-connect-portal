@@ -30,12 +30,14 @@ export const Route = createFileRoute("/admin/trainees")({
   component: TraineeManagement,
 });
 
+type TraineeStatus = "active" | "suspended" | "pending";
+
 type Trainee = {
   id: string;
   name: string;
   department: string;
   enrolledCourses: number;
-  status: "active" | "inactive";
+  status: TraineeStatus;
 };
 
 // Animation variants for smooth entrance
@@ -63,10 +65,14 @@ function TraineeManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTrainee, setEditingTrainee] = useState<Trainee | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    department: string;
+    status: TraineeStatus;
+  }>({
     name: "",
     department: "",
-    status: "active" as "active" | "inactive",
+    status: "active",
   });
 
   const fetchTrainees = async () => {
@@ -105,7 +111,7 @@ function TraineeManagement() {
       name: p.name,
       department: p.dept ?? "—",
       enrolledCourses: countByTrainee[p.id] ?? 0,
-      status: (p.status as "active" | "inactive") ?? "inactive",
+      status: (p.status as TraineeStatus) ?? "active",
     }));
 
     setTrainees(mapped);
@@ -127,7 +133,7 @@ function TraineeManagement() {
     setFormData({
       name: trainee.name,
       department: trainee.department === "—" ? "" : trainee.department,
-      status: trainee.status,
+      status: trainee.status === "suspended" ? "suspended" : "active",
     });
     setIsDialogOpen(true);
   };
@@ -152,12 +158,16 @@ function TraineeManagement() {
         return;
       }
     } else {
+      // Generated explicit random UUID to prevent null "id" constraint error
+      const generatedId = crypto.randomUUID();
+
       const { error: insertError } = await supabase
         .from("profiles")
         .insert({
+          id: generatedId,
           name: formData.name,
           dept: formData.department.trim() || null,
-          status: formData.status,
+          status: "active", // Force active on insert
           role: "trainee",
           joined_date: new Date().toISOString(),
         });
@@ -231,9 +241,9 @@ function TraineeManagement() {
               <Users className="size-4" style={{ color: accent }} />
             </span>
             <div>
-              <p className="text-xs text-muted-foreground">Inactive</p>
+              <p className="text-xs text-muted-foreground">Suspended</p>
               <p className="font-display text-lg font-bold">
-                {trainees.filter((t) => t.status === "inactive").length || "—"}
+                {trainees.filter((t) => t.status === "suspended").length || "—"}
               </p>
             </div>
           </Glass>
@@ -285,7 +295,7 @@ function TraineeManagement() {
                       <TableCell>{t.department}</TableCell>
                       <TableCell>{t.enrolledCourses}</TableCell>
                       <TableCell>
-                        <Badge variant={t.status === "active" ? "default" : "secondary"}>
+                        <Badge variant={t.status === "active" ? "default" : "destructive"}>
                           {t.status}
                         </Badge>
                       </TableCell>
@@ -352,17 +362,18 @@ function TraineeManagement() {
               </label>
               <select
                 id="trainee-status"
+                disabled={!editingTrainee} // Read-only / disabled for Add mode
                 value={formData.status}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    status: e.target.value as "active" | "inactive",
+                    status: e.target.value as TraineeStatus,
                   }))
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                {editingTrainee && <option value="suspended">Suspended</option>}
               </select>
             </div>
 
