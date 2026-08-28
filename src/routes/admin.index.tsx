@@ -223,7 +223,7 @@ function AdminDashboard() {
     >
       {/* Header Bar containing Trainers and Announcements Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
-        <nav className="flex flex-wrap items-center gap-1.5 rounded-full border border-white/20 bg-white/10 p-1.5 backdrop-blur-xl">
+        <nav className="flex flex-wrap items-center gap-1.5 rounded-full border border-white/20 bg-white/10 p-1.5 backdrop-blur-xl max-w-full">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -238,7 +238,7 @@ function AdminDashboard() {
                   className:
                     "text-muted-foreground hover:bg-white/10 hover:text-white",
                 }}
-                className="flex items-center gap-2 rounded-full border border-transparent px-3.5 py-1.5 text-xs font-medium transition-all"
+                className="flex shrink-0 items-center gap-2 rounded-full border border-transparent px-3.5 py-1.5 text-xs font-medium transition-all"
               >
                 <Icon className="size-3.5" />
                 <span>{item.label}</span>
