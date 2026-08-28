@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Clock, Search, AlertOctagon } from "lucide-react";
+import { CheckCircle2, Clock, Search, AlertOctagon, UserCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,17 +22,17 @@ export const Route = createFileRoute("/admin/approvals")({
   component: Approvals,
 });
 
-type TrainerProfile = {
+type UserProfile = {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: "trainer" | "trainee";
   dept: string;
   status: "pending" | "active" | "suspended";
   joined_date: string;
 };
 
-function statusBadge(status: TrainerProfile["status"]) {
+function statusBadge(status: UserProfile["status"]) {
   switch (status) {
     case "active":
       return (
@@ -59,75 +59,108 @@ function statusBadge(status: TrainerProfile["status"]) {
 }
 
 function Approvals() {
-  const [trainers, setTrainers] = useState<TrainerProfile[]>([]);
+  const [activeTab, setActiveTab] = useState<"trainers" | "trainees">("trainers");
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // 1. Fetch trainers from public.profiles
-  const fetchTrainers = async () => {
+  // 1. Fetch profiles based on selected role tab
+  const fetchProfiles = async (role: "trainer" | "trainee") => {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("role", "trainer")
+      .eq("role", role)
       .order("joined_date", { ascending: false });
 
     if (error) {
-      console.error("Error fetching trainers:", error.message);
+      console.error(`Error fetching ${role}s:`, error.message);
     } else {
-      setTrainers(data || []);
+      setProfiles(data || []);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchTrainers();
-  }, []);
+    fetchProfiles(activeTab === "trainers" ? "trainer" : "trainee");
+  }, [activeTab]);
 
-  // 2. Handle Activate or Suspend status changes
+  // 2. Handle Activate or Suspend status updates
   const handleUpdateStatus = async (
-    trainerId: string,
+    userId: string,
     newStatus: "active" | "suspended"
   ) => {
-    setActionLoading(trainerId);
+    setActionLoading(userId);
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .update({ status: newStatus })
-      .eq("id", trainerId);
+      .eq("id", userId)
+      .select();
 
     if (error) {
-      alert(`Failed to update trainer status: ${error.message}`);
+      alert(`Failed to update status: ${error.message}`);
+    } else if (!data || data.length === 0) {
+      alert("Update failed: Row Level Security (RLS) prevented modifying this profile.");
     } else {
-      setTrainers((prev) =>
-        prev.map((t) => (t.id === trainerId ? { ...t, status: newStatus } : t))
+      setProfiles((prev) =>
+        prev.map((p) => (p.id === userId ? { ...p, status: newStatus } : p))
       );
     }
 
     setActionLoading(null);
   };
 
-  // Filtered trainers by search
-  const filteredTrainers = trainers.filter(
-    (t) =>
-      t.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.dept?.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter accounts by search query
+  const filteredProfiles = profiles.filter(
+    (p) =>
+      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.dept?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Dynamic counts
-  const pendingCount = trainers.filter((t) => t.status === "pending").length;
-  const activeCount = trainers.filter((t) => t.status === "active").length;
-  const suspendedCount = trainers.filter((t) => t.status === "suspended").length;
+  // Dynamic status counters
+  const pendingCount = profiles.filter((p) => p.status === "pending").length;
+  const activeCount = profiles.filter((p) => p.status === "active").length;
+  const suspendedCount = profiles.filter((p) => p.status === "suspended").length;
 
   return (
     <GlassBackground>
+      {/* Main Header */}
       <div>
-        <h1 className="font-display text-xl font-bold">Trainer Approvals</h1>
+        <h1 className="font-display text-xl font-bold">Approvals</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review pending trainers, activate accounts, or suspend user access across the platform.
+          Review pending accounts, activate profiles, or suspend user access across the platform.
         </p>
+      </div>
+
+      {/* Role Navigation Tabs */}
+      <div className="mt-4 flex gap-2 border-b border-white/10 pb-3">
+        <Button
+          variant={activeTab === "trainers" ? "default" : "ghost"}
+          size="sm"
+          onClick={() => {
+            setActiveTab("trainers");
+            setSearchQuery("");
+          }}
+          className="gap-2"
+        >
+          <UserCheck className="size-4" />
+          All Trainer Accounts
+        </Button>
+        <Button
+          variant={activeTab === "trainees" ? "default" : "ghost"}
+          size="sm"
+          onClick={() => {
+            setActiveTab("trainees");
+            setSearchQuery("");
+          }}
+          className="gap-2"
+        >
+          <Users className="size-4" />
+          All Trainee Accounts
+        </Button>
       </div>
 
       {/* Counters */}
@@ -137,7 +170,9 @@ function Approvals() {
             <Clock className="size-5 text-amber-500" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Pending Trainers</p>
+            <p className="text-xs text-muted-foreground">
+              Pending {activeTab === "trainers" ? "Trainers" : "Trainees"}
+            </p>
             <p className="font-display text-lg font-bold">{pendingCount}</p>
           </div>
         </Glass>
@@ -147,7 +182,9 @@ function Approvals() {
             <CheckCircle2 className="size-5 text-emerald-500" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Active Trainers</p>
+            <p className="text-xs text-muted-foreground">
+              Active {activeTab === "trainers" ? "Trainers" : "Trainees"}
+            </p>
             <p className="font-display text-lg font-bold">{activeCount}</p>
           </div>
         </Glass>
@@ -157,7 +194,9 @@ function Approvals() {
             <AlertOctagon className="size-5 text-red-500" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Suspended Trainers</p>
+            <p className="text-xs text-muted-foreground">
+              Suspended {activeTab === "trainers" ? "Trainers" : "Trainees"}
+            </p>
             <p className="font-display text-lg font-bold">{suspendedCount}</p>
           </div>
         </Glass>
@@ -165,13 +204,15 @@ function Approvals() {
 
       {/* Table Section */}
       <Glass className="p-5">
-        <h2 className="font-display text-sm font-bold">All Trainer Accounts</h2>
+        <h2 className="font-display text-sm font-bold">
+          {activeTab === "trainers" ? "All Trainer Accounts" : "All Trainee Accounts"}
+        </h2>
         <GlassInputWrap className="relative mt-3">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, email, or department..."
+            placeholder={`Search ${activeTab} by name, email, or department...`}
             className="border-none bg-transparent pl-8 focus-visible:ring-0"
           />
         </GlassInputWrap>
@@ -179,17 +220,19 @@ function Approvals() {
         <div className="mt-4">
           {loading ? (
             <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
-              Loading trainers...
+              Loading {activeTab}...
             </div>
-          ) : filteredTrainers.length === 0 ? (
+          ) : filteredProfiles.length === 0 ? (
             <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
-              No trainer accounts found
+              No {activeTab} accounts found
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-white/20 hover:bg-transparent">
-                  <TableHead>Trainer Name</TableHead>
+                  <TableHead>
+                    {activeTab === "trainers" ? "Trainer Name" : "Trainee Name"}
+                  </TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Department</TableHead>
                   <TableHead>Current Status</TableHead>
@@ -197,40 +240,40 @@ function Approvals() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTrainers.map((trainer) => (
+                {filteredProfiles.map((user) => (
                   <TableRow
-                    key={trainer.id}
+                    key={user.id}
                     className="border-white/20 hover:bg-white/20"
                   >
-                    <TableCell className="font-medium">{trainer.name}</TableCell>
-                    <TableCell>{trainer.email}</TableCell>
-                    <TableCell className="uppercase">{trainer.dept}</TableCell>
-                    <TableCell>{statusBadge(trainer.status)}</TableCell>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell className="uppercase">{user.dept || "—"}</TableCell>
+                    <TableCell>{statusBadge(user.status)}</TableCell>
                     <TableCell className="space-x-2 text-right">
-                      {/* Activate Account Option */}
+                      {/* Activate Account Button */}
                       <Button
                         size="sm"
                         variant="ghost"
                         disabled={
-                          actionLoading === trainer.id || trainer.status === "active"
+                          actionLoading === user.id || user.status === "active"
                         }
-                        onClick={() => handleUpdateStatus(trainer.id, "active")}
+                        onClick={() => handleUpdateStatus(user.id, "active")}
                         className="text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-600 disabled:opacity-40"
                       >
-                        {actionLoading === trainer.id ? "Updating..." : "Activate"}
+                        {actionLoading === user.id ? "Updating..." : "Activate"}
                       </Button>
 
-                      {/* Suspend Account Option */}
+                      {/* Suspend Account Button */}
                       <Button
                         size="sm"
                         variant="ghost"
                         disabled={
-                          actionLoading === trainer.id || trainer.status === "suspended"
+                          actionLoading === user.id || user.status === "suspended"
                         }
-                        onClick={() => handleUpdateStatus(trainer.id, "suspended")}
+                        onClick={() => handleUpdateStatus(user.id, "suspended")}
                         className="text-red-500 hover:bg-red-500/10 hover:text-red-600 disabled:opacity-40"
                       >
-                        {actionLoading === trainer.id ? "Updating..." : "Suspend"}
+                        {actionLoading === user.id ? "Updating..." : "Suspend"}
                       </Button>
                     </TableCell>
                   </TableRow>
