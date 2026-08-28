@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { UserPlus, Search, Users, Edit3, Loader2 } from "lucide-react";
+import { Search, Users, Edit3, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +62,7 @@ function TraineeManagement() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  // Dialog & Form state
+  // Dialog & Form state for Editing
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTrainee, setEditingTrainee] = useState<Trainee | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -126,12 +126,6 @@ function TraineeManagement() {
     fetchTrainees();
   }, []);
 
-  const handleOpenAdd = () => {
-    setEditingTrainee(null);
-    setFormData({ name: "", email: "", department: "", status: "active" });
-    setIsDialogOpen(true);
-  };
-
   const handleOpenEdit = (trainee: Trainee) => {
     setEditingTrainee(trainee);
     setFormData({
@@ -145,44 +139,24 @@ function TraineeManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingTrainee) return;
+
     setSubmitting(true);
 
-    if (editingTrainee) {
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          name: formData.name,
-          email: formData.email.trim(),
-          dept: formData.department.trim() || null,
-          status: formData.status,
-        })
-        .eq("id", editingTrainee.id);
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        name: formData.name,
+        email: formData.email.trim(),
+        dept: formData.department.trim() || null,
+        status: formData.status,
+      })
+      .eq("id", editingTrainee.id);
 
-      if (updateError) {
-        alert(`Failed to update trainee: ${updateError.message}`);
-        setSubmitting(false);
-        return;
-      }
-    } else {
-      const generatedId = crypto.randomUUID();
-
-      const { error: insertError } = await supabase
-        .from("profiles")
-        .insert({
-          id: generatedId,
-          name: formData.name,
-          email: formData.email.trim(), // Provided to satisfy NOT NULL constraint
-          dept: formData.department.trim() || null,
-          status: "active",
-          role: "trainee",
-          joined_date: new Date().toISOString(),
-        });
-
-      if (insertError) {
-        alert(`Failed to create trainee: ${insertError.message}`);
-        setSubmitting(false);
-        return;
-      }
+    if (updateError) {
+      alert(`Failed to update trainee: ${updateError.message}`);
+      setSubmitting(false);
+      return;
     }
 
     setSubmitting(false);
@@ -208,17 +182,9 @@ function TraineeManagement() {
           <div>
             <h1 className="font-display text-xl font-bold">Trainee Management</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              View, add, and manage trainee records across departments.
+              View and manage trainee records across departments.
             </p>
           </div>
-          <Button
-            size="sm"
-            onClick={handleOpenAdd}
-            className="gap-1.5 border border-white/40 bg-white/50 text-foreground backdrop-blur-md transition-all hover:scale-105 hover:bg-white/70 active:scale-95 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20"
-          >
-            <UserPlus className="size-4" style={{ color: accent }} />
-            Add Trainee
-          </Button>
         </motion.div>
 
         {/* Summary Metric Cards */}
@@ -328,11 +294,11 @@ function TraineeManagement() {
         </motion.div>
       </motion.div>
 
-      {/* Add / Edit Dialog */}
+      {/* Edit Trainee Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingTrainee ? "Edit Trainee" : "Add Trainee"}</DialogTitle>
+            <DialogTitle>Edit Trainee</DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -387,7 +353,6 @@ function TraineeManagement() {
               </label>
               <select
                 id="trainee-status"
-                disabled={!editingTrainee}
                 value={formData.status}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -395,10 +360,10 @@ function TraineeManagement() {
                     status: e.target.value as TraineeStatus,
                   }))
                 }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="active">Active</option>
-                {editingTrainee && <option value="suspended">Suspended</option>}
+                <option value="suspended">Suspended</option>
               </select>
             </div>
 
@@ -417,10 +382,8 @@ function TraineeManagement() {
                     <Loader2 className="mr-1.5 size-4 animate-spin" />
                     Saving...
                   </>
-                ) : editingTrainee ? (
-                  "Save Changes"
                 ) : (
-                  "Add Trainee"
+                  "Save Changes"
                 )}
               </Button>
             </DialogFooter>
