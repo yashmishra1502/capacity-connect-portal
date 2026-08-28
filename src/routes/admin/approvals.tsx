@@ -22,17 +22,19 @@ export const Route = createFileRoute("/admin/approvals")({
   component: Approvals,
 });
 
+type UserStatus = "pending" | "active" | "suspended";
+
 type UserProfile = {
   id: string;
   name: string;
   email: string;
   role: "trainer" | "trainee";
   dept: string;
-  status: "pending" | "active" | "suspended";
-  joined_date: string;
+  status: UserStatus;
+  joined_date?: string;
 };
 
-function statusBadge(status: UserProfile["status"]) {
+function StatusBadge({ status }: { status: UserStatus }) {
   switch (status) {
     case "active":
       return (
@@ -65,19 +67,29 @@ function Approvals() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // 1. Fetch profiles based on selected role tab
+  // 1. Fetch profiles based on selected role tab safely
   const fetchProfiles = async (role: "trainer" | "trainee") => {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, name, email, role, dept, status, joined_date")
       .eq("role", role)
       .order("joined_date", { ascending: false });
 
     if (error) {
       console.error(`Error fetching ${role}s:`, error.message);
-    } else {
-      setProfiles(data || []);
+      setProfiles([]);
+    } else if (data) {
+      const formattedProfiles: UserProfile[] = data.map((item) => ({
+        id: item.id,
+        name: item.name ?? "Unnamed",
+        email: item.email ?? "No Email",
+        role: item.role as "trainer" | "trainee",
+        dept: item.dept ?? "—",
+        status: (item.status as UserStatus) || "pending",
+        joined_date: item.joined_date ?? "",
+      }));
+      setProfiles(formattedProfiles);
     }
     setLoading(false);
   };
@@ -102,7 +114,7 @@ function Approvals() {
     if (error) {
       alert(`Failed to update status: ${error.message}`);
     } else if (!data || data.length === 0) {
-      alert("Update failed: Row Level Security (RLS) prevented modifying this profile.");
+      alert("Update failed: Row Level Security (RLS) policy restricted updating this record.");
     } else {
       setProfiles((prev) =>
         prev.map((p) => (p.id === userId ? { ...p, status: newStatus } : p))
@@ -112,12 +124,12 @@ function Approvals() {
     setActionLoading(null);
   };
 
-  // Filter accounts by search query
+  // Filter accounts by search query safely
   const filteredProfiles = profiles.filter(
     (p) =>
-      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.dept?.toLowerCase().includes(searchQuery.toLowerCase())
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.dept.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Dynamic status counters
@@ -138,6 +150,7 @@ function Approvals() {
       {/* Role Navigation Tabs */}
       <div className="mt-4 flex gap-2 border-b border-white/10 pb-3">
         <Button
+          type="button"
           variant={activeTab === "trainers" ? "default" : "ghost"}
           size="sm"
           onClick={() => {
@@ -150,6 +163,7 @@ function Approvals() {
           All Trainer Accounts
         </Button>
         <Button
+          type="button"
           variant={activeTab === "trainees" ? "default" : "ghost"}
           size="sm"
           onClick={() => {
@@ -247,11 +261,14 @@ function Approvals() {
                   >
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell className="uppercase">{user.dept || "—"}</TableCell>
-                    <TableCell>{statusBadge(user.status)}</TableCell>
+                    <TableCell className="uppercase">{user.dept}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={user.status} />
+                    </TableCell>
                     <TableCell className="space-x-2 text-right">
                       {/* Activate Account Button */}
                       <Button
+                        type="button"
                         size="sm"
                         variant="ghost"
                         disabled={
@@ -265,6 +282,7 @@ function Approvals() {
 
                       {/* Suspend Account Button */}
                       <Button
+                        type="button"
                         size="sm"
                         variant="ghost"
                         disabled={
