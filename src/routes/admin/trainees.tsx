@@ -227,4 +227,170 @@ function TraineeManagement() {
             </div>
           </Glass>
           <Glass className="flex items-center gap-3 p-4 transition-transform hover:-translate-y-1">
-            <span className="flex
+            <span className="flex size-9 items-center justify-center rounded-lg border border-white/40 bg-white/50 dark:border-white/10 dark:bg-white/10">
+              <Users className="size-4" style={{ color: accent }} />
+            </span>
+            <div>
+              <p className="text-xs text-muted-foreground">Inactive</p>
+              <p className="font-display text-lg font-bold">
+                {trainees.filter((t) => t.status === "inactive").length || "—"}
+              </p>
+            </div>
+          </Glass>
+        </motion.div>
+
+        {/* Search + Table */}
+        <motion.div variants={itemVariants}>
+          <Glass className="p-4">
+            <div className="mb-4">
+              <GlassInputWrap>
+                <Search className="size-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search trainees..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                />
+              </GlassInputWrap>
+            </div>
+
+            {loading ? (
+              <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                Loading trainees...
+              </div>
+            ) : error ? (
+              <div className="flex h-[200px] items-center justify-center text-sm text-destructive">
+                {error}
+              </div>
+            ) : filteredTrainees.length === 0 ? (
+              <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
+                No trainees found yet
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Enrolled Courses</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTrainees.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="font-medium">{t.name}</TableCell>
+                      <TableCell>{t.department}</TableCell>
+                      <TableCell>{t.enrolledCourses}</TableCell>
+                      <TableCell>
+                        <Badge variant={t.status === "active" ? "default" : "secondary"}>
+                          {t.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenEdit(t)}
+                          className="gap-1"
+                        >
+                          <Edit3 className="size-3.5" />
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </Glass>
+        </motion.div>
+      </motion.div>
+
+      {/* Add / Edit Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingTrainee ? "Edit Trainee" : "Add Trainee"}</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="trainee-name" className="text-sm font-medium">
+                Name
+              </label>
+              <Input
+                id="trainee-name"
+                required
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Trainee full name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="trainee-department" className="text-sm font-medium">
+                Department
+              </label>
+              <Input
+                id="trainee-department"
+                value={formData.department}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, department: e.target.value }))
+                }
+                placeholder="e.g. Engineering"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="trainee-status" className="text-sm font-medium">
+                Status
+              </label>
+              <select
+                id="trainee-status"
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: e.target.value as "active" | "inactive",
+                  }))
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-1.5 size-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : editingTrainee ? (
+                  "Save Changes"
+                ) : (
+                  "Add Trainee"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </GlassBackground>
+  );
+}
