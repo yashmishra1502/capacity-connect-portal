@@ -35,6 +35,7 @@ type TraineeStatus = "active" | "suspended" | "pending";
 type Trainee = {
   id: string;
   name: string;
+  email: string;
   department: string;
   enrolledCourses: number;
   status: TraineeStatus;
@@ -67,10 +68,12 @@ function TraineeManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
+    email: string;
     department: string;
     status: TraineeStatus;
   }>({
     name: "",
+    email: "",
     department: "",
     status: "active",
   });
@@ -81,7 +84,7 @@ function TraineeManagement() {
 
     const { data: profiles, error: profileError } = await supabase
       .from("profiles")
-      .select("id, name, dept, status")
+      .select("id, name, email, dept, status")
       .eq("role", "trainee")
       .order("joined_date", { ascending: false });
 
@@ -109,6 +112,7 @@ function TraineeManagement() {
     const mapped: Trainee[] = (profiles ?? []).map((p) => ({
       id: p.id,
       name: p.name,
+      email: p.email ?? "—",
       department: p.dept ?? "—",
       enrolledCourses: countByTrainee[p.id] ?? 0,
       status: (p.status as TraineeStatus) ?? "active",
@@ -124,7 +128,7 @@ function TraineeManagement() {
 
   const handleOpenAdd = () => {
     setEditingTrainee(null);
-    setFormData({ name: "", department: "", status: "active" });
+    setFormData({ name: "", email: "", department: "", status: "active" });
     setIsDialogOpen(true);
   };
 
@@ -132,6 +136,7 @@ function TraineeManagement() {
     setEditingTrainee(trainee);
     setFormData({
       name: trainee.name,
+      email: trainee.email === "—" ? "" : trainee.email,
       department: trainee.department === "—" ? "" : trainee.department,
       status: trainee.status === "suspended" ? "suspended" : "active",
     });
@@ -147,6 +152,7 @@ function TraineeManagement() {
         .from("profiles")
         .update({
           name: formData.name,
+          email: formData.email.trim(),
           dept: formData.department.trim() || null,
           status: formData.status,
         })
@@ -158,7 +164,6 @@ function TraineeManagement() {
         return;
       }
     } else {
-      // Generated explicit random UUID to prevent null "id" constraint error
       const generatedId = crypto.randomUUID();
 
       const { error: insertError } = await supabase
@@ -166,8 +171,9 @@ function TraineeManagement() {
         .insert({
           id: generatedId,
           name: formData.name,
+          email: formData.email.trim(), // Provided to satisfy NOT NULL constraint
           dept: formData.department.trim() || null,
-          status: "active", // Force active on insert
+          status: "active",
           role: "trainee",
           joined_date: new Date().toISOString(),
         });
@@ -185,7 +191,8 @@ function TraineeManagement() {
   };
 
   const filteredTrainees = trainees.filter((t) =>
-    t.name.toLowerCase().includes(search.toLowerCase())
+    t.name.toLowerCase().includes(search.toLowerCase()) ||
+    t.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -282,6 +289,7 @@ function TraineeManagement() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Department</TableHead>
                     <TableHead>Enrolled Courses</TableHead>
                     <TableHead>Status</TableHead>
@@ -292,6 +300,7 @@ function TraineeManagement() {
                   {filteredTrainees.map((t) => (
                     <TableRow key={t.id}>
                       <TableCell className="font-medium">{t.name}</TableCell>
+                      <TableCell>{t.email}</TableCell>
                       <TableCell>{t.department}</TableCell>
                       <TableCell>{t.enrolledCourses}</TableCell>
                       <TableCell>
@@ -343,6 +352,22 @@ function TraineeManagement() {
             </div>
 
             <div className="space-y-2">
+              <label htmlFor="trainee-email" className="text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="trainee-email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                placeholder="trainee@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
               <label htmlFor="trainee-department" className="text-sm font-medium">
                 Department
               </label>
@@ -362,7 +387,7 @@ function TraineeManagement() {
               </label>
               <select
                 id="trainee-status"
-                disabled={!editingTrainee} // Read-only / disabled for Add mode
+                disabled={!editingTrainee}
                 value={formData.status}
                 onChange={(e) =>
                   setFormData((prev) => ({
