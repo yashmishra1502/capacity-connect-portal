@@ -460,6 +460,37 @@ function Landing() {
             )}
           </div>
         </div>
+        
+        
+        
+        // Drop this into your landing route (e.g. src/routes/index.tsx),
+// above or in place of your existing hero section.
+
+import { CinematicHero } from "@/components/ui/cinematic-hero";
+
+export function CapacityConnectHero() {
+  return (
+    <CinematicHero
+      brandName="Capacity Connect"
+      tagline1="Build the capability,"
+      tagline2="not just the record."
+      cardHeading="Capacity building, unified."
+      cardDescription={
+        <>
+          <span className="text-white font-semibold">Capacity Connect</span>{" "}
+          brings trainees, trainers and administrators onto one platform —
+          structured courses, verified certification, and real-time
+          competency analytics across every department.
+        </>
+      }
+      metricValue={4826}
+      metricLabel="Active Users"
+      ctaHeading="Start building capability."
+      ctaDescription="Join thousands of government employees advancing their skills through the Capacity Building Commission's official learning portal."
+    />
+  );
+}
+
       </header>
 
       {/* ---------- HERO ---------- */}
