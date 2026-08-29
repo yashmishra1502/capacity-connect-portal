@@ -1,11 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Eye, EyeOff, ShieldAlert, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowRight, Eye, EyeOff, ShieldAlert, CheckCircle2, Loader2 } from "lucide-react";
+import "../landing.css";
 import { BrandIcon } from "@/components/brand-logo";
 import { register } from "@/lib/auth";
 import type { Role } from "@/lib/mock-data";
@@ -16,6 +12,8 @@ export const Route = createFileRoute("/register")({
   }),
   component: Register,
 });
+
+const ROLES: Role[] = ["trainee", "trainer", "admin"];
 
 function Register() {
   const navigate = useNavigate();
@@ -59,159 +57,184 @@ function Register() {
     }, 1800);
   }
 
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-            <CheckCircle2 className="size-10 text-emerald-500" />
-            <h1 className="font-display text-lg font-semibold">Registration successful</h1>
-            <p className="text-sm text-muted-foreground">
-              Redirecting you to the {role} login page…
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <Link to="/" className="flex items-center gap-2.5">
-            <BrandIcon size={36} className="rounded-md bg-primary p-1.5 shadow-sm shadow-primary/30" />
-            <div className="text-left">
-              <p className="font-display text-sm font-bold tracking-tight">Capacity Connect</p>
-              <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
+    <div className="ccl">
+      <div className="auth-wrap">
+        <div
+          className="auth-orb"
+          style={{
+            width: 420,
+            height: 420,
+            left: "-10%",
+            top: "-12%",
+            background: "radial-gradient(circle, rgba(30,111,255,0.35), transparent 70%)",
+          }}
+        />
+        <div
+          className="auth-orb"
+          style={{
+            width: 380,
+            height: 380,
+            right: "-8%",
+            bottom: "-10%",
+            background: "radial-gradient(circle, rgba(95,168,255,0.3), transparent 70%)",
+            animationDelay: "-6s",
+          }}
+        />
+
+        {success ? (
+          <div className="auth-card cc-hero-in" style={{ maxWidth: 420 }}>
+            <div className="success-panel">
+              <div className="check">
+                <CheckCircle2 size={28} />
+              </div>
+              <h1>Registration successful</h1>
+              <p className="auth-sub">Redirecting you to the {role} login page…</p>
             </div>
-          </Link>
-        </div>
+          </div>
+        ) : (
+          <>
+            <div className="auth-brand cc-hero-in">
+              <Link to="/" className="brand" style={{ flexDirection: "column", gap: 8 }}>
+                <BrandIcon size={40} className="rounded-md" />
+                <div>
+                  <p className="name">Capacity Connect</p>
+                  <p className="sub">Capacity Building Commission</p>
+                </div>
+              </Link>
+            </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <h1 className="font-display text-lg font-semibold">Create an account</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Register as a trainee, trainer or administrator.
-            </p>
+            <div className="auth-card cc-hero-in cc-delay-1">
+              <h1>Create an account</h1>
+              <p className="auth-sub">Register as a trainee, trainer or administrator.</p>
 
-            <Tabs
-              value={role}
-              onValueChange={(v) => {
-                setRole(v as Role);
-                setError(null);
-              }}
-              className="mt-5"
-            >
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="trainee">Trainee</TabsTrigger>
-                <TabsTrigger value="trainer">Trainer</TabsTrigger>
-                <TabsTrigger value="admin">Admin</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <Label htmlFor="name" className="text-xs">Full name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Your full name"
-                  className="mt-1.5"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+              <div className="role-switch" role="tablist">
+                {ROLES.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    className={role === r ? "active" : ""}
+                    onClick={() => {
+                      setRole(r);
+                      setError(null);
+                    }}
+                    style={{ textTransform: "capitalize" }}
+                  >
+                    {r}
+                  </button>
+                ))}
               </div>
 
-              <div>
-                <Label htmlFor="dept" className="text-xs">Department</Label>
-                <Input
-                  id="dept"
-                  type="text"
-                  placeholder="e.g. Rural Development"
-                  className="mt-1.5"
-                  value={dept}
-                  onChange={(e) => setDept(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="reg-email" className="text-xs">Email address</Label>
-                <Input
-                  id="reg-email"
-                  type="email"
-                  autoComplete="username"
-                  placeholder="name@gov-capacity.in"
-                  className="mt-1.5"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="reg-password" className="text-xs">Password</Label>
-                <div className="relative mt-1.5">
-                  <Input
-                    id="reg-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+              <form onSubmit={handleSubmit}>
+                <div className="field">
+                  <label htmlFor="name">Full name</label>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="Your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="confirm-password" className="text-xs">Confirm password</Label>
-                <Input
-                  id="confirm-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  placeholder="Re-enter password"
-                  className="mt-1.5"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              {error && (
-                <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                  <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
-                  <span>{error}</span>
+                <div className="field">
+                  <label htmlFor="dept">Department</label>
+                  <input
+                    id="dept"
+                    type="text"
+                    placeholder="e.g. Rural Development"
+                    value={dept}
+                    onChange={(e) => setDept(e.target.value)}
+                    required
+                  />
                 </div>
-              )}
 
-              <Button type="submit" className="w-full" disabled={submitting}>
-                Create {role} account
-                <ArrowRight className="ml-1.5 size-4" />
-              </Button>
-            </form>
+                <div className="field">
+                  <label htmlFor="reg-email">Email address</label>
+                  <input
+                    id="reg-email"
+                    type="email"
+                    autoComplete="username"
+                    placeholder="name@gov-capacity.in"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
 
-            <p className="mt-5 text-center text-xs text-muted-foreground">
-              Already have an account?{" "}
-              <Link to="/login" className="font-medium text-primary hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+                <div className="field">
+                  <label htmlFor="reg-password">Password</label>
+                  <div className="field-wrap">
+                    <input
+                      id="reg-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="Create a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      style={{ paddingRight: 42 }}
+                    />
+                    <button
+                      type="button"
+                      className="field-eye"
+                      onClick={() => setShowPassword((s) => !s)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
 
-        <p className="mt-5 text-center text-xs text-muted-foreground">
-          <Link to="/" className="hover:underline">← Back to home</Link>
-        </p>
+                <div className="field">
+                  <label htmlFor="confirm-password">Confirm password</label>
+                  <input
+                    id="confirm-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Re-enter password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="alert-error">
+                    <ShieldAlert size={15} style={{ flexShrink: 0, marginTop: 1 }} />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-lg"
+                  style={{ width: "100%", justifyContent: "center", marginTop: 20, textTransform: "capitalize" }}
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <Loader2 size={16} className="spin" />
+                  ) : (
+                    <>
+                      Create {role} account <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <p className="auth-foot">
+                Already have an account?{" "}
+                <Link to="/login" style={{ color: "var(--blue)", fontWeight: 600 }}>
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </>
+        )}
+
+        <div className="auth-back">
+          <Link to="/">← Back to home</Link>
+        </div>
       </div>
     </div>
   );
