@@ -5,13 +5,13 @@ import {
   ClipboardCheck,
   Award,
   Flame,
-  Clock,
   ArrowRight,
   CheckCircle2,
   CalendarClock,
   FolderOpen,
   Play,
   Loader2,
+  Bell,
 } from "lucide-react";
 import {
   AreaChart,
@@ -27,7 +27,6 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
@@ -53,6 +52,15 @@ export interface TraineeCourse {
   progress_pct?: number;
 }
 
+export interface TraineeNotification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 const PIE_COLORS = [
   "var(--color-chart-1)",
   "var(--color-chart-2)",
@@ -72,13 +80,54 @@ function TraineeDashboard() {
   const [weeklyActivity, setWeeklyActivity] = useState<
     { day: string; hours: number }[]
   >([]);
+  const [notifications, setNotifications] = useState<TraineeNotification[]>([]);
+
+  // Real-time Notifications Subscription
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    // Fetch initial unread notifications
+    async function fetchNotifications() {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setNotifications(data);
+      }
+    }
+
+    fetchNotifications();
+
+    // Listen for live database inserts targeting this user
+    const channel = supabase
+      .channel("realtime-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new as TraineeNotification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id]);
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoading(true);
 
-        // 1. Fetch real courses sorted by recent activity / creation
         const { data: coursesData, error: coursesError } = await supabase
           .from("courses")
           .select("*")
@@ -87,24 +136,18 @@ function TraineeDashboard() {
         if (coursesError) throw coursesError;
         setCourses(coursesData || []);
 
-        // 2. Calculate consecutive login streak based on last_sign_in_at
         const lastSignIn = session?.user?.last_sign_in_at;
         if (lastSignIn) {
           const lastDate = new Date(lastSignIn);
           const now = new Date();
           const diffTime = Math.abs(now.getTime() - lastDate.getTime());
           const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          // If logged in today or yesterday, count active streak
           setStreakDays(diffDays <= 1 ? 1 : 0);
         } else {
           setStreakDays(0);
         }
 
-        // 3. Dynamic weekly learning hours calculated from active courses
-        const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const todayIdx = new Date().getDay();
         const baseHours = (coursesData?.length || 0) * 0.5;
-
         const dynamicWeekly = [
           { day: "Mon", hours: Math.min(baseHours * 0.8, 3) },
           { day: "Tue", hours: Math.min(baseHours * 1.2, 4) },
@@ -125,7 +168,6 @@ function TraineeDashboard() {
     loadDashboardData();
   }, [session]);
 
-  // Dynamic Skill Distribution based on explored courses categories
   const skillDistribution = useMemo(() => {
     if (!courses.length) return [];
     const counts: Record<string, number> = {};
@@ -143,12 +185,27 @@ function TraineeDashboard() {
 
   return (
     <div className="space-y-7 p-6">
-      <div className="cc-fade">
-        <p className="cc-eyebrow">Dashboard</p>
-        <h1 className="cc-page-title mt-1">Welcome back, {firstName}</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Here's where your real learning progress stands today.
-        </p>
+      <div className="cc-fade flex items-center justify-between">
+        <div>
+          <p className="cc-eyebrow">Dashboard</p>
+          <h1 className="cc-page-title mt-1">Welcome back, {firstName}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Here's where your real learning progress stands today.
+          </p>
+        </div>
+
+        {/* Real-Time Notification Bell Indicator */}
+        <div className="relative">
+          <Button variant="outline" size="icon" className="relative">
+            <Bell className="size-4" />
+            {notifications.some((n) => !n.is_read) && (
+              <span className="absolute -right-1 -top-1 flex size-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex size-3 rounded-full bg-red-500" />
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Real Statistics Row */}
@@ -206,13 +263,13 @@ function TraineeDashboard() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12 text-muted-foreground">
-            <Loader2 className="size-6 animate-spin mr-2" />
+            <Loader2 className="mr-2 size-6 animate-spin" />
             <p className="text-sm">Loading available courses...</p>
           </div>
         ) : courses.length === 0 ? (
           <Card className="border-dashed py-10 text-center">
             <CardContent className="flex flex-col items-center gap-2">
-              <FolderOpen className="size-8 text-muted-foreground stroke-1" />
+              <FolderOpen className="size-8 stroke-1 text-muted-foreground" />
               <p className="text-sm font-medium text-muted-foreground">
                 No active courses available right now.
               </p>
@@ -370,7 +427,7 @@ function TraineeDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="py-8 text-center text-muted-foreground">
-              <CalendarClock className="mx-auto size-8 stroke-1 mb-2 opacity-50" />
+              <CalendarClock className="mx-auto mb-2 size-8 stroke-1 opacity-50" />
               <p className="text-xs">No upcoming assessments assigned</p>
             </CardContent>
           </Card>
@@ -387,7 +444,7 @@ function TraineeDashboard() {
               </Button>
             </CardHeader>
             <CardContent className="py-8 text-center text-muted-foreground">
-              <CheckCircle2 className="mx-auto size-8 stroke-1 mb-2 opacity-50" />
+              <CheckCircle2 className="mx-auto mb-2 size-8 stroke-1 opacity-50" />
               <p className="text-xs">No certificates issued yet</p>
             </CardContent>
           </Card>
