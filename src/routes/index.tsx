@@ -382,7 +382,7 @@ function Landing() {
             zIndex: 0,
             backgroundImage: `url(${heroImg})`,
             backgroundSize: "cover",
-            backgroundPosition: "center 35%",
+            backgroundPosition: "85% 30%",
           }}
         />
         <div
@@ -392,7 +392,7 @@ function Landing() {
             inset: 0,
             zIndex: 1,
             background:
-              "linear-gradient(180deg, rgba(6,10,20,0.55) 0%, rgba(6,10,20,0.78) 45%, var(--bg, #060a14) 92%)",
+              "linear-gradient(180deg, rgba(6,10,20,0.32) 0%, rgba(6,10,20,0.58) 45%, var(--bg, #060a14) 92%)",
           }}
         />
         <div className="wrap" style={{ position: "relative", zIndex: 2 }}>
