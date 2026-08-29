@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Clock, Award, TrendingUp } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { BookOpen, Clock, Award, TrendingUp, Bell } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -19,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabaseClient";
 import { currentUsers, courses, weeklyProgress, skillRadar } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/trainer/")({
@@ -28,6 +31,15 @@ export const Route = createFileRoute("/trainer/")({
   component: TrainerDashboard,
 });
 
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 const tooltipStyle = {
   background: "var(--color-card)",
   border: "1px solid var(--color-border)",
@@ -36,14 +48,71 @@ const tooltipStyle = {
 };
 
 function TrainerDashboard() {
+  const { session } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   const user = currentUsers.trainee;
   const myCourses = courses.slice(0, 3);
 
+  // Real-Time Notifications Subscription
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    async function fetchNotifications() {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setNotifications(data);
+      }
+    }
+
+    fetchNotifications();
+
+    const channel = supabase
+      .channel("dashboard-realtime-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new as Notification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id]);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-xl font-bold">Welcome back, {user.name.split(" ")[0]}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{user.title} · {user.dept}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-bold">Welcome back, {user.name.split(" ")[0]}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{user.title} · {user.dept}</p>
+        </div>
+
+        {/* Live Real-Time Notification Indicator */}
+        <div className="relative">
+          <Button variant="outline" size="icon" className="relative">
+            <Bell className="size-4" />
+            {notifications.some((n) => !n.is_read) && (
+              <span className="absolute -right-1 -top-1 flex size-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex size-3 rounded-full bg-red-500" />
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -105,7 +174,7 @@ function TrainerDashboard() {
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="font-display text-sm font-bold">Continue where you left off</CardTitle>
           <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
-            <a href="/trainee/courses">All courses</a>
+            <Link to="/trainee/courses">All courses</Link>
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
