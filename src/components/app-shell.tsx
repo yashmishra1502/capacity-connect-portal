@@ -1,4 +1,3 @@
-import "@/styles/dashboard-glass.css";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
@@ -64,7 +63,6 @@ export function AppShell({ role }: { role: Role }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
-  // Bind dynamic authentication state instead of static mock data
   const { profile, session } = useAuth();
 
   const items = navConfig[role];
@@ -79,27 +77,26 @@ export function AppShell({ role }: { role: Role }) {
   const active = (to: string) =>
     to === "/" ? pathname === "/" : pathname === to || pathname === `${to}/`;
 
-  // Fallback ladder for display values during initial auth loads
   const displayName = profile?.name || session?.user?.email?.split("@")[0] || "User";
   const displayEmail = profile?.email || session?.user?.email || "";
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
-      {/* ambient aurora field */}
+    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground font-sans">
+      {/* ambient aurora field — quieter, editorial */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="cc-aurora size-[38rem] -left-40 -top-52 bg-primary/25" />
-        <div className="cc-aurora cc-aurora-2 size-[32rem] right-[-10rem] top-32 bg-info/20" />
-        <div className="cc-aurora cc-aurora-3 size-[34rem] bottom-[-12rem] left-1/3 bg-chart-5/15" />
+        <div className="cc-aurora size-[34rem] -left-40 -top-52 bg-primary/[0.10] dark:bg-primary/[0.14]" />
+        <div className="cc-aurora cc-aurora-2 size-[28rem] right-[-10rem] top-32 bg-info/[0.08] dark:bg-info/[0.1]" />
+        <div className="cc-aurora cc-aurora-3 size-[30rem] bottom-[-12rem] left-1/3 bg-chart-5/[0.06] dark:bg-chart-5/[0.08]" />
       </div>
 
       <header className="sticky top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
-        <div className="mx-auto flex max-w-[1400px] items-center gap-1.5 rounded-2xl border border-border/70 bg-card/70 p-2 shadow-card backdrop-blur-xl md:gap-2 md:px-3">
+        <div className="dash-glass mx-auto flex max-w-[1400px] items-center gap-1.5 rounded-2xl p-2 shadow-[0_1px_2px_rgba(11,30,61,0.04),0_16px_36px_-20px_rgba(11,30,61,0.18)] dark:shadow-[0_16px_36px_-20px_rgba(0,0,0,0.6)] md:gap-2 md:px-3">
           <Link
             to="/"
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-background/70 px-2.5 py-1.5 transition-transform hover:-translate-y-0.5"
+            className="flex shrink-0 items-center gap-2 rounded-xl px-2 py-1.5 transition-transform hover:-translate-y-0.5"
             aria-label="Capacity Connect home"
           >
-            <BrandIcon size={30} className="rounded-md" />
+            <BrandIcon size={28} className="rounded-md" />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
@@ -111,17 +108,14 @@ export function AppShell({ role }: { role: Role }) {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300",
+                    "relative flex items-center gap-2 rounded-full px-3.5 py-2 text-[13.5px] font-semibold tracking-tight transition-all duration-300",
                     on
-                      ? "bg-primary text-primary-foreground shadow-[0_10px_30px_-12px_var(--primary)]"
-                      : "text-muted-foreground hover:-translate-y-0.5 hover:bg-accent/60 hover:text-foreground",
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:-translate-y-0.5 hover:bg-accent/70 hover:text-foreground",
                   )}
                 >
-                  <Icon className="size-4" />
+                  <Icon className="size-[15px]" />
                   {item.label}
-                  {on && (
-                    <span className="absolute -bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-primary" />
-                  )}
                 </Link>
               );
             })}
@@ -133,13 +127,15 @@ export function AppShell({ role }: { role: Role }) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="hidden h-10 gap-2 rounded-full border-border/70 bg-background/60 px-3 backdrop-blur sm:flex"
+                className="hidden h-9 gap-2 rounded-full border-border bg-background/70 px-3 backdrop-blur sm:flex"
               >
-                <User className="size-4 text-primary" />
-                <span className="text-sm font-semibold">{displayName.split(" ")[0]}</span>
+                <span className="flex size-6 items-center justify-center rounded-full bg-primary text-[10.5px] font-bold text-primary-foreground">
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+                <span className="text-[13px] font-semibold">{displayName.split(" ")[0]}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuContent align="end" className="w-60 rounded-2xl">
               <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
                 {displayEmail} · {roleLabel[role]}
               </DropdownMenuLabel>
@@ -176,7 +172,7 @@ export function AppShell({ role }: { role: Role }) {
                 className="relative rounded-full transition-transform hover:-translate-y-0.5"
                 aria-label="Notifications"
               >
-                <Bell className="size-5" />
+                <Bell className="size-[18px]" />
                 {unread > 0 && (
                   <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
                     {unread}
@@ -184,7 +180,7 @@ export function AppShell({ role }: { role: Role }) {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 rounded-2xl">
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {notifications.slice(0, 4).map((notification) => (
@@ -204,7 +200,7 @@ export function AppShell({ role }: { role: Role }) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="rounded-full border border-border/70 bg-background/60">
+          <div className="rounded-full border border-border bg-background/60">
             <ThemeToggle />
           </div>
 
@@ -215,7 +211,7 @@ export function AppShell({ role }: { role: Role }) {
             onClick={() => setOpen(true)}
             aria-label="Open all sections"
           >
-            <Menu className="size-5" />
+            <Menu className="size-[18px]" />
           </Button>
         </div>
       </header>
@@ -224,15 +220,15 @@ export function AppShell({ role }: { role: Role }) {
       {open && (
         <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0 bg-navy/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute inset-y-0 right-0 flex w-[19rem] max-w-[88vw] flex-col border-l border-border bg-card/95 backdrop-blur-xl animate-[cc-hero-in_0.35s_ease-out]">
+          <aside className="dash-glass absolute inset-y-0 right-0 flex w-[19rem] max-w-[88vw] flex-col border-l !bg-card/95 animate-[cc-hero-in_0.35s_ease-out]">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
-                <BrandIcon size={30} className="rounded-md" />
+                <BrandIcon size={28} className="rounded-md" />
                 <div>
-                  <p className="font-display cc-heading text-sm">CAPACITY CONNECT</p>
+                  <p className="text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
                   <p className="text-[11px] text-muted-foreground">{roleLabel[role]}</p>
                 </div>
               </div>
@@ -255,9 +251,9 @@ export function AppShell({ role }: { role: Role }) {
                           to={item.to}
                           onClick={() => setOpen(false)}
                           className={cn(
-                            "block rounded-lg px-3 py-2 text-[13px] transition-all duration-200",
+                            "block rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-200",
                             active(item.to)
-                              ? "bg-primary font-semibold text-primary-foreground"
+                              ? "bg-foreground text-background"
                               : "text-muted-foreground hover:translate-x-1 hover:bg-accent hover:text-foreground",
                           )}
                         >
