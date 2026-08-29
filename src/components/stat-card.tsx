@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import "@/styles/dashboard-glass.css";
 
 export interface StatCardProps {
   icon: LucideIcon;
@@ -12,10 +12,10 @@ export interface StatCardProps {
 }
 
 const accentMap = {
-  indigo: { bg: "bg-indigo-500/10", fg: "text-indigo-600" },
-  emerald: { bg: "bg-emerald-500/10", fg: "text-emerald-600" },
-  amber: { bg: "bg-amber-500/10", fg: "text-amber-600" },
-  violet: { bg: "bg-violet-500/10", fg: "text-violet-600" },
+  indigo: "oklch(0.58 0.18 275)",
+  emerald: "oklch(0.6 0.14 155)",
+  amber: "oklch(0.72 0.16 75)",
+  violet: "oklch(0.58 0.18 300)",
 };
 
 export function StatCard({
@@ -26,28 +26,30 @@ export function StatCard({
   trendUp,
   accent = "indigo",
 }: StatCardProps) {
-  const c = accentMap[accent];
+  const tint = accentMap[accent];
+
   return (
-    <Card className="transition-shadow duration-200 hover:shadow-md">
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between">
-          <div className={cn("flex size-9 items-center justify-center rounded-md", c.bg)}>
-            <Icon className={cn("size-4", c.fg)} />
-          </div>
-          {trend && (
-            <span
-              className={cn(
-                "text-[11px] font-semibold",
-                trendUp ? "text-emerald-600" : "text-rose-500",
-              )}
-            >
-              {trend}
-            </span>
-          )}
-        </div>
-        <p className="mt-3 font-display text-2xl font-bold">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-      </CardContent>
-    </Card>
+    <div
+      className="cc-glow-card surface-panel p-5"
+      style={{ "--primary": tint } as React.CSSProperties}
+    >
+      <div className="flex items-center justify-between">
+        <span className="cc-icon-chip !h-9 !w-9 !rounded-lg">
+          <Icon className="size-4" />
+        </span>
+        {trend && (
+          <span
+            className={cn(
+              "text-[11px] font-semibold",
+              trendUp ? "text-emerald-600" : "text-rose-500",
+            )}
+          >
+            {trend}
+          </span>
+        )}
+      </div>
+      <p className="mt-3 font-display cc-heading text-2xl">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
   );
 }
