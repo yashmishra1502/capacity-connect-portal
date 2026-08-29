@@ -1,150 +1,175 @@
-/* ============ Dashboard editorial/neon-glass layer v2 ============ */
-/* Matches the homepage's bold-type language: oversized black-weight numbers,
-   uppercase tracked labels, thin accent bars — not small flat icon chips. */
+/* ============ Dashboard — clean SaaS card system ============ */
+/* Inspired by Udemy-style course cards: colorful thumbnail block, bold title,
+   small meta line, badge row, bottom stat row. Light, airy, minimal shadow —
+   not glass/neon. Reads existing --card/--border/--primary tokens. */
 
-.cc-stagger-1 { animation-delay: 0.05s; }
-.cc-stagger-2 { animation-delay: 0.11s; }
-.cc-stagger-3 { animation-delay: 0.17s; }
-.cc-stagger-4 { animation-delay: 0.23s; }
-
-/* editorial heading weight — bolder + tighter than default shadcn text-xl */
-.cc-heading {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-/* oversized welcome headline, matches homepage hero scale */
 .cc-page-title {
   font-family: var(--font-display);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  font-size: clamp(1.85rem, 1.4rem + 1.8vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.1rem);
 }
 
-/* uppercase tracked micro-label, used under big stat numbers */
-.cc-label-caps {
-  font-size: 0.66rem;
+.cc-eyebrow {
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-muted-foreground);
 }
 
-/* ---------- Stat card (homepage "platform overview" style) ---------- */
-.cc-stat-card {
-  position: relative;
-  border-radius: var(--radius-lg);
+/* -------- Stat strip: compact, flat, minimal -------- */
+.cc-stat {
   border: 1px solid var(--color-border);
   background: var(--color-card);
-  padding: 1.25rem 1.35rem 1.1rem;
-  overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease, box-shadow 0.35s ease;
-}
-.cc-stat-card::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  background: radial-gradient(120% 120% at 50% 0%, color-mix(in oklab, var(--cc-accent, var(--primary)) 22%, transparent), transparent 65%);
-}
-.cc-stat-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in oklab, var(--cc-accent, var(--primary)) 45%, transparent);
-  box-shadow: 0 18px 40px -18px color-mix(in oklab, var(--cc-accent, var(--primary)) 55%, transparent);
-}
-.cc-stat-card:hover::after { opacity: 1; }
-
-.cc-stat-top {
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
+  gap: 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.cc-stat:hover {
+  border-color: color-mix(in oklab, var(--cc-accent, var(--primary)) 40%, var(--color-border));
+  box-shadow: 0 4px 16px -8px color-mix(in oklab, var(--cc-accent, var(--primary)) 35%, transparent);
 }
 .cc-stat-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 2.35rem;
+  height: 2.35rem;
   border-radius: 0.65rem;
-  background: color-mix(in oklab, var(--cc-accent, var(--primary)) 16%, transparent);
+  background: color-mix(in oklab, var(--cc-accent, var(--primary)) 14%, transparent);
   color: var(--cc-accent, var(--primary));
   flex-shrink: 0;
 }
 .cc-stat-value {
   font-family: var(--font-display);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  font-size: 2rem;
-  line-height: 1;
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.1;
 }
-.cc-stat-bar {
-  margin-top: 0.85rem;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--color-border);
+.cc-stat-label {
+  font-size: 0.72rem;
+  color: var(--color-muted-foreground);
+}
+
+/* -------- Course card: Udemy-style -------- */
+.cc-course-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
-.cc-stat-bar > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--cc-accent, var(--primary));
-  transform-origin: left;
-  animation: cc-bar-fill 1s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: 0.3s;
+.cc-course-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.35);
+  border-color: color-mix(in oklab, var(--cc-accent, var(--primary)) 35%, var(--color-border));
 }
-@keyframes cc-bar-fill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
-/* row hover with a left accent bar sliding in (course list, assessments, certs) */
-.cc-row {
+.cc-course-thumb {
   position: relative;
-  transition: background 0.2s ease, padding-left 0.2s ease;
-  border-radius: 0.5rem;
-}
-.cc-row::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 8%;
-  bottom: 8%;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--primary);
-  transform: scaleY(0);
-  transform-origin: center;
-  transition: transform 0.25s ease;
-}
-.cc-row:hover::before { transform: scaleY(1); }
-.cc-row:hover { padding-left: 0.65rem; }
-
-.cc-icon-chip {
+  height: 6.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.85rem;
-  background: linear-gradient(145deg, var(--primary), color-mix(in oklab, var(--primary) 60%, black));
-  box-shadow:
-    inset 0 1px 1px color-mix(in oklab, white 30%, transparent),
-    0 6px 16px -6px color-mix(in oklab, var(--primary) 60%, transparent);
-  color: var(--primary-foreground);
-  flex-shrink: 0;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(135deg, var(--cc-accent, var(--primary)), color-mix(in oklab, var(--cc-accent, var(--primary)) 40%, black));
 }
-.cc-row:hover .cc-icon-chip { transform: translateY(-2px) scale(1.05); }
+.cc-course-thumb svg {
+  color: color-mix(in oklab, white 92%, transparent);
+  width: 2rem;
+  height: 2rem;
+  opacity: 0.9;
+}
+.cc-course-body {
+  padding: 0.85rem 0.95rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+.cc-course-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.cc-course-meta {
+  font-size: 0.7rem;
+  color: var(--color-muted-foreground);
+}
+.cc-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+}
+.cc-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--cc-accent, var(--primary)) 16%, transparent);
+  color: var(--cc-accent, var(--primary));
+}
+.cc-course-bottom {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+}
+.cc-course-pct {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+/* -------- Compact list row (assessments / certificates) -------- */
+.cc-list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0.15rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s ease;
+}
+.cc-list-row:hover {
+  background: color-mix(in oklab, var(--cc-accent, var(--primary)) 6%, transparent);
+}
+.cc-list-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.55rem;
+  background: color-mix(in oklab, var(--cc-accent, var(--primary)) 14%, transparent);
+  color: var(--cc-accent, var(--primary));
+  flex-shrink: 0;
+}
+
+/* -------- Simple entrance, no blur/scale theatrics -------- */
+@keyframes cc-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cc-fade {
+  animation: cc-fade-up 0.4s ease both;
+}
+.cc-fade-1 { animation-delay: 0.04s; }
+.cc-fade-2 { animation-delay: 0.08s; }
+.cc-fade-3 { animation-delay: 0.12s; }
+.cc-fade-4 { animation-delay: 0.16s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cc-row, .cc-row::before, .cc-icon-chip,
-  .cc-stat-card, .cc-stat-bar > span {
+  .cc-fade, .cc-course-card, .cc-stat {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
