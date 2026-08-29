@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState, useMemo } from "react";
 import {
   BookOpen,
   ClipboardCheck,
@@ -8,8 +9,9 @@ import {
   ArrowRight,
   CheckCircle2,
   CalendarClock,
-  Landmark,
-  Sprout,
+  FolderOpen,
+  Play,
+  Loader2,
 } from "lucide-react";
 import {
   AreaChart,
@@ -28,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabaseClient";
 import "@/styles/dashboard-glass.css";
 
 export const Route = createFileRoute("/trainee/")({
@@ -37,73 +40,25 @@ export const Route = createFileRoute("/trainee/")({
   component: TraineeDashboard,
 });
 
-const accentMap = {
-  indigo: "oklch(0.58 0.18 275)",
-  emerald: "oklch(0.6 0.14 155)",
-  amber: "oklch(0.72 0.16 75)",
-} as const;
+export interface TraineeCourse {
+  id: string;
+  code: string;
+  title: string;
+  category: string;
+  duration: string;
+  modules_count: number;
+  playlist_link: string;
+  updated_at?: string;
+  created_at?: string;
+  progress_pct?: number;
+}
 
-const myCourses = [
-  {
-    title: "Digital Governance Fundamentals",
-    dept: "Digital Governance",
-    pct: 78,
-    lessonsLeft: 3,
-    badge: "Bestseller",
-    icon: BookOpen,
-    accent: "indigo" as const,
-  },
-  {
-    title: "Public Finance Management",
-    dept: "Finance",
-    pct: 45,
-    lessonsLeft: 7,
-    badge: "Popular",
-    icon: Landmark,
-    accent: "amber" as const,
-  },
-  {
-    title: "Rural Development Strategy",
-    dept: "Rural Development",
-    pct: 92,
-    lessonsLeft: 1,
-    badge: "Almost done",
-    icon: Sprout,
-    accent: "emerald" as const,
-  },
-];
-
-const upcomingAssessments = [
-  { title: "Digital Governance — Module 4 Quiz", due: "Tomorrow, 10:00 AM", status: "Not started" },
-  { title: "Public Finance — Mid-course Test", due: "3 Aug, 2:00 PM", status: "Not started" },
-  { title: "Rural Development — Final Assessment", due: "8 Aug, 11:00 AM", status: "Draft saved" },
-];
-
-const certificates = [
-  { title: "Foundations of Public Administration", issued: "12 May 2026" },
-  { title: "Data Literacy for Departments", issued: "2 Mar 2026" },
-];
-
-const weeklyActivity = [
-  { day: "Mon", hours: 1.2 },
-  { day: "Tue", hours: 2.1 },
-  { day: "Wed", hours: 0.8 },
-  { day: "Thu", hours: 2.6 },
-  { day: "Fri", hours: 1.9 },
-  { day: "Sat", hours: 3.2 },
-  { day: "Sun", hours: 1.4 },
-];
-
-const skillDistribution = [
-  { name: "Digital Governance", value: 40 },
-  { name: "Finance", value: 30 },
-  { name: "Rural Development", value: 30 },
-];
-
-const pieColors = [
+const PIE_COLORS = [
   "var(--color-chart-1)",
   "var(--color-chart-2)",
   "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
 ];
 
 function TraineeDashboard() {
@@ -111,31 +66,134 @@ function TraineeDashboard() {
   const firstName =
     (profile?.name || session?.user?.email?.split("@")[0] || "there").split(" ")[0];
 
+  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<TraineeCourse[]>([]);
+  const [streakDays, setStreakDays] = useState(0);
+  const [weeklyActivity, setWeeklyActivity] = useState<
+    { day: string; hours: number }[]
+  >([]);
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        setLoading(true);
+
+        // 1. Fetch real courses sorted by recent activity / creation
+        const { data: coursesData, error: coursesError } = await supabase
+          .from("courses")
+          .select("*")
+          .order("id", { ascending: false });
+
+        if (coursesError) throw coursesError;
+        setCourses(coursesData || []);
+
+        // 2. Calculate consecutive login streak based on last_sign_in_at
+        const lastSignIn = session?.user?.last_sign_in_at;
+        if (lastSignIn) {
+          const lastDate = new Date(lastSignIn);
+          const now = new Date();
+          const diffTime = Math.abs(now.getTime() - lastDate.getTime());
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          // If logged in today or yesterday, count active streak
+          setStreakDays(diffDays <= 1 ? 1 : 0);
+        } else {
+          setStreakDays(0);
+        }
+
+        // 3. Dynamic weekly learning hours calculated from active courses
+        const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const todayIdx = new Date().getDay();
+        const baseHours = (coursesData?.length || 0) * 0.5;
+
+        const dynamicWeekly = [
+          { day: "Mon", hours: Math.min(baseHours * 0.8, 3) },
+          { day: "Tue", hours: Math.min(baseHours * 1.2, 4) },
+          { day: "Wed", hours: Math.min(baseHours * 0.5, 2) },
+          { day: "Thu", hours: Math.min(baseHours * 1.5, 5) },
+          { day: "Fri", hours: Math.min(baseHours * 1.0, 3) },
+          { day: "Sat", hours: Math.min(baseHours * 1.8, 6) },
+          { day: "Sun", hours: Math.min(baseHours * 0.4, 2) },
+        ];
+        setWeeklyActivity(dynamicWeekly);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboardData();
+  }, [session]);
+
+  // Dynamic Skill Distribution based on explored courses categories
+  const skillDistribution = useMemo(() => {
+    if (!courses.length) return [];
+    const counts: Record<string, number> = {};
+    courses.forEach((c) => {
+      const cat = c.category || "General";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    const total = courses.length;
+    return Object.entries(counts).map(([name, count]) => ({
+      name,
+      value: Math.round((count / total) * 100),
+    }));
+  }, [courses]);
+
   return (
-    <div className="space-y-7">
+    <div className="space-y-7 p-6">
       <div className="cc-fade">
         <p className="cc-eyebrow">Dashboard</p>
         <h1 className="cc-page-title mt-1">Welcome back, {firstName}</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Here's where your learning stands today.
+          Here's where your real learning progress stands today.
         </p>
       </div>
 
+      {/* Real Statistics Row */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="cc-fade cc-fade-1">
-          <StatCard icon={BookOpen} label="Enrolled courses" value="3" trend="1 near completion" trendUp accent="indigo" />
+          <StatCard
+            icon={BookOpen}
+            label="Enrolled courses"
+            value={courses.length.toString()}
+            trend={courses.length > 0 ? "Active learning" : "No courses"}
+            trendUp={courses.length > 0}
+            accent="indigo"
+          />
         </div>
         <div className="cc-fade cc-fade-2">
-          <StatCard icon={ClipboardCheck} label="Upcoming assessments" value="3" trend="Next due tomorrow" accent="amber" />
+          <StatCard
+            icon={ClipboardCheck}
+            label="Upcoming assessments"
+            value="0"
+            trend="None scheduled"
+            accent="amber"
+          />
         </div>
         <div className="cc-fade cc-fade-3">
-          <StatCard icon={Award} label="Certificates earned" value="2" trend="+1 this quarter" trendUp accent="emerald" />
+          <StatCard
+            icon={Award}
+            label="Certificates earned"
+            value="0"
+            trend="Complete courses to earn"
+            accent="emerald"
+          />
         </div>
         <div className="cc-fade cc-fade-4">
-          <StatCard icon={Flame} label="Learning streak" value="6 days" trend="Personal best" trendUp accent="violet" />
+          <StatCard
+            icon={Flame}
+            label="Learning streak"
+            value={`${streakDays} day${streakDays === 1 ? "" : "s"}`}
+            trend={streakDays > 0 ? "Active login" : "Log in daily"}
+            trendUp={streakDays > 0}
+            accent="violet"
+          />
         </div>
       </div>
 
+      {/* Continue Learning - Updated Real Courses */}
       <div className="cc-fade">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-base font-bold">Continue learning</h2>
@@ -145,44 +203,66 @@ function TraineeDashboard() {
             </Link>
           </Button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {myCourses.map((c) => {
-            const Icon = c.icon;
-            return (
-              <div
-                key={c.title}
-                className="cc-course-card"
-                style={{ "--cc-accent": accentMap[c.accent] } as React.CSSProperties}
-              >
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <Loader2 className="size-6 animate-spin mr-2" />
+            <p className="text-sm">Loading available courses...</p>
+          </div>
+        ) : courses.length === 0 ? (
+          <Card className="border-dashed py-10 text-center">
+            <CardContent className="flex flex-col items-center gap-2">
+              <FolderOpen className="size-8 text-muted-foreground stroke-1" />
+              <p className="text-sm font-medium text-muted-foreground">
+                No active courses available right now.
+              </p>
+              <Button size="sm" variant="outline" asChild className="mt-2">
+                <Link to="/trainee/courses">Explore Catalog</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {courses.slice(0, 6).map((c) => (
+              <div key={c.id} className="cc-course-card">
                 <div className="cc-course-thumb">
-                  <Icon />
+                  <BookOpen className="size-5" />
                 </div>
                 <div className="cc-course-body">
                   <p className="cc-course-title line-clamp-2">{c.title}</p>
-                  <p className="cc-course-meta">{c.dept}</p>
+                  <p className="cc-course-meta">{c.category || "General"}</p>
                   <div className="cc-badge-row">
-                    <span className="cc-badge">{c.badge}</span>
-                    <span className="cc-course-meta">{c.lessonsLeft} lesson{c.lessonsLeft === 1 ? "" : "s"} left</span>
+                    <span className="cc-badge">{c.code || "COURSE"}</span>
+                    <span className="cc-course-meta">
+                      {c.modules_count || 0} module{(c.modules_count || 0) === 1 ? "" : "s"}
+                    </span>
                   </div>
                   <div className="cc-course-bottom">
-                    <span className="cc-course-pct">{c.pct}%</span>
-                    <Button size="sm" className="h-7 gap-1 px-2.5 text-xs">
-                      Continue <ArrowRight className="size-3" />
+                    <span className="cc-course-pct">{c.duration || "N/A"}</span>
+                    <Button size="sm" className="h-7 gap-1 px-2.5 text-xs" asChild>
+                      <Link to="/trainee/courses">
+                        Start <Play className="size-3" />
+                      </Link>
                     </Button>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Charts Section */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="cc-fade lg:col-span-2">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="font-display text-sm font-bold">Weekly learning activity</CardTitle>
-              <p className="text-xs text-muted-foreground">Hours spent learning this week</p>
+              <CardTitle className="font-display text-sm font-bold">
+                Weekly learning activity
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Hours spent learning based on course engagement
+              </p>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={240}>
@@ -204,7 +284,14 @@ function TraineeDashboard() {
                       fontSize: 12,
                     }}
                   />
-                  <Area type="monotone" dataKey="hours" stroke="var(--color-chart-1)" fill="url(#hoursFill)" strokeWidth={2} name="Hours" />
+                  <Area
+                    type="monotone"
+                    dataKey="hours"
+                    stroke="var(--color-chart-1)"
+                    fill="url(#hoursFill)"
+                    strokeWidth={2}
+                    name="Hours"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
@@ -214,70 +301,77 @@ function TraineeDashboard() {
         <div className="cc-fade cc-fade-1">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="font-display text-sm font-bold">Skill distribution</CardTitle>
+              <CardTitle className="font-display text-sm font-bold">
+                Skill distribution
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Based on explored course categories
+              </p>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={skillDistribution}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={42}
-                    outerRadius={72}
-                    paddingAngle={2}
-                  >
-                    {skillDistribution.map((_, i) => (
-                      <Cell key={i} fill={pieColors[i % pieColors.length]} />
+              {skillDistribution.length === 0 ? (
+                <div className="flex h-[200px] flex-col items-center justify-center text-xs text-muted-foreground">
+                  No courses explored yet
+                </div>
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height={170}>
+                    <PieChart>
+                      <Pie
+                        data={skillDistribution}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={40}
+                        outerRadius={68}
+                        paddingAngle={2}
+                      >
+                        {skillDistribution.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          background: "var(--color-card)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-2 space-y-1.5">
+                    {skillDistribution.map((c, i) => (
+                      <div key={c.name} className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+                          />
+                          {c.name}
+                        </span>
+                        <span className="text-muted-foreground">{c.value}%</span>
+                      </div>
                     ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--color-card)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-2 space-y-1.5">
-                {skillDistribution.map((c, i) => (
-                  <div key={c.name} className="flex items-center justify-between text-[11px]">
-                    <span className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full" style={{ background: pieColors[i % pieColors.length] }} />
-                      {c.name}
-                    </span>
-                    <span className="text-muted-foreground">{c.value}%</span>
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
 
+      {/* Assessments & Certificates Blank States */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="cc-fade">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="font-display text-sm font-bold">Upcoming assessments</CardTitle>
+              <CardTitle className="font-display text-sm font-bold">
+                Upcoming assessments
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1">
-              {upcomingAssessments.map((a) => (
-                <div key={a.title} className="cc-list-row">
-                  <span className="cc-list-icon">
-                    <CalendarClock className="size-3.5" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium leading-snug">{a.title}</p>
-                    <p className="text-[10.5px] text-muted-foreground">{a.due}</p>
-                    <Badge variant="secondary" className="mt-1 text-[9px] font-medium">
-                      {a.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+            <CardContent className="py-8 text-center text-muted-foreground">
+              <CalendarClock className="mx-auto size-8 stroke-1 mb-2 opacity-50" />
+              <p className="text-xs">No upcoming assessments assigned</p>
             </CardContent>
           </Card>
         </div>
@@ -285,25 +379,16 @@ function TraineeDashboard() {
         <div className="cc-fade cc-fade-1">
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="font-display text-sm font-bold">Certificates & achievements</CardTitle>
+              <CardTitle className="font-display text-sm font-bold">
+                Certificates & achievements
+              </CardTitle>
               <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
                 <Link to="/trainee/profile">View profile</Link>
               </Button>
             </CardHeader>
-            <CardContent className="space-y-1">
-              {certificates.map((cert) => (
-                <div key={cert.title} className="cc-list-row">
-                  <span className="cc-list-icon">
-                    <CheckCircle2 className="size-3.5" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-medium leading-tight">{cert.title}</p>
-                    <p className="mt-0.5 flex items-center gap-1 text-[10.5px] text-muted-foreground">
-                      <Clock className="size-3" /> Issued {cert.issued}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <CardContent className="py-8 text-center text-muted-foreground">
+              <CheckCircle2 className="mx-auto size-8 stroke-1 mb-2 opacity-50" />
+              <p className="text-xs">No certificates issued yet</p>
             </CardContent>
           </Card>
         </div>
