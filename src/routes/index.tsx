@@ -26,6 +26,7 @@ import {
   Sun,
 } from "lucide-react";
 import "../landing.css";
+import heroImg from "@/assets/hero-capitol.jpg";
 import { adminStats } from "@/lib/mock-data";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useParallax } from "@/hooks/use-landing-motion";
@@ -371,9 +372,30 @@ function Landing() {
         </nav>
       </header>
 
-      {/* ---------- HERO ---------- */}
-      <section className="hero" id="top">
-        <div className="wrap">
+           {/* ---------- HERO ---------- */}
+      <section className="hero" id="top" style={{ position: "relative", overflow: "hidden" }}>
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            backgroundImage: `url(${heroImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center 35%",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background:
+              "linear-gradient(180deg, rgba(6,10,20,0.55) 0%, rgba(6,10,20,0.78) 45%, var(--bg, #060a14) 92%)",
+          }}
+        />
+        <div className="wrap" style={{ position: "relative", zIndex: 2 }}>
           <div className="eyebrow">Capacity Building Commission</div>
 
           <h1>
