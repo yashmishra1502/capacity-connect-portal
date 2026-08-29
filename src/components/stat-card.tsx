@@ -9,6 +9,8 @@ export interface StatCardProps {
   trend?: string;
   trendUp?: boolean;
   accent?: "indigo" | "emerald" | "amber" | "violet";
+  /** 0-100, how full the accent bar renders. Purely decorative if omitted. */
+  fill?: number;
 }
 
 const accentMap = {
@@ -25,31 +27,35 @@ export function StatCard({
   trend,
   trendUp,
   accent = "indigo",
+  fill = 70,
 }: StatCardProps) {
   const tint = accentMap[accent];
 
   return (
     <div
-      className="cc-glow-card surface-panel p-5"
-      style={{ "--primary": tint } as React.CSSProperties}
+      className="cc-stat-card"
+      style={{ "--cc-accent": tint } as React.CSSProperties}
     >
-      <div className="flex items-center justify-between">
-        <span className="cc-icon-chip !h-9 !w-9 !rounded-lg">
+      <div className="cc-stat-top">
+        <span className="cc-stat-icon">
           <Icon className="size-4" />
         </span>
         {trend && (
           <span
             className={cn(
               "text-[11px] font-semibold",
-              trendUp ? "text-emerald-600" : "text-rose-500",
+              trendUp ? "text-emerald-500" : "text-rose-500",
             )}
           >
             {trend}
           </span>
         )}
       </div>
-      <p className="mt-3 font-display cc-heading text-2xl">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="cc-stat-value">{value}</p>
+      <p className="cc-label-caps mt-1">{label}</p>
+      <div className="cc-stat-bar">
+        <span style={{ width: `${Math.min(100, Math.max(0, fill))}%` }} />
+      </div>
     </div>
   );
 }
