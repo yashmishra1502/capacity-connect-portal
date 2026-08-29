@@ -1,11 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { BookOpen, Plus, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Plus,
+  Loader2,
+  Search,
+  ExternalLink,
+  Trash2,
+  Video,
+  Play,
+  FolderOpen,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainer/courses")({
@@ -20,6 +43,14 @@ export interface TrainerCourse {
   duration: string;
   modules_count: number;
   playlist_link: string;
+  created_at?: string;
+  level?: string;
+}
+
+function getPlaylistId(url?: string): string {
+  if (!url) return "";
+  const match = url.match(/[?&]list=([^&]+)/);
+  return match ? match[1] : url;
 }
 
 function TrainerCourses() {
@@ -27,34 +58,37 @@ function TrainerCourses() {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [previewCourse, setPreviewCourse] = useState<TrainerCourse | null>(null);
 
   // Form State
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Digital Marketing");
+  const [category, setCategory] = useState("");
   const [code, setCode] = useState("");
   const [duration, setDuration] = useState("");
   const [modulesCount, setModulesCount] = useState("");
   const [playlistLink, setPlaylistLink] = useState("");
 
-  const fetchTrainerCourses = async () => {
+  const fetchCourses = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from("courses")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("id", { ascending: false });
 
       if (error) throw error;
-      if (data) setCourses(data);
+      setCourses(data || []);
     } catch (err) {
-      console.error("Error loading trainer courses:", err);
+      console.error("Error fetching courses from Supabase:", err);
+      setCourses([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTrainerCourses();
+    fetchCourses();
   }, []);
 
   const handleCreateCourse = async (e: React.FormEvent) => {
@@ -62,28 +96,32 @@ function TrainerCourses() {
     try {
       setIsSubmitting(true);
 
-      const { error } = await supabase.from("courses").insert([
-        {
-          title,
-          code,
-          category,
-          duration,
-          modules_count: parseInt(modulesCount) || 0,
-          playlist_link: playlistLink,
-          published: true,
-          trainer_id: null,
-        },
-      ]);
+      const payload = {
+        title,
+        code,
+        category,
+        duration,
+        modules_count: parseInt(modulesCount) || 0,
+        playlist_link: playlistLink,
+        published: true,
+        trainer_id: null,
+      };
+
+      const { error } = await supabase.from("courses").insert([payload]);
 
       if (error) throw error;
 
+      // Clear Form & Close
       setTitle("");
       setCode("");
+      setCategory("");
       setDuration("");
       setModulesCount("");
       setPlaylistLink("");
       setOpenModal(false);
-      fetchTrainerCourses();
+
+      // Reload Table
+      await fetchCourses();
     } catch (err: any) {
       alert("Failed to create course: " + err.message);
     } finally {
@@ -91,8 +129,31 @@ function TrainerCourses() {
     }
   };
 
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course?")) return;
+    try {
+      const { error } = await supabase.from("courses").delete().eq("id", id);
+      if (error) throw error;
+      setCourses((prev) => prev.filter((item) => item.id !== id));
+    } catch (err: any) {
+      alert("Failed to delete course: " + err.message);
+    }
+  };
+
+  const filteredCourses = useMemo(() => {
+    return courses.filter((c) => {
+      const search = searchQuery.toLowerCase();
+      return (
+        c.title?.toLowerCase().includes(search) ||
+        c.code?.toLowerCase().includes(search) ||
+        c.category?.toLowerCase().includes(search)
+      );
+    });
+  }, [courses, searchQuery]);
+
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-6 p-6">
+      {/* Header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <Badge variant="secondary" className="mb-2 rounded-full uppercase tracking-widest">
@@ -100,7 +161,7 @@ function TrainerCourses() {
           </Badge>
           <h1 className="font-display text-3xl font-bold">Manage Courses</h1>
           <p className="text-sm text-muted-foreground">
-            Create, manage, and assign video playlist courses to capacity building portals.
+            Courses created here will immediately sync to Supabase and show up on the Trainee Catalog.
           </p>
         </div>
 
@@ -112,7 +173,9 @@ function TrainerCourses() {
           </DialogTrigger>
           <DialogContent className="max-w-lg border-border/80 bg-background/95 backdrop-blur-xl">
             <DialogHeader>
-              <DialogTitle className="font-display text-xl font-bold">Create Course</DialogTitle>
+              <DialogTitle className="font-display text-xl font-bold">
+                Upload New Course
+              </DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleCreateCourse} className="space-y-4 pt-2">
@@ -120,7 +183,7 @@ function TrainerCourses() {
                 <label className="text-xs font-semibold text-muted-foreground">Course Title</label>
                 <Input
                   required
-                  placeholder="e.g. Digital Marketing for Beginners"
+                  placeholder="Course Title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
@@ -182,7 +245,7 @@ function TrainerCourses() {
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <Button variant="outline" type="button" onClick={() => setOpenModal(false)}>
                   Cancel
                 </Button>
@@ -195,35 +258,142 @@ function TrainerCourses() {
         </Dialog>
       </header>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="size-8 animate-spin text-primary" />
-        </div>
-      ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {courses.map((course) => (
-            <Card key={course.id} className="border-border/70 bg-card/70 backdrop-blur">
-              <CardContent className="space-y-4 p-5">
-                <div className="flex justify-between items-start">
-                  <Badge>{course.category}</Badge>
-                  <span className="text-xs font-mono text-muted-foreground">{course.code}</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg leading-snug">{course.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {course.playlist_link}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground border-t pt-3">
-                  <span className="flex items-center gap-1">
-                    <BookOpen className="size-3.5" /> {course.modules_count} videos
-                  </span>
-                  <span>{course.duration}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {/* Filter Control */}
+      <Card className="border-border/70 bg-card/70 backdrop-blur">
+        <CardContent className="p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search courses…"
+              className="pl-9 h-10 rounded-xl"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Total Courses: <strong className="text-foreground">{filteredCourses.length}</strong>
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Courses Table */}
+      <Card className="border-border/70 bg-card/70 backdrop-blur overflow-hidden">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+              <Loader2 className="size-8 animate-spin text-primary" />
+              <p className="text-sm">Loading courses from database...</p>
+            </div>
+          ) : filteredCourses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+              <FolderOpen className="size-10 stroke-1" />
+              <p className="text-sm font-medium">No courses in database</p>
+              <Button size="sm" variant="outline" onClick={() => setOpenModal(true)}>
+                Upload Course
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader className="bg-muted/40">
+                <TableRow>
+                  <TableHead className="w-[100px]">Code</TableHead>
+                  <TableHead>Course Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Videos</TableHead>
+                  <TableHead>Playlist Link</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCourses.map((course) => (
+                  <TableRow key={course.id} className="hover:bg-muted/30">
+                    <TableCell className="font-mono text-xs font-bold text-primary">
+                      {course.code || "—"}
+                    </TableCell>
+                    <TableCell className="font-medium max-w-xs truncate">
+                      {course.title}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="rounded-full text-xs">
+                        {course.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {course.duration || "—"}
+                    </TableCell>
+                    <TableCell className="text-xs font-semibold">
+                      {course.modules_count || 0}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
+                      {course.playlist_link ? (
+                        <a
+                          href={course.playlist_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 hover:text-primary underline underline-offset-2"
+                        >
+                          <Video className="size-3" />
+                          Open Link <ExternalLink className="size-3" />
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-8 gap-1.5 rounded-full"
+                          onClick={() => setPreviewCourse(course)}
+                        >
+                          <Play className="size-3.5" /> Preview
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteCourse(course.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Playlist Video Dialog */}
+      {previewCourse && (
+        <Dialog open={!!previewCourse} onOpenChange={() => setPreviewCourse(null)}>
+          <DialogContent className="max-w-4xl border-border/80 bg-background/95 backdrop-blur-xl">
+            <DialogHeader className="border-b pb-4">
+              <Badge className="w-fit rounded-full uppercase mb-2">
+                {previewCourse.category}
+              </Badge>
+              <DialogTitle className="font-display text-xl font-bold">
+                {previewCourse.title}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl">
+              <iframe
+                className="h-full w-full"
+                src={`https://www.youtube.com/embed/videoseries?list=${getPlaylistId(
+                  previewCourse.playlist_link,
+                )}`}
+                title={previewCourse.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
