@@ -9,11 +9,9 @@ import {
   ShieldCheck,
   Sun,
   Moon,
+  Loader2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import "../landing.css";
 import { BrandIcon } from "@/components/brand-logo";
 import { login } from "@/lib/auth";
 
@@ -33,7 +31,6 @@ function AdminLogin() {
   const [submitting, setSubmitting] = useState(false);
   const [isDark, setIsDark] = useState(true);
 
-  // Read the theme homepage already set — keeps this page in sync, doesn't own the state
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     setIsDark(stored ? stored === "dark" : document.documentElement.classList.contains("dark"));
@@ -62,84 +59,96 @@ function AdminLogin() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
-      {/* Decorative glow orbs */}
-      <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-primary/30 blur-[120px] dark:bg-primary/40" />
-      <div className="pointer-events-none absolute -bottom-40 -right-20 size-96 rounded-full bg-blue-500/20 blur-[120px] dark:bg-blue-500/30" />
-      <div className="pointer-events-none absolute left-1/2 top-1/3 size-72 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-[100px] dark:bg-cyan-400/20" />
+    <div className="ccl" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div
+          className="auth-orb"
+          style={{
+            width: 460,
+            height: 460,
+            left: "-12%",
+            top: "-14%",
+            background: "radial-gradient(circle, rgba(11,30,61,0.4), transparent 70%)",
+          }}
+        />
+        <div
+          className="auth-orb"
+          style={{
+            width: 420,
+            height: 420,
+            right: "-10%",
+            bottom: "-14%",
+            background: "radial-gradient(circle, rgba(30,111,255,0.32), transparent 70%)",
+            animationDelay: "-8s",
+          }}
+        />
+        <div
+          className="auth-orb"
+          style={{
+            width: 300,
+            height: 300,
+            left: "38%",
+            top: "22%",
+            background: "radial-gradient(circle, rgba(95,168,255,0.22), transparent 70%)",
+            animationDelay: "-14s",
+          }}
+        />
 
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-black/10 bg-white/40 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <BrandIcon size={96} className="object-contain" />
+        <header className="subheader" style={{ position: "relative", zIndex: 5, background: "transparent", backdropFilter: "none", borderBottom: "none" }}>
+          <Link to="/" className="brand">
+            <BrandIcon size={40} />
           </Link>
-
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              className="flex size-8 items-center justify-center rounded-full border border-black/10 bg-white/40 backdrop-blur-xl hover:bg-white/60 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              {isDark ? (
-                <Moon className="size-4 text-foreground/80" />
-              ) : (
-                <Sun className="size-4 text-foreground/80" />
-              )}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <button className="theme-btn" onClick={toggleTheme} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}>
+              {isDark ? <Moon size={16} /> : <Sun size={16} />}
             </button>
-
-            <Link
-              to="/"
-              className="flex items-center gap-1 text-xs font-medium text-foreground/70 hover:text-foreground"
-            >
-              <ArrowLeft className="size-3.5" />
-              Back to home
+            <Link to="/" className="link-arrow" style={{ fontSize: 13 }}>
+              <ArrowLeft size={13} /> Back to home
             </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main */}
-      <main className="relative z-[1] flex flex-1 items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">
-          <div className="mb-5 flex items-center justify-center gap-1.5 rounded-full border border-black/10 bg-white/40 px-3 py-1 text-center backdrop-blur-xl dark:border-white/20 dark:bg-white/10">
-            <ShieldCheck className="size-3.5 text-primary" />
-            <span className="text-[11px] font-medium text-foreground/80">
+        <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+          <div style={{ width: "100%", maxWidth: 440 }}>
+            <div
+              className="badge cc-hero-in"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                margin: "0 auto 22px",
+                width: "fit-content",
+                fontSize: 12,
+                padding: "7px 16px 7px 10px",
+              }}
+            >
+              <span className="ico">
+                <ShieldCheck />
+              </span>
               Restricted administrator access
-            </span>
-          </div>
+            </div>
 
-          <Card className="border border-black/10 bg-white/40 shadow-2xl shadow-black/10 backdrop-blur-2xl dark:border-white/20 dark:bg-white/10 dark:shadow-black/40">
-            <CardContent className="p-6">
-              <h1 className="font-display text-lg font-semibold">Admin sign in</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Sign in with your administrator credentials to continue.
-              </p>
+            <div className="auth-card cc-hero-in cc-delay-1">
+              <h1>Admin sign in</h1>
+              <p className="auth-sub">Sign in with your administrator credentials to continue.</p>
 
-              <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <Label htmlFor="admin-email" className="text-xs">
-                    Email address
-                  </Label>
-                  <Input
+              <form onSubmit={handleSubmit} style={{ marginTop: 20 }}>
+                <div className="field" style={{ marginTop: 0 }}>
+                  <label htmlFor="admin-email">Email address</label>
+                  <input
                     id="admin-email"
                     type="email"
                     autoComplete="username"
                     placeholder="name@gov-capacity.in"
-                    className="mt-1.5 border-black/10 bg-white/40 backdrop-blur-xl placeholder:text-foreground/40 dark:border-white/20 dark:bg-white/10"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="admin-password" className="text-xs">
-                    Password
-                  </Label>
-                  <div className="relative mt-1.5">
-                    <Input
+                <div className="field">
+                  <label htmlFor="admin-password">Password</label>
+                  <div className="field-wrap">
+                    <input
                       id="admin-password"
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
@@ -147,59 +156,60 @@ function AdminLogin() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="border-black/10 bg-white/40 pr-10 backdrop-blur-xl placeholder:text-foreground/40 dark:border-white/20 dark:bg-white/10"
+                      style={{ paddingRight: 42 }}
                     />
                     <button
                       type="button"
+                      className="field-eye"
                       onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive backdrop-blur-xl">
-                    <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+                  <div className="alert-error">
+                    <ShieldAlert size={15} style={{ flexShrink: 0, marginTop: 1 }} />
                     <span>{error}</span>
                   </div>
                 )}
 
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Signing in..." : "Sign in as Admin"}
-                  {!submitting && <ArrowRight className="ml-1.5 size-4" />}
-                </Button>
+                <button type="submit" className="btn btn-primary btn-lg" style={{ width: "100%", justifyContent: "center", marginTop: 20 }} disabled={submitting}>
+                  {submitting ? <Loader2 size={16} className="spin" /> : <>Sign in as Admin <ArrowRight size={16} /></>}
+                </button>
               </form>
 
-              <p className="mt-5 text-center text-xs text-muted-foreground">
+              <p className="auth-foot">
                 Not an administrator?{" "}
-                <Link to="/login" className="font-medium text-primary hover:underline">
+                <Link to="/login" style={{ color: "var(--blue)", fontWeight: 600 }}>
                   Trainee / Trainer login
                 </Link>
               </p>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
+              <p className="auth-foot" style={{ marginTop: 6 }}>
                 Don't have an account?{" "}
-                <Link to="/register" className="font-medium text-primary hover:underline">
+                <Link to="/register" style={{ color: "var(--blue)", fontWeight: 600 }}>
                   Register now
                 </Link>
               </p>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-[1] border-t border-black/10 bg-white/40 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 text-[11px] text-foreground/50 sm:flex-row">
-          <p>© {new Date().getFullYear()} Capacity Connect — Capacity Building Commission, Government of India</p>
-          <div className="flex items-center gap-4">
-            <Link to="/about" className="hover:text-foreground/80">About</Link>
-            <Link to="/" className="hover:text-foreground/80">Home</Link>
+            </div>
           </div>
-        </div>
-      </footer>
+        </main>
+
+        <footer style={{ position: "relative", zIndex: 2, borderTop: "1px solid var(--line)", padding: "18px 32px" }}>
+          <div
+            className="wrap"
+            style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 11.5, color: "var(--muted-label)" }}
+          >
+            <p>© {new Date().getFullYear()} Capacity Connect — Capacity Building Commission, Government of India</p>
+            <div style={{ display: "flex", gap: 18 }}>
+              <Link to="/about">About</Link>
+              <Link to="/">Home</Link>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
