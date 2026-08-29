@@ -82,30 +82,32 @@ function TraineeDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="cc-rise">
-        <h1 className="font-display cc-heading text-2xl">Welcome back, {firstName}</h1>
+      <div className="cc-hero-in">
+        <h1 className="font-display cc-heading cc-gradient-text text-2xl">
+          Welcome back, {firstName}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Here's where your learning stands today.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="cc-glow-wrap cc-rise cc-rise-1">
+        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-1">
           <StatCard icon={BookOpen} label="Enrolled courses" value="3" trend="1 near completion" trendUp accent="indigo" />
         </div>
-        <div className="cc-glow-wrap cc-rise cc-rise-2">
+        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-2">
           <StatCard icon={ClipboardCheck} label="Upcoming assessments" value="3" trend="Next due tomorrow" accent="amber" />
         </div>
-        <div className="cc-glow-wrap cc-rise cc-rise-3">
+        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-3">
           <StatCard icon={Award} label="Certificates earned" value="2" trend="+1 this quarter" trendUp accent="emerald" />
         </div>
-        <div className="cc-glow-wrap cc-rise cc-rise-4">
+        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-4">
           <StatCard icon={Flame} label="Learning streak" value="6 days" trend="Personal best" trendUp accent="violet" />
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="cc-glow-wrap cc-rise lg:col-span-2">
+        <div className="cc-glow-card cc-hero-in lg:col-span-2">
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="font-display cc-heading text-sm">Continue learning</CardTitle>
@@ -130,7 +132,7 @@ function TraineeDashboard() {
                       <span className="text-[11px] text-muted-foreground">
                         {c.lessonsLeft} lesson{c.lessonsLeft === 1 ? "" : "s"} left
                       </span>
-                      <Button size="sm" className="h-7 gap-1 px-2.5 text-xs">
+                      <Button size="sm" className="h-7 gap-1 px-2.5 text-xs cc-btn-glass">
                         Continue <ArrowRight className="size-3" />
                       </Button>
                     </div>
@@ -147,7 +149,7 @@ function TraineeDashboard() {
           </Card>
         </div>
 
-        <div className="cc-glow-wrap cc-rise cc-rise-1">
+        <div className="cc-glow-card cc-hero-in cc-stagger-1">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="font-display cc-heading text-sm">Upcoming assessments</CardTitle>
@@ -173,7 +175,7 @@ function TraineeDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="cc-glow-wrap cc-rise lg:col-span-2">
+        <div className="cc-glow-card cc-hero-in lg:col-span-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="font-display cc-heading text-sm">Weekly learning activity</CardTitle>
@@ -206,7 +208,7 @@ function TraineeDashboard() {
           </Card>
         </div>
 
-        <div className="cc-glow-wrap cc-rise cc-rise-1">
+        <div className="cc-glow-card cc-hero-in cc-stagger-1">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="font-display cc-heading text-sm">Skill distribution</CardTitle>
@@ -252,7 +254,7 @@ function TraineeDashboard() {
         </div>
       </div>
 
-      <div className="cc-glow-wrap cc-rise">
+      <div className="cc-glow-card cc-hero-in">
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-display cc-heading text-sm">Certificates & achievements</CardTitle>
