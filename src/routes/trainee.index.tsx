@@ -83,26 +83,26 @@ function TraineeDashboard() {
   return (
     <div className="space-y-6">
       <div className="cc-hero-in">
-        <h1 className="font-display cc-heading cc-gradient-text text-2xl">
-          Welcome back, {firstName}
+        <h1 className="cc-page-title">
+          Welcome back, <span className="cc-gradient-text">{firstName}</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-muted-foreground">
           Here's where your learning stands today.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-1">
-          <StatCard icon={BookOpen} label="Enrolled courses" value="3" trend="1 near completion" trendUp accent="indigo" />
+        <div className="cc-hero-in cc-stagger-1">
+          <StatCard icon={BookOpen} label="Enrolled courses" value="3" trend="1 near completion" trendUp accent="indigo" fill={65} />
         </div>
-        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-2">
-          <StatCard icon={ClipboardCheck} label="Upcoming assessments" value="3" trend="Next due tomorrow" accent="amber" />
+        <div className="cc-hero-in cc-stagger-2">
+          <StatCard icon={ClipboardCheck} label="Upcoming assessments" value="3" trend="Next due tomorrow" accent="amber" fill={40} />
         </div>
-        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-3">
-          <StatCard icon={Award} label="Certificates earned" value="2" trend="+1 this quarter" trendUp accent="emerald" />
+        <div className="cc-hero-in cc-stagger-3">
+          <StatCard icon={Award} label="Certificates earned" value="2" trend="+1 this quarter" trendUp accent="emerald" fill={80} />
         </div>
-        <div className="cc-glow-card surface-panel p-4 cc-hero-in cc-stagger-4">
-          <StatCard icon={Flame} label="Learning streak" value="6 days" trend="Personal best" trendUp accent="violet" />
+        <div className="cc-hero-in cc-stagger-4">
+          <StatCard icon={Flame} label="Learning streak" value="6 days" trend="Personal best" trendUp accent="violet" fill={90} />
         </div>
       </div>
 
