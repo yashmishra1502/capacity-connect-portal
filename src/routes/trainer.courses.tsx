@@ -43,8 +43,8 @@ export interface TrainerCourse {
   duration: string;
   modules_count: number;
   playlist_link: string;
+  trainer_id?: string | null;
   created_at?: string;
-  level?: string;
 }
 
 function getPlaylistId(url?: string): string {
@@ -69,18 +69,30 @@ function TrainerCourses() {
   const [modulesCount, setModulesCount] = useState("");
   const [playlistLink, setPlaylistLink] = useState("");
 
-  const fetchCourses = async () => {
+  const fetchTrainerCourses = async () => {
     try {
       setLoading(true);
+
+      // Get authenticated trainer user
+      const { data: authData } = await supabase.auth.getUser();
+      const currentUserId = authData.user?.id;
+
+      if (!currentUserId) {
+        setCourses([]);
+        return;
+      }
+
+      // Fetch only courses created by this specific trainer
       const { data, error } = await supabase
         .from("courses")
         .select("*")
+        .eq("trainer_id", currentUserId)
         .order("id", { ascending: false });
 
       if (error) throw error;
       setCourses(data || []);
     } catch (err) {
-      console.error("Error fetching courses from Supabase:", err);
+      console.error("Error fetching trainer courses:", err);
       setCourses([]);
     } finally {
       setLoading(false);
@@ -88,13 +100,23 @@ function TrainerCourses() {
   };
 
   useEffect(() => {
-    fetchCourses();
+    fetchTrainerCourses();
   }, []);
 
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
+
+      // Get current logged-in user ID to set as trainer_id
+      const { data: authData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !authData.user) {
+        alert("Authentication required. Please log in as a trainer.");
+        return;
+      }
+
+      const trainerId = authData.user.id;
 
       const payload = {
         title,
@@ -104,14 +126,14 @@ function TrainerCourses() {
         modules_count: parseInt(modulesCount) || 0,
         playlist_link: playlistLink,
         published: true,
-        trainer_id: null,
+        trainer_id: trainerId, // Writes current trainer ID into database
       };
 
       const { error } = await supabase.from("courses").insert([payload]);
 
       if (error) throw error;
 
-      // Clear Form & Close
+      // Clear Form & Close Dialog
       setTitle("");
       setCode("");
       setCategory("");
@@ -120,8 +142,8 @@ function TrainerCourses() {
       setPlaylistLink("");
       setOpenModal(false);
 
-      // Reload Table
-      await fetchCourses();
+      // Refresh list
+      await fetchTrainerCourses();
     } catch (err: any) {
       alert("Failed to create course: " + err.message);
     } finally {
@@ -159,9 +181,9 @@ function TrainerCourses() {
           <Badge variant="secondary" className="mb-2 rounded-full uppercase tracking-widest">
             Trainer Workspace
           </Badge>
-          <h1 className="font-display text-3xl font-bold">Manage Courses</h1>
+          <h1 className="font-display text-3xl font-bold">My Courses</h1>
           <p className="text-sm text-muted-foreground">
-            Courses created here will immediately sync to Supabase and show up on the Trainee Catalog.
+            Manage your uploaded capacity building courses.
           </p>
         </div>
 
@@ -258,20 +280,20 @@ function TrainerCourses() {
         </Dialog>
       </header>
 
-      {/* Filter Control */}
+      {/* Search Filter */}
       <Card className="border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search courses…"
+              placeholder="Search my courses…"
               className="pl-9 h-10 rounded-xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Total Courses: <strong className="text-foreground">{filteredCourses.length}</strong>
+            My Courses: <strong className="text-foreground">{filteredCourses.length}</strong>
           </p>
         </CardContent>
       </Card>
@@ -282,12 +304,12 @@ function TrainerCourses() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
               <Loader2 className="size-8 animate-spin text-primary" />
-              <p className="text-sm">Loading courses from database...</p>
+              <p className="text-sm">Loading your courses...</p>
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
               <FolderOpen className="size-10 stroke-1" />
-              <p className="text-sm font-medium">No courses in database</p>
+              <p className="text-sm font-medium">You haven't uploaded any courses yet</p>
               <Button size="sm" variant="outline" onClick={() => setOpenModal(true)}>
                 Upload Course
               </Button>
@@ -368,7 +390,7 @@ function TrainerCourses() {
         </CardContent>
       </Card>
 
-      {/* Playlist Video Dialog */}
+      {/* Playlist Dialog Preview */}
       {previewCourse && (
         <Dialog open={!!previewCourse} onOpenChange={() => setPreviewCourse(null)}>
           <DialogContent className="max-w-4xl border-border/80 bg-background/95 backdrop-blur-xl">
