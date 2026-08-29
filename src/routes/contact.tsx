@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import {
   ArrowRight,
@@ -9,13 +9,11 @@ import {
   Clock,
   CheckCircle2,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import "../landing.css";
 import { BrandIcon } from "@/components/brand-logo";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -59,6 +57,8 @@ const contactPoints = [
 ];
 
 function Contact() {
+  useScrollReveal();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -69,8 +69,7 @@ function Contact() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Submit Handler -> Stores data into Supabase contact_messages table
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -94,51 +93,41 @@ function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="ccl">
       {/* ---------- HEADER ---------- */}
-      <header className="border-b">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <BrandIcon size={36} className="rounded-md bg-primary p-1.5" />
-            <div>
-              <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
-              <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
-            </div>
+      <header>
+        <nav>
+          <Link to="/" className="brand">
+            <BrandIcon size={30} className="rounded-md" />
+            <span className="brand-name">
+              CAPACITY <span>CONNECT</span>
+            </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
-            <Link to="/" className="hover:text-foreground">Home</Link>
-            <Link to="/about" className="hover:text-foreground">About</Link>
-            <Link to="/" hash="how-it-works" className="hover:text-foreground">How it works</Link>
-            <a href="#" className="border-b-2 border-primary pb-1 text-foreground">Contact</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/trainee">Login</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/trainee">
-                Enter portal <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+            <Link to="/" hash="how-it-works">How it works</Link>
+            <a className="active" href="#top">Contact</a>
           </div>
-        </div>
+
+          <div className="nav-cta">
+            <Link to="/login" className="btn-ghost">Login</Link>
+            <Link to="/login" className="btn btn-primary">
+              Enter portal <ArrowRight size={15} />
+            </Link>
+          </div>
+        </nav>
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="brand-gradient relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-cyan-400/15 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-20 top-0 size-96 rounded-full bg-cyan-400/15 blur-[120px]" />
-
-        <div className="relative mx-auto max-w-4xl px-5 py-20 text-center text-navy-foreground">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-navy-foreground/70">
-            Get in touch
-          </p>
-          <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-4xl">
-            We're here to help
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-sm text-navy-foreground/80 md:text-base">
+      <section className="page-hero" id="top">
+        <div className="wrap">
+          <div className="eyebrow">
+            <MessageSquare size={13} /> Get in touch
+          </div>
+          <h1 className="cc-hero-in">We're here to help</h1>
+          <p className="cc-hero-in cc-delay-1">
             Reach out for onboarding support, technical issues, or general questions about
             Capacity Connect.
           </p>
@@ -146,127 +135,117 @@ function Contact() {
       </section>
 
       {/* ---------- CONTACT DETAILS + FORM ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <div className="grid gap-10 md:grid-cols-[1fr_1.2fr]">
-          {/* Contact info cards */}
-          <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1">
-            {contactPoints.map((c) => (
-              <Card key={c.title}>
-                <CardContent className="flex gap-4 p-6">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent/15">
-                    <c.icon className="size-5 text-accent" />
+      <section>
+        <div className="wrap">
+          <div className="contact-grid">
+            {/* Contact info cards */}
+            <div className="contact-points">
+              {contactPoints.map((c) => (
+                <div className="contact-point reveal" data-reveal key={c.title}>
+                  <div className="cp-icon">
+                    <c.icon size={17} />
                   </div>
                   <div>
-                    <h3 className="font-display text-sm font-semibold">{c.title}</h3>
-                    <p className="mt-1 text-sm text-foreground">{c.detail}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{c.sub}</p>
+                    <h3>{c.title}</h3>
+                    <p className="cp-detail">{c.detail}</p>
+                    <p className="cp-sub">{c.sub}</p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
 
-          {/* Contact form */}
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="font-display text-lg font-semibold">Send us a message</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Fill in the form below and our team will get back to you shortly.
-              </p>
+            {/* Contact form */}
+            <div className="contact-form-card reveal" data-reveal>
+              <h2>Send us a message</h2>
+              <p>Fill in the form below and our team will get back to you shortly.</p>
 
               {submitted ? (
-                <div className="my-8 flex flex-col items-center justify-center text-center space-y-3">
-                  <CheckCircle2 className="size-12 text-emerald-500" />
-                  <h3 className="font-display text-lg font-bold">Message Sent!</h3>
-                  <p className="text-xs text-muted-foreground max-w-xs">
+                <div className="success-panel" style={{ padding: "36px 0 16px" }}>
+                  <div className="check">
+                    <CheckCircle2 size={28} />
+                  </div>
+                  <h3 style={{ fontSize: 17, fontWeight: 700 }}>Message sent!</h3>
+                  <p style={{ fontSize: 12.5, color: "var(--ink-soft)", maxWidth: 280 }}>
                     Thank you for contacting us. We have received your query and will reply shortly.
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSubmitted(false)}
-                    className="mt-4"
-                  >
+                  <button className="btn btn-ghost" style={{ border: "1px solid var(--line)", marginTop: 8 }} onClick={() => setSubmitted(false)}>
                     Send another message
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="name" className="text-xs">Full name</Label>
-                      <Input
+                <form onSubmit={handleSubmit} style={{ marginTop: 22 }}>
+                  <div className="field-row">
+                    <div className="field" style={{ marginTop: 0 }}>
+                      <label htmlFor="name">Full name</label>
+                      <input
                         id="name"
                         type="text"
                         required
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         placeholder="Shivansh Singh"
-                        className="mt-1.5"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="email" className="text-xs">Email address</Label>
-                      <Input
+                    <div className="field" style={{ marginTop: 0 }}>
+                      <label htmlFor="email">Email address</label>
+                      <input
                         id="email"
                         type="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="shivansh@example.com"
-                        className="mt-1.5"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="subject" className="text-xs">Subject</Label>
-                    <Input
+                  <div className="field">
+                    <label htmlFor="subject">Subject</label>
+                    <input
                       id="subject"
                       type="text"
                       required
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       placeholder="What is this about?"
-                      className="mt-1.5"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="message" className="text-xs">Message</Label>
-                    <Textarea
+                  <div className="field">
+                    <label htmlFor="message">Message</label>
+                    <textarea
                       id="message"
                       rows={5}
                       required
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Tell us how we can help"
-                      className="mt-1.5 resize-none"
+                      style={{ resize: "none" }}
                     />
                   </div>
 
-                  <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+                  <button type="submit" disabled={loading} className="btn btn-primary btn-lg" style={{ marginTop: 20 }}>
                     {loading ? (
-                      <>
-                        <Loader2 className="mr-1.5 size-4 animate-spin" /> Sending...
-                      </>
+                      <Loader2 size={16} className="spin" />
                     ) : (
                       <>
-                        Send message <ArrowRight className="ml-1.5 size-4" />
+                        Send message <ArrowRight size={16} />
                       </>
                     )}
-                  </Button>
+                  </button>
                 </form>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t py-8">
-        <p className="text-center text-xs text-muted-foreground">
-          Capacity Connect · Demonstration interface with sample data
-        </p>
+      <footer>
+        <div className="wrap" style={{ textAlign: "center", padding: "20px 0" }}>
+          <p style={{ fontSize: 12, color: "var(--muted-label)" }}>
+            Capacity Connect · Demonstration interface with sample data
+          </p>
+        </div>
       </footer>
     </div>
   );
