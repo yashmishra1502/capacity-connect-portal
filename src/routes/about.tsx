@@ -7,16 +7,11 @@ import {
   Building2,
   CheckCircle2,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { BrandIcon } from "@/components/brand-logo";
-
-// ================================================================
-// PASTE: src/routes/about.tsx  (naya file banao)
-// Route path automatically "/about" ban jayega (TanStack file-based routing)
-// Navbar me "About" link already hai — usko `to="/about"` bana dena
-// ================================================================
+import "../landing.css";
+import { BrandIcon, BrandLogo } from "@/components/brand-logo";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -78,53 +73,44 @@ const timeline = [
 ];
 
 function About() {
+  useScrollReveal();
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="ccl">
       {/* ---------- HEADER ---------- */}
-      <header className="border-b">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <BrandIcon size={36} className="rounded-md bg-primary p-1.5" />
-            <div>
-              <p className="font-display text-sm font-bold tracking-tight">CAPACITY CONNECT</p>
-              <p className="text-[11px] text-muted-foreground">Capacity Building Commission</p>
-            </div>
+      <header>
+        <nav>
+          <Link to="/" className="brand">
+            <BrandIcon size={30} className="rounded-md" />
+            <span className="brand-name">
+              CAPACITY <span>CONNECT</span>
+            </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
-            <Link to="/" className="hover:text-foreground">Home</Link>
-            <a href="#" className="border-b-2 border-primary pb-1 text-foreground">About</a>
-            <Link to="/" hash="how-it-works" className="hover:text-foreground">How it works</Link>
-            <Link to="/contact" className="hover:text-foreground">Contact</Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/trainee">Login</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/trainee">
-                Enter portal <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <a className="active" href="#top">About</a>
+            <Link to="/" hash="how-it-works">How it works</Link>
+            <Link to="/contact">Contact</Link>
           </div>
-        </div>
+
+          <div className="nav-cta">
+            <Link to="/login" className="btn-ghost">Login</Link>
+            <Link to="/login" className="btn btn-primary">
+              Enter portal <ArrowRight size={15} />
+            </Link>
+          </div>
+        </nav>
       </header>
 
       {/* ---------- HERO ---------- */}
-      <section className="brand-gradient relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-cyan-400/15 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-20 top-0 size-96 rounded-full bg-cyan-400/15 blur-[120px]" />
-
-        <div className="relative mx-auto max-w-4xl px-5 py-20 text-center text-navy-foreground">
-          <p className="inline-flex items-center gap-2 rounded-full border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-navy-foreground/80">
-            <Building2 className="size-3.5" />
-            An initiative under the Capacity Building Commission
-          </p>
-          <h1 className="mt-6 font-display text-3xl font-bold leading-tight md:text-4xl">
-            Building a unified capacity building framework for government
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-sm text-navy-foreground/80 md:text-base">
+      <section className="page-hero" id="top">
+        <div className="wrap">
+          <div className="eyebrow">
+            <Building2 size={13} /> An initiative under the Capacity Building Commission
+          </div>
+          <h1 className="cc-hero-in">Building a unified capacity building framework for government</h1>
+          <p className="cc-hero-in cc-delay-1">
             Capacity Connect standardises how government departments train, assess and certify
             personnel — replacing fragmented processes with one transparent, verifiable and
             data-driven platform.
@@ -133,108 +119,125 @@ function About() {
       </section>
 
       {/* ---------- MISSION / VISION / MANDATE ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <div className="grid gap-5 md:grid-cols-3">
-          {pillars.map((p) => (
-            <Card key={p.title} className="border-l-4 border-l-primary">
-              <CardContent className="p-6">
-                <h3 className="font-display text-base font-semibold">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
-              </CardContent>
-            </Card>
-          ))}
+      <section>
+        <div className="wrap">
+          <div className="pillar-grid">
+            {pillars.map((p) => (
+              <div className="pillar-card reveal" data-reveal key={p.title}>
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ---------- OBJECTIVES ---------- */}
-      <section className="bg-muted/40 py-16">
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="max-w-2xl">
-            <h2 className="font-display text-xl font-bold">What the platform delivers</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Four core outcomes guide the design of Capacity Connect, in line with the
-              competency-based training mandate of the Commission.
-            </p>
+      <section style={{ background: "var(--bg-card)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <div>
+              <div className="sec-label">
+                <Sparkles size={13} /> Outcomes
+              </div>
+              <h2 className="sec-title reveal" data-reveal>What the platform delivers</h2>
+              <p className="sec-sub">
+                Four core outcomes guide the design of Capacity Connect, in line with the
+                competency-based training mandate of the Commission.
+              </p>
+            </div>
           </div>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="obj-grid">
             {objectives.map((o) => (
-              <Card key={o.title}>
-                <CardContent className="flex gap-4 p-6">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent/15">
-                    <o.icon className="size-5 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-sm font-semibold">{o.title}</h3>
-                    <p className="mt-1.5 text-sm text-muted-foreground">{o.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="obj-card reveal" data-reveal key={o.title}>
+                <div className="obj-icon">
+                  <o.icon size={19} />
+                </div>
+                <div>
+                  <h3>{o.title}</h3>
+                  <p>{o.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ---------- ROLLOUT TIMELINE ---------- */}
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <h2 className="font-display text-xl font-bold">Rollout roadmap</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Capacity Connect is being rolled out in phases, starting with a needs assessment
-          across participating departments.
-        </p>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-4">
-          {timeline.map((t, i) => (
-            <div key={t.year} className="relative pl-6">
-              <div className="absolute left-0 top-1.5 flex size-3 items-center justify-center rounded-full bg-primary" />
-              {i !== timeline.length - 1 && (
-                <div className="absolute left-[5px] top-5 hidden h-[calc(100%+1.5rem)] w-px bg-border md:block" />
-              )}
-              <p className="text-xs font-semibold uppercase tracking-wide text-accent">{t.year}</p>
-              <h3 className="mt-1 font-display text-sm font-semibold">{t.label}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{t.desc}</p>
+      <section>
+        <div className="wrap">
+          <div className="sec-head">
+            <div>
+              <div className="sec-label">
+                <Target size={13} /> Roadmap
+              </div>
+              <h2 className="sec-title reveal" data-reveal>Rollout roadmap</h2>
+              <p className="sec-sub">
+                Capacity Connect is being rolled out in phases, starting with a needs assessment
+                across participating departments.
+              </p>
             </div>
-          ))}
+          </div>
+
+          <div className="cc-timeline reveal" data-reveal>
+            {timeline.map((t) => (
+              <div className="tl-item" key={t.year}>
+                <p className="tl-phase">{t.year}</p>
+                <h4>{t.label}</h4>
+                <p>{t.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ---------- COMPLIANCE / TRUST STRIP ---------- */}
-      <section className="border-y bg-card">
-        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 sm:grid-cols-3">
-          <TrustPoint text="Aligned with Mission Karmayogi's competency framework" />
-          <TrustPoint text="Role-based access for trainees, trainers and administrators" />
-          <TrustPoint text="Data handled as per Government of India IT security guidelines" />
+      <section style={{ background: "var(--bg-card)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", padding: "56px 0" }}>
+        <div className="wrap">
+          <div className="trust-check-grid">
+            <div className="trust-check reveal" data-reveal>
+              <CheckCircle2 size={16} />
+              <span>Aligned with Mission Karmayogi's competency framework</span>
+            </div>
+            <div className="trust-check reveal" data-reveal>
+              <CheckCircle2 size={16} />
+              <span>Role-based access for trainees, trainers and administrators</span>
+            </div>
+            <div className="trust-check reveal" data-reveal>
+              <CheckCircle2 size={16} />
+              <span>Data handled as per Government of India IT security guidelines</span>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ---------- CTA ---------- */}
-      <section className="mx-auto max-w-4xl px-5 py-16 text-center">
-        <h2 className="font-display text-xl font-bold">Ready to get started?</h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-          Sign in to your role-based dashboard to begin training, teaching or administering
-          programmes on Capacity Connect.
-        </p>
-        <Button asChild size="lg" className="mt-6">
-          <Link to="/trainee">
-            Enter portal <ArrowRight className="ml-1.5 size-4" />
-          </Link>
-        </Button>
+      <section style={{ textAlign: "center" }}>
+        <div className="wrap" style={{ maxWidth: 620 }}>
+          <h2 className="sec-title reveal" data-reveal style={{ margin: "0 auto", textAlign: "center", maxWidth: "none" }}>
+            Ready to get started?
+          </h2>
+          <p className="sec-sub" style={{ margin: "16px auto 0" }}>
+            Sign in to your role-based dashboard to begin training, teaching or administering
+            programmes on Capacity Connect.
+          </p>
+          <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
+            <Link to="/login" className="btn btn-primary btn-lg">
+              Enter portal <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
       </section>
 
-      <footer className="border-t py-8">
-        <p className="text-center text-xs text-muted-foreground">
-          Capacity Connect · Demonstration interface with sample data
-        </p>
+      {/* ---------- FOOTER ---------- */}
+      <footer>
+        <div className="wrap" style={{ textAlign: "center", padding: "20px 0" }}>
+          <p style={{ fontSize: 12, color: "var(--muted-label)" }}>
+            Capacity Connect · Demonstration interface with sample data
+          </p>
+        </div>
       </footer>
-    </div>
-  );
-}
-
-function TrustPoint({ text }: { text: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-      <p className="text-sm text-foreground">{text}</p>
     </div>
   );
 }
