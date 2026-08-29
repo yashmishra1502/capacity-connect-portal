@@ -1,3 +1,4 @@
+import "@/styles/dashboard-glass.css";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
@@ -231,7 +232,7 @@ export function AppShell({ role }: { role: Role }) {
               <div className="flex items-center gap-2">
                 <BrandIcon size={30} className="rounded-md" />
                 <div>
-                  <p className="font-display text-sm font-bold">CAPACITY CONNECT</p>
+                  <p className="font-display cc-heading text-sm">CAPACITY CONNECT</p>
                   <p className="text-[11px] text-muted-foreground">{roleLabel[role]}</p>
                 </div>
               </div>
