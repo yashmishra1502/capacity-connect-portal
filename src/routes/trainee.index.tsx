@@ -12,6 +12,7 @@ import {
   Play,
   Loader2,
   Bell,
+  Check,
 } from "lucide-react";
 import {
   AreaChart,
@@ -28,6 +29,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/stat-card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
 import "@/styles/dashboard-glass.css";
@@ -123,6 +129,20 @@ function TraineeDashboard() {
     };
   }, [session?.user?.id]);
 
+  // Mark notification as read
+  const markAsRead = async (id: string) => {
+    const { error } = await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", id);
+
+    if (!error) {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+    }
+  };
+
   useEffect(() => {
     async function loadDashboardData() {
       try {
@@ -183,6 +203,8 @@ function TraineeDashboard() {
     }));
   }, [courses]);
 
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
   return (
     <div className="space-y-7 p-6">
       <div className="cc-fade flex items-center justify-between">
@@ -194,18 +216,68 @@ function TraineeDashboard() {
           </p>
         </div>
 
-        {/* Real-Time Notification Bell Indicator */}
-        <div className="relative">
-          <Button variant="outline" size="icon" className="relative">
-            <Bell className="size-4" />
-            {notifications.some((n) => !n.is_read) && (
-              <span className="absolute -right-1 -top-1 flex size-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex size-3 rounded-full bg-red-500" />
-              </span>
-            )}
-          </Button>
-        </div>
+        {/* Interactive Real-Time Notification Dropdown */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="size-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex size-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex size-3 rounded-full bg-red-500" />
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent align="end" className="w-80 p-0">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <h4 className="text-xs font-semibold">Notifications</h4>
+              {unreadCount > 0 && (
+                <span className="text-[10px] text-muted-foreground">
+                  {unreadCount} unread
+                </span>
+              )}
+            </div>
+
+            <div className="max-h-80 overflow-y-auto divide-y">
+              {notifications.length === 0 ? (
+                <p className="p-4 text-center text-xs text-muted-foreground">
+                  No notifications found
+                </p>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`p-3 text-xs transition-colors ${
+                      !n.is_read ? "bg-muted/40 font-medium" : "opacity-80"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-foreground">{n.title}</p>
+                      {!n.is_read && (
+                        <button
+                          onClick={() => markAsRead(n.id)}
+                          className="text-muted-foreground hover:text-foreground"
+                          title="Mark as read"
+                        >
+                          <Check className="size-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-1 text-muted-foreground">{n.message}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground/70">
+                      {new Date(n.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Real Statistics Row */}
@@ -250,7 +322,7 @@ function TraineeDashboard() {
         </div>
       </div>
 
-      {/* Continue Learning - Updated Real Courses */}
+      {/* Continue Learning */}
       <div className="cc-fade">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-base font-bold">Continue learning</h2>
@@ -417,7 +489,7 @@ function TraineeDashboard() {
         </div>
       </div>
 
-      {/* Assessments & Certificates Blank States */}
+      {/* Blank States */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="cc-fade">
           <Card>
