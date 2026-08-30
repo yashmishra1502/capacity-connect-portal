@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
@@ -7,12 +7,6 @@ import {
   Clock,
   ShieldCheck,
   RefreshCw,
-  LayoutDashboard,
-  Users,
-  UserCheck,
-  CheckSquare,
-  BarChart3,
-  Megaphone,
 } from "lucide-react";
 import {
   AreaChart,
@@ -104,17 +98,6 @@ function StatCard({
     </Glass>
   );
 }
-
-// Complete Navigation Items with Trainers & Announcements included
-const navItems = [
-  { label: "Overview", to: "/admin", icon: LayoutDashboard },
-  { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Trainees", to: "/admin/trainees", icon: Users },
-  { label: "Trainers", to: "/admin/trainers", icon: UserCheck },
-  { label: "Approvals", to: "/admin/approvals", icon: CheckSquare },
-  { label: "Announcements", to: "/admin/announcements", icon: Megaphone },
-  { label: "Reports", to: "/admin/reports", icon: BarChart3 },
-];
 
 function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -221,31 +204,13 @@ function AdminDashboard() {
           "radial-gradient(circle at 15% 10%, rgba(129,140,248,0.25), transparent 45%), radial-gradient(circle at 85% 30%, rgba(56,189,248,0.18), transparent 40%), radial-gradient(circle at 50% 90%, rgba(217,119,255,0.15), transparent 45%)",
       }}
     >
-      {/* Header Bar containing Trainers and Announcements Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
-        <nav className="flex flex-wrap items-center gap-1.5 rounded-full border border-white/20 bg-white/10 p-1.5 backdrop-blur-xl max-w-full">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                activeProps={{
-                  className:
-                    "bg-indigo-600/40 text-white border-indigo-400/40 shadow-sm font-semibold",
-                }}
-                inactiveProps={{
-                  className:
-                    "text-muted-foreground hover:bg-white/10 hover:text-white",
-                }}
-                className="flex shrink-0 items-center gap-2 rounded-full border border-transparent px-3.5 py-1.5 text-xs font-medium transition-all"
-              >
-                <Icon className="size-3.5" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Platform-wide overview across courses and approvals.
+          </p>
+        </div>
 
         <Button
           variant="outline"
@@ -257,13 +222,6 @@ function AdminDashboard() {
           <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
           Sync Data
         </Button>
-      </div>
-
-      <div>
-        <h1 className="font-display text-xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Platform-wide overview across courses and approvals.
-        </p>
       </div>
 
       {/* Overview Metric Cards */}
