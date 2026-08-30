@@ -33,6 +33,7 @@ import { useParallax } from "@/hooks/use-landing-motion";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/hooks/use-auth";
 import { logout } from "@/lib/auth";
+import { fetchLogos, type DepartmentLogo } from "@/lib/logos";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -357,6 +358,21 @@ function Landing() {
   const userRole = profile?.role || "trainee";
   const dashboardPath = `/${userRole}`;
 
+  // department logos for the "trusted by" carousel — pulled from Supabase,
+  // falling back to the built-in icon list until the table has entries
+  const [uploadedLogos, setUploadedLogos] = React.useState<DepartmentLogo[] | null>(null);
+  React.useEffect(() => {
+    fetchLogos()
+      .then(setUploadedLogos)
+      .catch(() => setUploadedLogos([])); // fail quiet on the public landing page
+  }, []);
+
+  type DeptItem = { name: string; icon?: (typeof govDepartments)[number]["icon"]; logoUrl?: string };
+  const deptItems: DeptItem[] =
+    uploadedLogos && uploadedLogos.length > 0
+      ? uploadedLogos.map((l) => ({ name: l.name, logoUrl: l.logo_url }))
+      : govDepartments;
+
   return (
     <div className="ccl cc-homepage">
       {/* ---------- HEADER ---------- */}
@@ -512,10 +528,18 @@ function Landing() {
           <p className="proof-label">Trusted by government departments across India</p>
           <div className="dept-marquee">
             <div className="dept-track">
-              {[...govDepartments, ...govDepartments].map((d, i) => (
+              {[...deptItems, ...deptItems].map((d, i) => (
                 <div className="dept-pill" key={`${d.name}-${i}`}>
                   <span className="dept-ico">
-                    <d.icon size={18} />
+                    {d.logoUrl ? (
+                      <img
+                        src={d.logoUrl}
+                        alt={d.name}
+                        style={{ width: 26, height: 26, objectFit: "contain", borderRadius: "50%" }}
+                      />
+                    ) : d.icon ? (
+                      <d.icon size={18} />
+                    ) : null}
                   </span>
                   <span>{d.name}</span>
                 </div>
