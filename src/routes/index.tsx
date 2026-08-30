@@ -293,29 +293,37 @@ function NavUserMenu({ profile }: { profile: any }) {
   );
 }
 
-function useTypewriter(phrases: string[], typingSpeed = 65, deletingSpeed = 38, holdTime = 1700) {
-  const [text, setText] = React.useState("");
-  const [phraseIndex, setPhraseIndex] = React.useState(0);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+/**
+ * Cross-fades through a list of phrases instead of typing them out
+ * character-by-character. Fires `onCycle` right as a phrase starts
+ * fading out, so callers can sync a side-effect (e.g. a hero glitch)
+ * to the transition.
+ */
+function useCyclingReveal(phrases: string[], holdTime = 2200, fadeMs = 550, onCycle?: () => void) {
+  const [index, setIndex] = React.useState(0);
+  const [visible, setVisible] = React.useState(true);
+  const onCycleRef = React.useRef(onCycle);
+  onCycleRef.current = onCycle;
 
   React.useEffect(() => {
-    const current = phrases[phraseIndex % phrases.length] ?? "";
-    let timeout: ReturnType<typeof setTimeout>;
+    const hideTimer = setTimeout(() => {
+      setVisible(false);
+      onCycleRef.current?.();
+    }, holdTime);
 
-    if (!isDeleting && text === current) {
-      timeout = setTimeout(() => setIsDeleting(true), holdTime);
-    } else if (isDeleting && text === "") {
-      setIsDeleting(false);
-      setPhraseIndex((p) => p + 1);
-    } else {
-      const next = isDeleting ? current.slice(0, text.length - 1) : current.slice(0, text.length + 1);
-      timeout = setTimeout(() => setText(next), isDeleting ? deletingSpeed : typingSpeed);
-    }
+    return () => clearTimeout(hideTimer);
+  }, [index, holdTime]);
 
-    return () => clearTimeout(timeout);
-  }, [text, isDeleting, phraseIndex, phrases, typingSpeed, deletingSpeed, holdTime]);
+  React.useEffect(() => {
+    if (visible) return;
+    const nextTimer = setTimeout(() => {
+      setIndex((i) => (i + 1) % phrases.length);
+      setVisible(true);
+    }, fadeMs);
+    return () => clearTimeout(nextTimer);
+  }, [visible, phrases.length, fadeMs]);
 
-  return text;
+  return { text: phrases[index] ?? "", visible };
 }
 
 const TYPED_PHRASES = ["Connecting futures.", "Empowering officers.", "Building excellence."];
@@ -325,9 +333,26 @@ const TYPED_PHRASES = ["Connecting futures.", "Empowering officers.", "Building 
 function Landing() {
   useScrollReveal();
   useParallax();
-  const typedText = useTypewriter(TYPED_PHRASES);
   const navigate = useNavigate();
   const { session, profile, loading } = useAuth();
+
+  // Hero background ref, used to trigger a brief glitch pulse each time
+  // the rotating tagline below the hero copy finishes a cycle.
+  const heroBgRef = React.useRef<HTMLDivElement>(null);
+  const triggerHeroGlitch = React.useCallback(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    el.classList.remove("hero-bg-glitch");
+    // force reflow so the animation can be restarted immediately
+    void el.offsetWidth;
+    el.classList.add("hero-bg-glitch");
+  }, []);
+  const { text: typedText, visible: typedVisible } = useCyclingReveal(
+    TYPED_PHRASES,
+    2200,
+    550,
+    triggerHeroGlitch
+  );
 
   const userRole = profile?.role || "trainee";
   const dashboardPath = `/${userRole}`;
@@ -375,29 +400,18 @@ function Landing() {
            {/* ---------- HERO ---------- */}
       <section className="hero" id="top" style={{ position: "relative", overflow: "hidden" }}>
         <div
+          ref={heroBgRef}
           aria-hidden
+          className="hero-bg"
           style={{
             position: "absolute",
             inset: 0,
             zIndex: 0,
             backgroundImage: `url(${heroImg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "85% 30%",
           }}
         />
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            background:
-              "linear-gradient(180deg, rgba(6,10,20,0.32) 0%, rgba(6,10,20,0.58) 45%, var(--bg, #060a14) 92%)",
-          }}
-        />
+        <div aria-hidden className="hero-overlay" style={{ position: "absolute", inset: 0, zIndex: 1 }} />
         <div className="wrap" style={{ position: "relative", zIndex: 2 }}>
-          <div className="eyebrow">Capacity Building Commission</div>
-
           <h1>
             Empowering people.
             <br />
@@ -416,7 +430,12 @@ function Landing() {
             A centralised digital platform for training management, competency development
             and knowledge sharing — built to empower departments and the people within them.
             <br />
-            <strong style={{ color: "var(--ink)" }}>{typedText}</strong>
+            <strong
+              className={`cc-typed-fade${typedVisible ? "" : " cc-typed-hidden"}`}
+              style={{ color: "var(--ink)", display: "inline-block" }}
+            >
+              {typedText}
+            </strong>
           </p>
 
           <div className="hero-ctas">
