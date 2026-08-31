@@ -34,6 +34,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/hooks/use-auth";
 import { logout } from "@/lib/auth";
 import { fetchLogos, type DepartmentLogo } from "@/lib/logos";
+import { fetchFeatureCards, type FeatureCard } from "@/lib/features";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -382,6 +383,32 @@ function Landing() {
   const lap = Array.from({ length: repeatFactor }, () => baseDeptItems).flat();
   const deptItems = [...lap, ...lap];
 
+  // feature cards ("Course management" etc.) — pulled from Supabase,
+  // falling back to the built-in list until the table has entries
+  const [uploadedFeatures, setUploadedFeatures] = React.useState<FeatureCard[] | null>(null);
+  React.useEffect(() => {
+    fetchFeatureCards()
+      .then(setUploadedFeatures)
+      .catch(() => setUploadedFeatures([]));
+  }, []);
+
+  type FeatureItem = {
+    tag: string;
+    title: string;
+    desc: string;
+    icon?: (typeof features)[number]["icon"];
+    imageUrl?: string | null;
+  };
+  const displayFeatures: FeatureItem[] =
+    uploadedFeatures && uploadedFeatures.length > 0
+      ? uploadedFeatures.map((c) => ({
+          tag: c.tag,
+          title: c.title,
+          desc: c.description,
+          imageUrl: c.image_url,
+        }))
+      : features;
+
   return (
     <div className="ccl cc-homepage">
       {/* ---------- HEADER ---------- */}
@@ -717,11 +744,23 @@ function Landing() {
           </div>
 
           <div className="feature-grid">
-            {features.map((f) => (
-              <div className="fcard reveal" data-reveal key={f.title}>
+            {displayFeatures.map((f, i) => (
+              <div className="fcard reveal" data-reveal key={`${f.title}-${i}`}>
                 <div className="fmedia">
                   <span className="ftag">{f.tag}</span>
-                  <f.icon size={30} style={{ color: "rgba(255,255,255,0.85)" }} />
+                  {f.imageUrl ? (
+                    <img
+                      src={f.imageUrl}
+                      alt={f.title}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : f.icon ? (
+                    <f.icon size={30} style={{ color: "rgba(255,255,255,0.85)" }} />
+                  ) : (
+                    <Sparkles size={30} style={{ color: "rgba(255,255,255,0.85)" }} />
+                  )}
                 </div>
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
