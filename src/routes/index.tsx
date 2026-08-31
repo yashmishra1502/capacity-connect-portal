@@ -541,11 +541,22 @@ function Landing() {
                 <div className="dept-pill" key={`${d.name}-${i}`}>
                   <span className="dept-ico">
                     {d.logoUrl ? (
-                      <img
-                        src={d.logoUrl}
-                        alt={d.name}
-                        style={{ width: 26, height: 26, objectFit: "contain", borderRadius: "50%" }}
-                      />
+                      <>
+                        <img
+                          src={d.logoUrl}
+                          alt={d.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            const img = e.currentTarget;
+                            img.style.display = "none";
+                            const fallback = img.nextElementSibling as HTMLElement | null;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
+                        />
+                        <span className="dept-ico-fallback" aria-hidden="true">
+                          {d.name.trim().charAt(0).toUpperCase()}
+                        </span>
+                      </>
                     ) : d.icon ? (
                       <d.icon size={18} />
                     ) : null}
