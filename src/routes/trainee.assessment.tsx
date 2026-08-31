@@ -9,6 +9,7 @@ import {
   Clock,
   FileCheck2,
   ListChecks,
+  Loader2,
   RotateCcw,
   Timer,
   TrendingUp,
@@ -19,7 +20,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { assessmentsList, courses, quizQuestions } from "@/lib/mock-data";
+import { quizQuestions } from "@/lib/mock-data";
+import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainee/assessment")({
   head: () => ({
@@ -34,13 +36,20 @@ export const Route = createFileRoute("/trainee/assessment")({
   component: TraineeAssessment,
 });
 
-/* ---------------- helpers ---------------- */
+/* ---------------- types & helpers ---------------- */
+
+export interface AssessmentItem {
+  id: string;
+  title: string;
+  course: string;
+  questions: number;
+  status: "Live" | "Closed" | "Draft";
+  attempts: number;
+  avg: number;
+  created_at?: string;
+}
 
 const PASS_THRESHOLD = 60; // percent
-
-function courseFor(code: string) {
-  return courses.find((c) => c.code === code);
-}
 
 function statusStyle(status: string) {
   switch (status) {
@@ -65,8 +74,6 @@ function formatClock(totalSeconds: number) {
   return `${m}:${s}`;
 }
 
-/* ---------------- types ---------------- */
-
 type ViewState =
   | { mode: "list" }
   | { mode: "quiz"; assessmentId: string }
@@ -77,18 +84,51 @@ type ViewState =
       elapsedSeconds: number;
     };
 
-/* ---------------- page ---------------- */
+/* ---------------- main page component ---------------- */
 
 function TraineeAssessment() {
   const [view, setView] = useState<ViewState>({ mode: "list" });
+  const [assessments, setAssessments] = useState<AssessmentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch assessments directly from Supabase
+  useEffect(() => {
+    async function fetchAssessments() {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("assessments")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setAssessments(data || []);
+      } catch (err) {
+        console.error("Error fetching assessments from Supabase:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAssessments();
+  }, []);
 
   const active = useMemo(
     () =>
       view.mode !== "list"
-        ? assessmentsList.find((a) => a.id === view.assessmentId)
+        ? assessments.find((a) => a.id === view.assessmentId)
         : undefined,
-    [view],
+    [view, assessments],
   );
+
+  if (loading) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Loader2 className="size-8 animate-spin" />
+        <p className="text-sm font-medium">Loading assessments...</p>
+      </div>
+    );
+  }
 
   if (view.mode === "quiz" && active) {
     return (
@@ -115,13 +155,22 @@ function TraineeAssessment() {
   }
 
   return (
-    <AssessmentList onStart={(id) => setView({ mode: "quiz", assessmentId: id })} />
+    <AssessmentList
+      assessments={assessments}
+      onStart={(id) => setView({ mode: "quiz", assessmentId: id })}
+    />
   );
 }
 
 /* ---------------- list view ---------------- */
 
-function AssessmentList({ onStart }: { onStart: (assessmentId: string) => void }) {
+function AssessmentList({
+  assessments,
+  onStart,
+}: {
+  assessments: AssessmentItem[];
+  onStart: (assessmentId: string) => void;
+}) {
   return (
     <div className="space-y-8">
       <header className="space-y-3">
@@ -135,59 +184,76 @@ function AssessmentList({ onStart }: { onStart: (assessmentId: string) => void }
         </p>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {assessmentsList.map((assessment, index) => {
-          const course = courseFor(assessment.course);
-          const isLive = assessment.status === "Live";
-          return (
-            <Card
-              key={assessment.id}
-              className="cc-glow-card cc-page-in flex flex-col border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
-              style={{ animationDelay: `${index * 60}ms` }}
-            >
-              <CardContent className="flex flex-1 flex-col gap-4 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <Badge className={cn("rounded-full border uppercase tracking-wide", statusStyle(assessment.status))}>
-                    {assessment.status}
-                  </Badge>
-                  <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                    <ListChecks className="size-3.5" /> {assessment.questions} questions
-                  </span>
-                </div>
+      {assessments.length === 0 ? (
+        <Card className="p-8 text-center text-muted-foreground">
+          No assessments available at the moment.
+        </Card>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {assessments.map((assessment, index) => {
+            const isLive = assessment.status === "Live";
+            return (
+              <Card
+                key={assessment.id}
+                className="cc-glow-card cc-page-in flex flex-col border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <CardContent className="flex flex-1 flex-col gap-4 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <Badge
+                      className={cn(
+                        "rounded-full border uppercase tracking-wide",
+                        statusStyle(assessment.status),
+                      )}
+                    >
+                      {assessment.status}
+                    </Badge>
+                    <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                      <ListChecks className="size-3.5" /> {assessment.questions} questions
+                    </span>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <h2 className="font-display text-lg font-bold leading-snug">{assessment.title}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {course?.title ?? assessment.course}
-                  </p>
-                </div>
+                  <div className="space-y-1.5">
+                    <h2 className="font-display text-lg font-bold leading-snug">
+                      {assessment.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">{assessment.course}</p>
+                  </div>
 
-                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="size-3.5" /> ~{Math.max(5, Math.round(assessment.questions * 1.5))} min
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <TrendingUp className="size-3.5" /> {assessment.avg || 0}% avg score
-                  </span>
-                </div>
+                  <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="size-3.5" /> ~
+                      {Math.max(5, Math.round(assessment.questions * 1.5))} min
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <TrendingUp className="size-3.5" /> {assessment.avg || 0}% avg score
+                    </span>
+                  </div>
 
-                <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
-                  <span className="text-xs text-muted-foreground">{assessment.attempts} attempts so far</span>
-                  <Button
-                    size="sm"
-                    disabled={!isLive}
-                    onClick={() => onStart(assessment.id)}
-                    className="cc-btn-glass gap-1.5 rounded-full disabled:opacity-50"
-                  >
-                    <FileCheck2 className="size-3.5" />
-                    {isLive ? "Start Assessment" : assessment.status === "Draft" ? "Not yet open" : "Closed"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
+                    <span className="text-xs text-muted-foreground">
+                      {assessment.attempts} attempts so far
+                    </span>
+                    <Button
+                      size="sm"
+                      disabled={!isLive}
+                      onClick={() => onStart(assessment.id)}
+                      className="cc-btn-glass gap-1.5 rounded-full disabled:opacity-50"
+                    >
+                      <FileCheck2 className="size-3.5" />
+                      {isLive
+                        ? "Start Assessment"
+                        : assessment.status === "Draft"
+                        ? "Not yet open"
+                        : "Closed"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -199,16 +265,10 @@ function QuizRunner({
   onExit,
   onSubmit,
 }: {
-  assessment: (typeof assessmentsList)[number];
+  assessment: AssessmentItem;
   onExit: () => void;
   onSubmit: (answers: (number | null)[], elapsedSeconds: number) => void;
 }) {
-  // Question bank is shared mock data; cycle through it to fill the
-  // assessment's declared question count so every assessment feels
-  // appropriately sized even though there's one bank behind the scenes.
-  // Question bank is shared mock data; cycle through it (repeating if
-  // needed) to fill the assessment's declared question count, capped to
-  // keep an attempt reasonably short.
   const questions = useMemo(() => {
     const bank = quizQuestions;
     if (bank.length === 0) return [];
@@ -216,7 +276,7 @@ function QuizRunner({
     return Array.from({ length: count }, (_, i) => bank[i % bank.length]);
   }, [assessment.questions]);
 
-  const totalSeconds = questions.length * 60; // 60s per question
+  const totalSeconds = questions.length * 60;
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
@@ -237,7 +297,6 @@ function QuizRunner({
     }
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft]);
 
   const q = questions[current];
@@ -256,7 +315,9 @@ function QuizRunner({
   if (!q) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">No questions available for this assessment.</p>
+        <p className="text-sm text-muted-foreground">
+          No questions available for this assessment.
+        </p>
         <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
           <ArrowLeft className="size-3.5" /> Back to assessments
         </Button>
@@ -266,7 +327,6 @@ function QuizRunner({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Header: title, timer, progress */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -287,7 +347,6 @@ function QuizRunner({
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
@@ -303,7 +362,6 @@ function QuizRunner({
         </div>
       </div>
 
-      {/* Question card */}
       <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="space-y-5 p-6">
           <h2 className="font-display text-lg font-semibold leading-snug md:text-xl">
@@ -338,7 +396,6 @@ function QuizRunner({
         </CardContent>
       </Card>
 
-      {/* Nav */}
       <div className="flex items-center justify-between gap-3">
         <Button
           variant="outline"
@@ -383,15 +440,12 @@ function ResultsScreen({
   onRetake,
   onBackToList,
 }: {
-  assessment: (typeof assessmentsList)[number];
+  assessment: AssessmentItem;
   answers: (number | null)[];
   elapsedSeconds: number;
   onRetake: () => void;
   onBackToList: () => void;
 }) {
-  // Question bank is shared mock data; cycle through it (repeating if
-  // needed) to fill the assessment's declared question count, capped to
-  // keep an attempt reasonably short.
   const questions = useMemo(() => {
     const bank = quizQuestions;
     if (bank.length === 0) return [];
@@ -403,8 +457,24 @@ function ResultsScreen({
     (acc, q, i) => acc + (answers[i] === q.answer ? 1 : 0),
     0,
   );
-  const scorePct = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+  const scorePct =
+    questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
   const passed = scorePct >= PASS_THRESHOLD;
+
+  // Increment total attempts counter in Supabase
+  useEffect(() => {
+    async function updateAttempts() {
+      try {
+        await supabase
+          .from("assessments")
+          .update({ attempts: assessment.attempts + 1 })
+          .eq("id", assessment.id);
+      } catch (err) {
+        console.error("Error updating attempts in Supabase:", err);
+      }
+    }
+    updateAttempts();
+  }, [assessment]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -422,13 +492,13 @@ function ResultsScreen({
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               {assessment.title}
             </p>
-            <h1 className="font-display text-3xl font-bold md:text-4xl">
-              {scorePct}%
-            </h1>
+            <h1 className="font-display text-3xl font-bold md:text-4xl">{scorePct}%</h1>
             <Badge
               className={cn(
                 "rounded-full border uppercase tracking-wide",
-                passed ? "border-success/40 bg-success/10 text-success" : "border-destructive/40 bg-destructive/10 text-destructive",
+                passed
+                  ? "border-success/40 bg-success/10 text-success"
+                  : "border-destructive/40 bg-destructive/10 text-destructive",
               )}
             >
               {passed ? "Passed" : "Reattempt Required"}
@@ -437,7 +507,9 @@ function ResultsScreen({
 
           <div className="grid w-full grid-cols-3 gap-3 pt-2">
             <div className="rounded-xl border border-border/70 bg-background/50 p-3">
-              <p className="font-display text-lg font-bold">{correctCount}/{questions.length}</p>
+              <p className="font-display text-lg font-bold">
+                {correctCount}/{questions.length}
+              </p>
               <p className="text-[11px] text-muted-foreground">Correct</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-background/50 p-3">
@@ -452,7 +524,6 @@ function ResultsScreen({
         </CardContent>
       </Card>
 
-      {/* Answer review */}
       <Card className="border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="space-y-4 p-6">
           <h2 className="flex items-center gap-2 font-display text-base font-bold">
@@ -467,7 +538,9 @@ function ResultsScreen({
                   key={i}
                   className={cn(
                     "rounded-xl border p-4 text-sm",
-                    correct ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5",
+                    correct
+                      ? "border-success/30 bg-success/5"
+                      : "border-destructive/30 bg-destructive/5",
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -486,7 +559,8 @@ function ResultsScreen({
                   </p>
                   {!correct && (
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      Correct answer: <span className="text-success">{q.options[q.answer]}</span>
+                      Correct answer:{" "}
+                      <span className="text-success">{q.options[q.answer]}</span>
                     </p>
                   )}
                 </div>
