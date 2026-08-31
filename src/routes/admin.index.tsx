@@ -50,6 +50,11 @@ type CategoryDist = {
 const accent = "#818cf8";
 const pieColors = [accent, "#a5b4fc", "#c7d2fe", "#e0e7ff", "#94a3b8"];
 
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
 function Glass({
   className = "",
   children,
@@ -111,79 +116,139 @@ function AdminDashboard() {
     setLoading(true);
 
     try {
-      // 1. Fetch Active Courses Count
+      // 1. Active courses — published courses only
       const { count: courseCount, error: courseErr } = await supabase
         .from("courses")
-        .select("id", { count: "exact", head: true });
+        .select("id", { count: "exact", head: true })
+        .eq("published", true);
 
       if (!courseErr && courseCount !== null) {
         setActiveCoursesCount(courseCount);
+      } else {
+        setActiveCoursesCount(0);
       }
 
-      // 2. Fetch Completion Rate Data
-      const { data: completionsData } = await supabase
+      // 2. Enrollments — used for completion rate, department progress & trend
+      const { data: enrollments, error: enrollErr } = await supabase
         .from("enrollments")
-        .select("status");
+        .select("trainee_id, status, date");
 
-      if (completionsData && completionsData.length > 0) {
-        const completed = completionsData.filter((e) => e.status === "completed").length;
-        const rate = Math.round((completed / completionsData.length) * 100);
+      if (enrollErr) throw enrollErr;
+
+      const enrollmentsList = enrollments ?? [];
+
+      // Completion rate
+      if (enrollmentsList.length > 0) {
+        const completed = enrollmentsList.filter((e) => e.status === "completed").length;
+        const rate = Math.round((completed / enrollmentsList.length) * 100);
         setCompletionRate(`${rate}%`);
       } else {
         setCompletionRate("0%");
       }
 
-      // 3. Fetch Department Progress Data
-      const { data: deptData } = await supabase
-        .from("department_stats")
-        .select("name, pct")
-        .limit(5);
+      // 3. Department progress — join enrollments -> profiles.dept
+      if (enrollmentsList.length > 0) {
+        const traineeIds = Array.from(
+          new Set(enrollmentsList.map((e) => e.trainee_id).filter(Boolean))
+        );
 
-      if (deptData && deptData.length > 0) {
-        setDepartmentProgress(deptData as DeptProgress[]);
+        const { data: profilesData, error: profilesErr } = await supabase
+          .from("profiles")
+          .select("id, dept")
+          .in("id", traineeIds);
+
+        if (profilesErr) throw profilesErr;
+
+        const deptById = new Map(
+          (profilesData ?? []).map((p) => [p.id, p.dept ?? "Unassigned"])
+        );
+
+        const deptTotals = new Map<string, { total: number; completed: number }>();
+
+        for (const e of enrollmentsList) {
+          const dept = deptById.get(e.trainee_id) ?? "Unassigned";
+          const entry = deptTotals.get(dept) ?? { total: 0, completed: 0 };
+          entry.total += 1;
+          if (e.status === "completed") entry.completed += 1;
+          deptTotals.set(dept, entry);
+        }
+
+        const deptProgress: DeptProgress[] = Array.from(deptTotals.entries())
+          .map(([name, { total, completed }]) => ({
+            name,
+            pct: Math.round((completed / total) * 100),
+          }))
+          .sort((a, b) => b.pct - a.pct)
+          .slice(0, 5);
+
+        setDepartmentProgress(deptProgress);
       } else {
-        // Fallback mockup data
-        setDepartmentProgress([
-          { name: "Engineering", pct: 78 },
-          { name: "Human Resources", pct: 64 },
-          { name: "Operations", pct: 92 },
-          { name: "Finance", pct: 45 },
-        ]);
+        setDepartmentProgress([]);
       }
 
-      // 4. Fetch Monthly Enrollment Trends
-      const { data: trendData } = await supabase
-        .from("monthly_analytics")
-        .select("month, enrollments, completions")
-        .order("id", { ascending: true });
+      // 4. Monthly enrollment & completion trend — derived from enrollments.date
+      if (enrollmentsList.length > 0) {
+        const trendMap = new Map<string, { enrollments: number; completions: number; sortKey: string }>();
 
-      if (trendData && trendData.length > 0) {
-        setEnrollmentTrend(trendData as EnrollmentTrend[]);
+        for (const e of enrollmentsList) {
+          if (!e.date) continue;
+          const d = new Date(e.date);
+          const monthLabel = MONTH_LABELS[d.getMonth()];
+          const sortKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+          const entry = trendMap.get(sortKey) ?? {
+            enrollments: 0,
+            completions: 0,
+            sortKey,
+          };
+          entry.enrollments += 1;
+          if (e.status === "completed") entry.completions += 1;
+          trendMap.set(sortKey, { ...entry, sortKey });
+
+          // store label alongside for later mapping
+          (trendMap.get(sortKey) as any).month = monthLabel;
+        }
+
+        const trend: EnrollmentTrend[] = Array.from(trendMap.entries())
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([, v]: [string, any]) => ({
+            month: v.month,
+            enrollments: v.enrollments,
+            completions: v.completions,
+          }));
+
+        setEnrollmentTrend(trend);
       } else {
-        setEnrollmentTrend([
-          { month: "Jan", enrollments: 45, completions: 30 },
-          { month: "Feb", enrollments: 52, completions: 38 },
-          { month: "Mar", enrollments: 68, completions: 45 },
-          { month: "Apr", enrollments: 85, completions: 60 },
-          { month: "May", enrollments: 94, completions: 72 },
-          { month: "Jun", enrollments: 110, completions: 88 },
-        ]);
+        setEnrollmentTrend([]);
       }
 
-      // 5. Fetch Category Distribution Data
-      const { data: catData } = await supabase
-        .from("course_categories")
-        .select("name, value");
+      // 5. Category distribution — derived from courses.category
+      const { data: coursesData, error: coursesErr } = await supabase
+        .from("courses")
+        .select("category");
 
-      if (catData && catData.length > 0) {
-        setCategoryDistribution(catData as CategoryDist[]);
+      if (coursesErr) throw coursesErr;
+
+      const coursesList = coursesData ?? [];
+
+      if (coursesList.length > 0) {
+        const catCounts = new Map<string, number>();
+        for (const c of coursesList) {
+          const cat = c.category ?? "Uncategorized";
+          catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1);
+        }
+
+        const total = coursesList.length;
+        const catDist: CategoryDist[] = Array.from(catCounts.entries())
+          .map(([name, count]) => ({
+            name,
+            value: Math.round((count / total) * 100),
+          }))
+          .sort((a, b) => b.value - a.value);
+
+        setCategoryDistribution(catDist);
       } else {
-        setCategoryDistribution([
-          { name: "Technical", value: 40 },
-          { name: "Compliance", value: 25 },
-          { name: "Management", value: 20 },
-          { name: "Soft Skills", value: 15 },
-        ]);
+        setCategoryDistribution([]);
       }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
