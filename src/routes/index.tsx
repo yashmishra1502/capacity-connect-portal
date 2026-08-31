@@ -368,10 +368,19 @@ function Landing() {
   }, []);
 
   type DeptItem = { name: string; icon?: (typeof govDepartments)[number]["icon"]; logoUrl?: string };
-  const deptItems: DeptItem[] =
+  const baseDeptItems: DeptItem[] =
     uploadedLogos && uploadedLogos.length > 0
       ? uploadedLogos.map((l) => ({ name: l.name, logoUrl: l.logo_url }))
       : govDepartments;
+
+  // A handful of departments won't fill a wide desktop viewport once
+  // duplicated only once — that leaves a visible gap when the track loops.
+  // Repeat the base set until one "lap" is comfortably wider than any
+  // realistic screen, then duplicate that lap for the seamless -50% loop.
+  const MIN_LAP_ITEMS = 16;
+  const repeatFactor = Math.max(1, Math.ceil(MIN_LAP_ITEMS / baseDeptItems.length));
+  const lap = Array.from({ length: repeatFactor }, () => baseDeptItems).flat();
+  const deptItems = [...lap, ...lap];
 
   return (
     <div className="ccl cc-homepage">
@@ -528,7 +537,7 @@ function Landing() {
           <p className="proof-label">Trusted by government departments across India</p>
           <div className="dept-marquee">
             <div className="dept-track">
-              {[...deptItems, ...deptItems].map((d, i) => (
+              {deptItems.map((d, i) => (
                 <div className="dept-pill" key={`${d.name}-${i}`}>
                   <span className="dept-ico">
                     {d.logoUrl ? (
