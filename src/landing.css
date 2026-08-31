@@ -708,6 +708,11 @@
   align-items: center;
   justify-content: center;
 }
+.ccl .fcard .fmedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .ccl .fcard .ftag {
   position: absolute;
   top: 12px;
