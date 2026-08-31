@@ -42,13 +42,12 @@ export const Route = createFileRoute("/logo")({
 
 function LogoDashboard() {
   const { session, profile, loading: authLoading } = useAuth();
+  const [tab, setTab] = React.useState<"logos" | "features">("logos");
 
   if (!authLoading && (!session || profile?.role !== "admin")) {
     return <Navigate to="/admin-login" />;
   }
   if (authLoading) return null;
-
-  const [tab, setTab] = React.useState<"logos" | "features">("logos");
 
   return (
     <div className="ccl">
