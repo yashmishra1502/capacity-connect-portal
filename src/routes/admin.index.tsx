@@ -183,7 +183,12 @@ function AdminDashboard() {
 
         setDepartmentProgress(deptProgress);
       } else {
-        setDepartmentProgress([]);
+        // Fallback mockup data — shown until real enrollment data exists
+        setDepartmentProgress([
+          { name: "abcd", pct: 78 },
+          { name: "Digital Marketing", pct: 64 },
+          { name: "IT Supports", pct: 92 },
+        ]);
       }
 
       // 4. Monthly enrollment & completion trend — derived from enrollments.date
@@ -219,7 +224,15 @@ function AdminDashboard() {
 
         setEnrollmentTrend(trend);
       } else {
-        setEnrollmentTrend([]);
+        // Fallback mockup data — shown until real enrollment data exists
+        setEnrollmentTrend([
+          { month: "Jan", enrollments: 45, completions: 30 },
+          { month: "Feb", enrollments: 52, completions: 38 },
+          { month: "Mar", enrollments: 68, completions: 45 },
+          { month: "Apr", enrollments: 85, completions: 60 },
+          { month: "May", enrollments: 94, completions: 72 },
+          { month: "Jun", enrollments: 110, completions: 88 },
+        ]);
       }
 
       // 5. Category distribution — derived from courses.category
