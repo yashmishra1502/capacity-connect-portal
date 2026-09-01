@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, CheckCheck, Loader2, Trash2 } from "lucide-react";
+import { Bell, CheckCheck, ChevronDown, Loader2, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -136,10 +137,17 @@ function NotificationsPage() {
   };
 
   // Action: Delete notification
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-
     await supabase.from("notifications").delete().eq("id", id);
+  };
+
+  const toggleExpand = (id: string, isUnread: boolean) => {
+    setExpanded(expanded === id ? null : id);
+    if (isUnread) {
+      handleMarkAsRead(id);
+    }
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -188,69 +196,106 @@ function NotificationsPage() {
         </p>
       ) : (
         <div className="space-y-3">
-          {notifications.map((item, index) => (
-            <Card
-              key={item.id}
-              className={cn(
-                "cc-glow-card border-border/70 bg-card/70 backdrop-blur transition-all duration-300",
-                !item.read && "border-primary/40 bg-primary/5"
-              )}
-              style={{ animationDelay: `${index * 40}ms` }}
-            >
-              <CardContent className="flex items-start justify-between gap-4 p-5">
-                <div className="flex gap-4">
-                  <div
-                    className={cn(
-                      "mt-1 flex size-9 shrink-0 items-center justify-center rounded-xl",
-                      item.read
-                        ? "bg-muted text-muted-foreground"
-                        : "bg-primary text-primary-foreground"
-                    )}
-                  >
-                    <Bell className="size-4" />
-                  </div>
+          {notifications.map((item, index) => {
+            const isOpen = expanded === item.id;
 
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-display text-sm font-semibold leading-snug">
-                        {item.title}
-                      </h2>
-                      {!item.read && (
-                        <span className="size-2 rounded-full bg-primary" />
+            return (
+              <Card
+                key={item.id}
+                className={cn(
+                  "cc-glow-card overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300",
+                  !item.read && "border-primary/40 bg-primary/5"
+                )}
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleExpand(item.id, !item.read)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      toggleExpand(item.id, !item.read);
+                    }
+                  }}
+                  className="flex cursor-pointer items-start justify-between gap-4 p-5 text-left"
+                >
+                  <div className="flex gap-4 min-w-0 flex-1">
+                    <div
+                      className={cn(
+                        "mt-1 flex size-9 shrink-0 items-center justify-center rounded-xl",
+                        item.read
+                          ? "bg-muted text-muted-foreground"
+                          : "bg-primary text-primary-foreground"
                       )}
+                    >
+                      <Bell className="size-4" />
                     </div>
-                    <p className="text-sm text-muted-foreground">{item.message}</p>
-                    <p className="text-[11px] text-muted-foreground/80">
-                      {formatDate(item.created_at)}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1 shrink-0">
-                  {!item.read && (
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h2 className="font-display text-sm font-semibold leading-snug truncate">
+                          {item.title}
+                        </h2>
+                        {!item.read && (
+                          <span className="size-2 shrink-0 rounded-full bg-primary" />
+                        )}
+                      </div>
+                      <p
+                        className={cn(
+                          "text-sm text-muted-foreground transition-all",
+                          !isOpen && "line-clamp-2"
+                        )}
+                      >
+                        {item.message}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground/80 pt-1">
+                        {formatDate(item.created_at)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!item.read && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkAsRead(item.id);
+                        }}
+                        title="Mark as read"
+                      >
+                        <CheckCheck className="size-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-muted-foreground hover:text-foreground"
-                      onClick={() => handleMarkAsRead(item.id)}
-                      title="Mark as read"
+                      className="size-8 text-muted-foreground hover:text-destructive"
+                      onClick={(e) => handleDelete(e, item.id)}
+                      title="Delete notification"
                     >
-                      <CheckCheck className="size-4" />
+                      <Trash2 className="size-4" />
                     </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDelete(item.id)}
-                    title="Delete notification"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
+                    <ChevronDown
+                      className={cn(
+                        "size-4 text-muted-foreground transition-transform duration-300 ml-1",
+                        isOpen && "rotate-180"
+                      )}
+                    />
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                {/* Expanded Full Body Message */}
+                {isOpen && (
+                  <div className="border-t border-border/70 bg-card/40 p-5 text-sm leading-relaxed text-foreground">
+                    <p className="whitespace-pre-wrap">{item.message}</p>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
 
           {notifications.length === 0 && (
             <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
