@@ -8,15 +8,6 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainee/certificates")({
-  head: () => ({
-    meta: [
-      { title: "Certificates — Trainee · Capacity Connect" },
-      {
-        name: "description",
-        content: "View and download your verified certificates linked to your service record.",
-      },
-    ],
-  }),
   component: TraineeCertificates,
 });
 
@@ -46,76 +37,73 @@ function TraineeCertificates() {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadCertificates = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        if (!supabase) {
+          if (isMounted) setLoading(false);
+          return;
+        }
 
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
+        const { data: authData, error: authError } = await supabase.auth.getUser();
 
-        if (authError || !user) {
-          setLoading(false);
+        if (authError || !authData?.user) {
+          if (isMounted) setLoading(false);
           return;
         }
 
         const { data, error: fetchError } = await supabase
           .from("certificates")
-          .select(`
-            id, 
-            course_id, 
-            issued_date, 
-            grade, 
-            hours, 
-            certificate_path, 
-            status, 
-            courses (
-              title, 
-              course_code
-            )
-          `)
-          .eq("trainee_id", user.id)
-          .eq("status", "issued")
-          .order("issued_date", { ascending: false });
+          .select("id, course_id, issued_date, grade, hours, certificate_path, status, courses(title, course_code)")
+          .eq("trainee_id", authData.user.id)
+          .eq("status", "issued");
 
         if (fetchError) {
-          setError(fetchError.message);
-          setLoading(false);
+          if (isMounted) {
+            setError(fetchError.message);
+            setLoading(false);
+          }
           return;
         }
 
-        const rows: CertificateRow[] = (data || []).map((row: any) => {
-          const courseData = Array.isArray(row.courses) ? row.courses[0] : row.courses;
-          return {
-            id: row.id,
-            course_id: row.course_id,
-            issued_date: row.issued_date,
-            grade: row.grade,
-            hours: row.hours,
-            certificate_path: row.certificate_path,
-            status: row.status,
-            course_title: courseData?.title ?? "Course Certificate",
-            course_code: courseData?.course_code ?? "",
-          };
-        });
+        if (isMounted) {
+          const rows: CertificateRow[] = (data || []).map((row: any) => {
+            const courseData = Array.isArray(row.courses) ? row.courses[0] : row.courses;
+            return {
+              id: row.id ?? "",
+              course_id: row.course_id ?? "",
+              issued_date: row.issued_date ?? new Date().toISOString(),
+              grade: row.grade ?? null,
+              hours: row.hours ?? 0,
+              certificate_path: row.certificate_path ?? null,
+              status: row.status ?? "issued",
+              course_title: courseData?.title ?? "Course Certificate",
+              course_code: courseData?.course_code ?? "",
+            };
+          });
 
-        setCertificates(rows);
-      } catch (err) {
-        console.error("Error loading certificates:", err);
+          setCertificates(rows);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err?.message || "Failed to load certificates.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadCertificates();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleDownload = async (cert: CertificateRow) => {
-    if (!cert.certificate_path) return;
+    if (!cert.certificate_path || !supabase) return;
     setDownloadingId(cert.id);
-    setError(null);
 
     try {
       const { data, error: signError } = await supabase.storage
@@ -128,8 +116,7 @@ function TraineeCertificates() {
       }
 
       window.open(data.signedUrl, "_blank");
-    } catch (err) {
-      console.error("Download error:", err);
+    } catch (err: any) {
       setError("Failed to download certificate.");
     } finally {
       setDownloadingId(null);
@@ -192,7 +179,7 @@ function TraineeCertificates() {
         </Card>
       </div>
 
-      {/* Certificate grid */}
+      {/* Content area */}
       {loading ? (
         <div className="flex h-32 items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="size-5 animate-spin text-primary" />
@@ -200,11 +187,10 @@ function TraineeCertificates() {
         </div>
       ) : certificates.length > 0 ? (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {certificates.map((cert, index) => (
+          {certificates.map((cert) => (
             <Card
               key={cert.id}
-              className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
-              style={{ animationDelay: `${index * 60}ms` }}
+              className="cc-glow-card overflow-hidden border-border/70 bg-card/70 backdrop-blur"
             >
               <div className="relative flex items-center justify-between bg-gradient-to-br from-navy to-[#123368] p-5">
                 <div className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20">
