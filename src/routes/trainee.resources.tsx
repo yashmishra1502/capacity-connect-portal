@@ -85,7 +85,7 @@ function TraineeResources() {
       setLoading(true);
       setError(null);
 
-      // Query only resources and join course_modules
+      // Explicitly specify the foreign key constraint: course_modules!course_module_id
       const { data, error: fetchError } = await supabase
         .from("resources")
         .select(
@@ -98,7 +98,7 @@ function TraineeResources() {
           downloads,
           file_url,
           course_module_id,
-          course_modules (
+          course_modules!course_module_id (
             id,
             title
           )
