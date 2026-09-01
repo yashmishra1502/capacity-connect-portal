@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Award, Building2, Check, Mail, Medal, Pencil, ShieldCheck, X } from "lucide-react";
+import { Award, Building2, Check, Mail, Medal, Pencil, ShieldCheck, Upload, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,7 @@ interface Profile {
   dept: string | null;
   status: string;
   joined_date: string;
+  avatar_url?: string | null;
 }
 
 interface Achievement {
@@ -44,7 +45,7 @@ interface Achievement {
 
 interface CompetencyRow {
   category: string;
-  value: number; // 0-100
+  value: number;
 }
 
 interface CertificateRow {
@@ -66,6 +67,8 @@ function TraineeProfile() {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDept, setEditDept] = useState("");
+  const [editAvatarUrl, setEditAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -83,9 +86,9 @@ function TraineeProfile() {
       // Profile
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("id, name, email, role, dept, status, joined_date")
+        .select("id, name, email, role, dept, status, joined_date, avatar_url")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError || !profileData) {
         setError(profileError?.message ?? "Could not load profile.");
@@ -95,6 +98,7 @@ function TraineeProfile() {
       setProfile(profileData);
       setEditName(profileData.name);
       setEditDept(profileData.dept ?? "");
+      setEditAvatarUrl(profileData.avatar_url ?? null);
 
       // Achievements
       const { data: achievementData } = await supabase
@@ -104,14 +108,14 @@ function TraineeProfile() {
         .order("points", { ascending: false });
       setAchievements(achievementData ?? []);
 
-      // Certificates — intentionally left to populate later
+      // Certificates
       const { data: certData } = await supabase
         .from("certificates")
         .select("id, course_id, grade, issued_date")
         .eq("trainee_id", user.id);
       setCertificates(certData ?? []);
 
-      // Competency: enrollments -> courses (category) -> course_modules (done)
+      // Competency
       const { data: enrollments } = await supabase
         .from("enrollments")
         .select("course_id")
@@ -158,17 +162,55 @@ function TraineeProfile() {
     load();
   }, []);
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      setError(null);
+
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${profile?.id}-${Math.random()}.${fileExt}`;
+
+      // Upload file to Supabase Storage bucket named 'avatars'
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL of the uploaded image
+      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      setEditAvatarUrl(data.publicUrl);
+    } catch (err: any) {
+      setError(err.message ?? "Error uploading avatar. Ensure 'avatars' storage bucket exists.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!profile || !editName.trim()) return;
     setSaving(true);
     setError(null);
 
+    const updatedFields = {
+      name: editName.trim(),
+      dept: editDept.trim() || null,
+      avatar_url: editAvatarUrl,
+    };
+
     const { data, error: updateError } = await supabase
       .from("profiles")
-      .update({ name: editName.trim(), dept: editDept.trim() || null })
+      .update(updatedFields)
       .eq("id", profile.id)
-      .select("id, name, email, role, dept, status, joined_date")
-      .single();
+      .select("id, name, email, role, dept, status, joined_date, avatar_url")
+      .maybeSingle();
 
     setSaving(false);
 
@@ -177,7 +219,12 @@ function TraineeProfile() {
       return;
     }
 
-    if (data) setProfile(data);
+    if (data) {
+      setProfile(data);
+    } else {
+      setProfile((prev) => (prev ? { ...prev, ...updatedFields } : prev));
+    }
+
     setEditing(false);
   };
 
@@ -185,6 +232,7 @@ function TraineeProfile() {
     if (profile) {
       setEditName(profile.name);
       setEditDept(profile.dept ?? "");
+      setEditAvatarUrl(profile.avatar_url ?? null);
     }
     setEditing(false);
   };
@@ -197,16 +245,45 @@ function TraineeProfile() {
     return <p className="text-sm text-destructive">{error ?? "Profile not found."}</p>;
   }
 
+  const currentAvatar = editing ? editAvatarUrl : profile.avatar_url;
+
   return (
     <div className="space-y-6">
       <Card className="cc-glow-card overflow-hidden border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center">
-          <div className="flex size-20 items-center justify-center rounded-2xl bg-primary/15 font-display text-2xl font-bold text-primary">
-            {profile.name
-              .split(" ")
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)}
+          
+          {/* Avatar Container */}
+          <div className="relative group">
+            <div className="flex size-20 overflow-hidden items-center justify-center rounded-2xl bg-primary/15 font-display text-2xl font-bold text-primary border border-border/60">
+              {currentAvatar ? (
+                <img src={currentAvatar} alt={profile.name} className="h-full w-full object-cover" />
+              ) : (
+                profile.name
+                  .split(" ")
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+              )}
+            </div>
+
+            {/* Avatar upload overlay when in edit mode */}
+            {editing && (
+              <label
+                htmlFor="avatar-upload"
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-2xl cursor-pointer text-white opacity-90 transition-opacity hover:opacity-100"
+              >
+                <Upload className="size-5 mb-0.5" />
+                <span className="text-[10px] font-medium">{uploading ? "..." : "Upload"}</span>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
 
           <div className="flex-1 space-y-1.5">
@@ -233,7 +310,7 @@ function TraineeProfile() {
               <>
                 <h1 className="font-display text-2xl font-bold md:text-3xl">{profile.name}</h1>
                 <p className="text-sm text-muted-foreground">
-                  {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+                  {profile.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : "Trainee"}
                   {profile.dept ? ` · ${profile.dept}` : ""}
                 </p>
               </>
@@ -258,12 +335,12 @@ function TraineeProfile() {
             <div className="flex gap-2">
               <Button
                 onClick={handleSave}
-                disabled={saving || !editName.trim()}
+                disabled={saving || uploading || !editName.trim()}
                 className="cc-btn-glass gap-2 rounded-full"
               >
                 <Check className="size-4" /> {saving ? "Saving…" : "Save"}
               </Button>
-              <Button variant="outline" onClick={handleCancelEdit} disabled={saving} className="gap-2 rounded-full">
+              <Button variant="outline" onClick={handleCancelEdit} disabled={saving || uploading} className="gap-2 rounded-full">
                 <X className="size-4" /> Cancel
               </Button>
             </div>
