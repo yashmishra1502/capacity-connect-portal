@@ -82,7 +82,7 @@ function TrainerDashboard() {
           event: "INSERT",
           schema: "public",
           table: "notifications",
-          filter: `user_id=eq.${session.user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           setNotifications((prev) => [payload.new as Notification, ...prev]);
