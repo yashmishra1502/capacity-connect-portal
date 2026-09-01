@@ -37,7 +37,6 @@ type Resource = {
   title: string;
   type: string;
   size: string | null;
-  courseTitle: string | null;
   moduleId: string | null;
   moduleTitle: string | null;
   uploadedDate: string | null;
@@ -86,7 +85,7 @@ function TraineeResources() {
       setLoading(true);
       setError(null);
 
-      // Join course_modules and its parent courses relation
+      // Query only resources and join course_modules
       const { data, error: fetchError } = await supabase
         .from("resources")
         .select(
@@ -100,10 +99,8 @@ function TraineeResources() {
           file_url,
           course_module_id,
           course_modules (
-            title,
-            courses (
-              title
-            )
+            id,
+            title
           )
         `
         )
@@ -120,10 +117,6 @@ function TraineeResources() {
           ? r.course_modules[0]
           : r.course_modules;
 
-        const courseData = Array.isArray(moduleData?.courses)
-          ? moduleData?.courses[0]
-          : moduleData?.courses;
-
         return {
           id: r.id,
           title: r.title,
@@ -131,7 +124,6 @@ function TraineeResources() {
           size: r.size,
           moduleId: r.course_module_id,
           moduleTitle: moduleData?.title ?? null,
-          courseTitle: courseData?.title ?? null,
           uploadedDate: r.uploaded_date,
           downloads: r.downloads ?? 0,
           fileUrl: r.file_url,
@@ -154,7 +146,7 @@ function TraineeResources() {
     return resources
       .filter((r) => typeFilter === "All" || r.type === typeFilter)
       .filter((r) => {
-        const haystack = `${r.title} ${r.courseTitle ?? ""} ${r.moduleTitle ?? ""}`.toLowerCase();
+        const haystack = `${r.title} ${r.moduleTitle ?? ""}`.toLowerCase();
         return haystack.includes(query.toLowerCase());
       })
       .sort((a, b) => b.downloads - a.downloads);
@@ -232,7 +224,6 @@ function TraineeResources() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((resource, index) => {
               const Icon = TYPE_ICON[resource.type] ?? File;
-              const hasParentInfo = Boolean(resource.courseTitle || resource.moduleTitle);
 
               return (
                 <Card
@@ -259,11 +250,9 @@ function TraineeResources() {
                       <h2 className="font-display text-sm font-bold leading-snug md:text-base">
                         {resource.title}
                       </h2>
-                      {hasParentInfo && (
+                      {resource.moduleTitle && (
                         <p className="text-xs text-muted-foreground">
-                          {resource.courseTitle}
-                          {resource.courseTitle && resource.moduleTitle ? " · " : ""}
-                          {resource.moduleTitle}
+                          Module: {resource.moduleTitle}
                         </p>
                       )}
                     </div>
