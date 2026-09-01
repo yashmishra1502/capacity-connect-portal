@@ -1,310 +1,344 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, CheckCheck, ChevronDown, Loader2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Bell,
+  Check,
+  KeyRound,
+  Loader2,
+  Lock,
+  Save,
+  Shield,
+  User,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/lib/supabaseClient";
 
-export const Route = createFileRoute("/trainee/notifications")({
+export const Route = createFileRoute("/trainee/settings")({
   head: () => ({
     meta: [
-      { title: "Notifications · Capacity Connect" },
+      { title: "Settings — Trainee · Capacity Connect" },
       {
         name: "description",
-        content: "View and manage your account notifications.",
+        content: "Manage your account settings, profile, and security preferences.",
       },
     ],
   }),
-  component: NotificationsPage,
+  component: TraineeSettingsPage,
 });
-
-/* ---------------- types ---------------- */
-
-type Notification = {
-  id: string;
-  user_id: string | null;
-  title: string;
-  message: string;
-  read: boolean;
-  created_at: string;
-  type?: string | null;
-};
-
-/* ---------------- helpers ---------------- */
-
-function formatDate(value: string) {
-  if (!value) return "—";
-  return new Date(value).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 /* ---------------- page component ---------------- */
 
-function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+function TraineeSettingsPage() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  // Profile fields
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  // Password fields
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Notification toggles
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [courseUpdates, setCourseUpdates] = useState(true);
+
+  // Messages
+  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const fetchUserData = async () => {
       setLoading(true);
-      setError(null);
-
-      // 1. Get current logged-in user
       const {
         data: { user },
-        error: userError,
       } = await supabase.auth.getUser();
 
-      if (userError) {
-        setError(userError.message);
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fetch notifications for current user (or global ones where user_id is null)
-      let query = supabase
-        .from("notifications")
-        .select("*")
-        .order("created_at", { ascending: false });
-
       if (user) {
-        query = query.or(`user_id.eq.${user.id},user_id.is.null`);
+        setEmail(user.email ?? "");
+        setFullName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "");
+        setAvatarUrl(user.user_metadata?.avatar_url ?? "");
       }
-
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) {
-        setError(fetchError.message);
-      } else {
-        setNotifications(data ?? []);
-      }
-
       setLoading(false);
     };
 
-    fetchNotifications();
-
-    // 3. Set up Realtime listener for incoming notifications
-    const channel = supabase
-      .channel("public:notifications")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications" },
-        (payload) => {
-          const newNotif = payload.new as Notification;
-          setNotifications((prev) => [newNotif, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    fetchUserData();
   }, []);
 
-  // Action: Mark single notification as read
-  const handleMarkAsRead = async (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+  // Handle Profile Update
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    setProfileMessage(null);
+
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        full_name: fullName,
+        avatar_url: avatarUrl,
+      },
+    });
+
+    if (error) {
+      setProfileMessage({ type: "error", text: error.message });
+    } else {
+      setProfileMessage({ type: "success", text: "Profile updated successfully!" });
+    }
+    setSavingProfile(false);
+  };
+
+  // Handle Password Update
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "Password must be at least 6 characters long." });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: "error", text: "Passwords do not match." });
+      return;
+    }
+
+    setSavingPassword(true);
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      setPasswordMessage({ type: "error", text: error.message });
+    } else {
+      setPasswordMessage({ type: "success", text: "Password changed successfully!" });
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setSavingPassword(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="size-5 animate-spin" />
+        Loading settings...
+      </div>
     );
-
-    await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("id", id);
-  };
-
-  // Action: Mark all notifications as read
-  const handleMarkAllAsRead = async () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-
-    const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
-    if (unreadIds.length > 0) {
-      await supabase
-        .from("notifications")
-        .update({ read: true })
-        .in("id", unreadIds);
-    }
-  };
-
-  // Action: Delete notification
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    await supabase.from("notifications").delete().eq("id", id);
-  };
-
-  const toggleExpand = (id: string, isUnread: boolean) => {
-    setExpanded(expanded === id ? null : id);
-    if (isUnread) {
-      handleMarkAsRead(id);
-    }
-  };
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-full uppercase tracking-widest">
-              Updates
-            </Badge>
-            {unreadCount > 0 && (
-              <Badge className="rounded-full bg-primary text-primary-foreground">
-                {unreadCount} Unread
-              </Badge>
-            )}
-          </div>
-          <h1 className="font-display text-3xl font-bold md:text-4xl">Notifications</h1>
-          <p className="text-muted-foreground">
-            Stay updated with your courses, assessments, and platform updates.
-          </p>
-        </div>
-
-        {unreadCount > 0 && (
-          <Button
-            onClick={handleMarkAllAsRead}
-            variant="outline"
-            size="sm"
-            className="w-fit gap-2 rounded-full border-border/70"
-          >
-            <CheckCheck className="size-4" /> Mark all as read
-          </Button>
-        )}
+      <header className="space-y-3">
+        <Badge variant="secondary" className="rounded-full uppercase tracking-widest">
+          Account Preferences
+        </Badge>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">Settings</h1>
+        <p className="max-w-2xl text-muted-foreground">
+          Manage your account profile details, change security credentials, and configure notification preferences.
+        </p>
       </header>
 
-      {/* Loading & Error States */}
-      {loading ? (
-        <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Loading notifications...
-        </div>
-      ) : error ? (
-        <p className="rounded-xl border border-dashed border-destructive/50 p-10 text-center text-sm text-destructive">
-          {error}
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {notifications.map((item, index) => {
-            const isOpen = expanded === item.id;
-
-            return (
-              <Card
-                key={item.id}
-                className={cn(
-                  "cc-glow-card overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300",
-                  !item.read && "border-primary/40 bg-primary/5"
-                )}
-                style={{ animationDelay: `${index * 40}ms` }}
-              >
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => toggleExpand(item.id, !item.read)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      toggleExpand(item.id, !item.read);
-                    }
-                  }}
-                  className="flex cursor-pointer items-start justify-between gap-4 p-5 text-left"
-                >
-                  <div className="flex gap-4 min-w-0 flex-1">
-                    <div
-                      className={cn(
-                        "mt-1 flex size-9 shrink-0 items-center justify-center rounded-xl",
-                        item.read
-                          ? "bg-muted text-muted-foreground"
-                          : "bg-primary text-primary-foreground"
-                      )}
-                    >
-                      <Bell className="size-4" />
-                    </div>
-
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h2 className="font-display text-sm font-semibold leading-snug truncate">
-                          {item.title}
-                        </h2>
-                        {!item.read && (
-                          <span className="size-2 shrink-0 rounded-full bg-primary" />
-                        )}
-                      </div>
-                      <p
-                        className={cn(
-                          "text-sm text-muted-foreground transition-all",
-                          !isOpen && "line-clamp-2"
-                        )}
-                      >
-                        {item.message}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/80 pt-1">
-                        {formatDate(item.created_at)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    {!item.read && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-muted-foreground hover:text-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMarkAsRead(item.id);
-                        }}
-                        title="Mark as read"
-                      >
-                        <CheckCheck className="size-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => handleDelete(e, item.id)}
-                      title="Delete notification"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                    <ChevronDown
-                      className={cn(
-                        "size-4 text-muted-foreground transition-transform duration-300 ml-1",
-                        isOpen && "rotate-180"
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Expanded Full Body Message */}
-                {isOpen && (
-                  <div className="border-t border-border/70 bg-card/40 p-5 text-sm leading-relaxed text-foreground">
-                    <p className="whitespace-pre-wrap">{item.message}</p>
-                  </div>
-                )}
-              </Card>
-            );
-          })}
-
-          {notifications.length === 0 && (
-            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-              <Bell className="mx-auto mb-3 size-8 opacity-40" />
-              <p className="text-sm">You have no notifications right now.</p>
+      <div className="space-y-6">
+        {/* 1. Profile Information */}
+        <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <User className="size-5 text-primary" />
+              <CardTitle className="text-xl">Profile Details</CardTitle>
             </div>
-          )}
-        </div>
-      )}
+            <CardDescription>
+              Update your basic user details linked to your account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              {profileMessage && (
+                <div
+                  className={cn(
+                    "p-3 rounded-xl text-xs font-medium border",
+                    profileMessage.type === "success"
+                      ? "border-success/30 bg-success/10 text-success"
+                      : "border-destructive/30 bg-destructive/10 text-destructive"
+                  )}
+                >
+                  {profileMessage.text}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="John Doe"
+                  className="h-11 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  disabled
+                  className="h-11 rounded-xl bg-muted/50 cursor-not-allowed opacity-80"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Email address cannot be changed directly for security reasons.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="avatarUrl">Avatar Image URL</Label>
+                <Input
+                  id="avatarUrl"
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="h-11 rounded-xl"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={savingProfile}
+                className="gap-2 rounded-full"
+              >
+                {savingProfile ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Save className="size-4" />
+                )}
+                Save Changes
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* 2. Security & Password */}
+        <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Shield className="size-5 text-primary" />
+              <CardTitle className="text-xl">Security & Password</CardTitle>
+            </div>
+            <CardDescription>
+              Update your password to keep your account safe.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              {passwordMessage && (
+                <div
+                  className={cn(
+                    "p-3 rounded-xl text-xs font-medium border",
+                    passwordMessage.type === "success"
+                      ? "border-success/30 bg-success/10 text-success"
+                      : "border-destructive/30 bg-destructive/10 text-destructive"
+                  )}
+                >
+                  {passwordMessage.text}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="h-11 rounded-xl pr-10"
+                  />
+                  <KeyRound className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="h-11 rounded-xl pr-10"
+                  />
+                  <Lock className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={savingPassword}
+                variant="outline"
+                className="gap-2 rounded-full border-border/70"
+              >
+                {savingPassword ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Check className="size-4" />
+                )}
+                Update Password
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* 3. Notifications Configuration */}
+        <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="size-5 text-primary" />
+              <CardTitle className="text-xl">Notification Preferences</CardTitle>
+            </div>
+            <CardDescription>
+              Choose how you would like to be notified of updates.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground">
+                  Receive email updates for important account notifications.
+                </p>
+              </div>
+              <Switch
+                checked={emailNotifications}
+                onCheckedChange={setEmailNotifications}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">Course & Assessment Alerts</Label>
+                <p className="text-xs text-muted-foreground">
+                  Get notified when new course materials or assessment results are published.
+                </p>
+              </div>
+              <Switch
+                checked={courseUpdates}
+                onCheckedChange={setCourseUpdates}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
