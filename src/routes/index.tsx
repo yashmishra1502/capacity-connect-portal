@@ -341,19 +341,10 @@ function Landing() {
   // Hero background ref, used to trigger a brief glitch pulse each time
   // the rotating tagline below the hero copy finishes a cycle.
   const heroBgRef = React.useRef<HTMLDivElement>(null);
-  const triggerHeroGlitch = React.useCallback(() => {
-    const el = heroBgRef.current;
-    if (!el) return;
-    el.classList.remove("hero-bg-glitch");
-    // force reflow so the animation can be restarted immediately
-    void el.offsetWidth;
-    el.classList.add("hero-bg-glitch");
-  }, []);
   const { text: typedText, visible: typedVisible } = useCyclingReveal(
     TYPED_PHRASES,
-    2200,
-    550,
-    triggerHeroGlitch
+    2600,
+    550
   );
 
   const userRole = profile?.role || "trainee";
@@ -600,12 +591,7 @@ function Landing() {
       <section style={{ paddingTop: 64, paddingBottom: 64 }}>
         <div className="wrap">
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 32,
-            }}
-            className="reveal"
+            className="trust-grid reveal"
             data-reveal
           >
             {trustStrip.map((s) => (

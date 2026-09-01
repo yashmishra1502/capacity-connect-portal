@@ -242,7 +242,9 @@
 .ccl .hero-bg {
   background-size: cover;
   background-position: 85% 30%;
-  will-change: filter, transform, clip-path;
+  background-repeat: no-repeat;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 .ccl .hero-overlay {
   background: linear-gradient(
@@ -326,7 +328,8 @@
   }
 }
 .ccl .hero-bg.hero-bg-glitch {
-  animation: ccl-hero-glitch 0.5s steps(1, end);
+  /* glitch pulse disabled: it caused visible hero flicker */
+  animation: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .ccl .cc-typed-fade {
