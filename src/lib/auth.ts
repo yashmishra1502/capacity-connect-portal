@@ -3,6 +3,16 @@ import type { Role } from './mock-data';
 
 export type AuthResult = { ok: true } | { ok: false; message: string };
 
+export interface Profile {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  dept?: string | null;
+  role: Role;
+  status?: string | null;
+  [key: string]: unknown;
+}
+
 export interface RegisterParams {
   email: string;
   password: string;
