@@ -197,7 +197,7 @@ function LogosPanel() {
     const target = index + dir;
     if (target < 0 || target >= logos.length) return;
     const next = [...logos];
-    [next[index], next[target]] = [next[target], next[index]];
+    [next[index], next[target]] = [next[target]!, next[index]!];
     setLogos(next);
     try {
       await reorderLogos(next.map((l, i) => ({ id: l.id, display_order: i })));
@@ -482,7 +482,7 @@ function FeatureCardsPanel() {
     const target = index + dir;
     if (target < 0 || target >= cards.length) return;
     const next = [...cards];
-    [next[index], next[target]] = [next[target], next[index]];
+    [next[index], next[target]] = [next[target]!, next[index]!];
     setCards(next);
     try {
       await reorderFeatureCards(next.map((c, i) => ({ id: c.id, display_order: i })));

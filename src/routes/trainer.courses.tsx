@@ -50,7 +50,7 @@ export interface TrainerCourse {
 function getPlaylistId(url?: string): string {
   if (!url) return "";
   const match = url.match(/[?&]list=([^&]+)/);
-  return match ? match[1] : url;
+  return match?.[1] ?? url;
 }
 
 function TrainerCourses() {
