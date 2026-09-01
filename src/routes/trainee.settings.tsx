@@ -36,39 +36,48 @@ function TraineeSettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  // Profile fields
+  const [userId, setUserId] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
-  // Password fields
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Notification toggles
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [courseUpdates, setCourseUpdates] = useState(true);
 
-  // Messages
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase.auth.getUser();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-        if (error) {
-          console.error("Auth error:", error.message);
+        if (authError || !user) {
+          if (authError) console.error("Auth error:", authError.message);
           return;
         }
 
-        if (data?.user && isMounted) {
-          setEmail(data.user.email ?? "");
-          setFullName(data.user.user_metadata?.full_name ?? data.user.user_metadata?.name ?? "");
-          setAvatarUrl(data.user.user_metadata?.avatar_url ?? "");
+        if (isMounted) {
+          setUserId(user.id);
+          setEmail(user.email ?? "");
+
+          // 1. Check custom profiles table first
+          const { data: profileRow } = await supabase
+            .from("profiles")
+            .select("full_name, name, avatar_url")
+            .eq("id", user.id)
+            .maybeSingle();
+
+          // 2. Fall back to user_metadata if table row doesn't exist
+          const meta = user.user_metadata || {};
+          setFullName(profileRow?.full_name || profileRow?.name || meta.full_name || meta.name || "");
+          setAvatarUrl(profileRow?.avatar_url || meta.avatar_url || "");
         }
       } catch (err) {
         console.error("Unexpected error fetching user:", err);
@@ -83,25 +92,43 @@ function TraineeSettingsPage() {
     };
   }, []);
 
-  // Handle Profile Update
+  // Handle Profile Update (Syncs BOTH Auth metadata and DB profiles table)
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
     setProfileMessage(null);
 
     try {
-      const { error } = await supabase.auth.updateUser({
+      if (!userId) throw new Error("User session not found.");
+
+      // 1. Update Auth Metadata
+      const { error: authError } = await supabase.auth.updateUser({
         data: {
           full_name: fullName,
+          name: fullName,
           avatar_url: avatarUrl,
         },
       });
 
-      if (error) {
-        setProfileMessage({ type: "error", text: error.message });
-      } else {
-        setProfileMessage({ type: "success", text: "Profile updated successfully!" });
+      if (authError) throw authError;
+
+      // 2. Upsert into Supabase Database `profiles` table
+      const { error: dbError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: userId,
+          full_name: fullName,
+          name: fullName,
+          avatar_url: avatarUrl,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "id" });
+
+      if (dbError) {
+        // If table doesn't exist yet, Auth update still succeeded
+        console.warn("Database profiles table sync note:", dbError.message);
       }
+
+      setProfileMessage({ type: "success", text: "Profile details updated successfully!" });
     } catch (err: any) {
       setProfileMessage({ type: "error", text: err.message || "Failed to update profile." });
     } finally {
@@ -167,7 +194,7 @@ function TraineeSettingsPage() {
       </header>
 
       <div className="space-y-6">
-        {/* 1. Profile Information */}
+        {/* Profile Information */}
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -198,7 +225,7 @@ function TraineeSettingsPage() {
                   id="fullName"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder="Enter your full name"
                   className="h-11 rounded-xl"
                 />
               </div>
@@ -213,7 +240,7 @@ function TraineeSettingsPage() {
                   className="h-11 rounded-xl bg-muted/50 cursor-not-allowed opacity-80"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Email address cannot be changed directly.
+                  Email address is managed by platform authentication.
                 </p>
               </div>
 
@@ -245,7 +272,7 @@ function TraineeSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 2. Security & Password */}
+        {/* Security & Password */}
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -317,7 +344,7 @@ function TraineeSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 3. Notification Preferences */}
+        {/* Notification Preferences */}
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardHeader>
             <div className="flex items-center gap-2">
