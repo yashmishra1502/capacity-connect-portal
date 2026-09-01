@@ -23,7 +23,7 @@ export const Route = createFileRoute("/trainee/resources")({
       { title: "Learning Resources — Trainee · Capacity Connect" },
       {
         name: "description",
-        content: "Download handbooks, worksheets and session recordings linked to your modules.",
+        content: "Download handbooks, worksheets and session recordings.",
       },
     ],
   }),
@@ -37,8 +37,6 @@ type Resource = {
   title: string;
   type: string;
   size: string | null;
-  moduleId: string | null;
-  moduleTitle: string | null;
   uploadedDate: string | null;
   downloads: number;
   fileUrl: string | null;
@@ -85,25 +83,10 @@ function TraineeResources() {
       setLoading(true);
       setError(null);
 
-      // Explicitly specify the foreign key constraint: course_modules!course_module_id
+      // Fetch strictly from resources table without joining any external tables
       const { data, error: fetchError } = await supabase
         .from("resources")
-        .select(
-          `
-          id,
-          title,
-          type,
-          size,
-          uploaded_date,
-          downloads,
-          file_url,
-          course_module_id,
-          course_modules!course_module_id (
-            id,
-            title
-          )
-        `
-        )
+        .select("id, title, type, size, uploaded_date, downloads, file_url")
         .order("uploaded_date", { ascending: false });
 
       if (fetchError) {
@@ -112,23 +95,15 @@ function TraineeResources() {
         return;
       }
 
-      const mapped: Resource[] = (data ?? []).map((r: any) => {
-        const moduleData = Array.isArray(r.course_modules)
-          ? r.course_modules[0]
-          : r.course_modules;
-
-        return {
-          id: r.id,
-          title: r.title,
-          type: r.type ?? "File",
-          size: r.size,
-          moduleId: r.course_module_id,
-          moduleTitle: moduleData?.title ?? null,
-          uploadedDate: r.uploaded_date,
-          downloads: r.downloads ?? 0,
-          fileUrl: r.file_url,
-        };
-      });
+      const mapped: Resource[] = (data ?? []).map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        type: r.type ?? "File",
+        size: r.size,
+        uploadedDate: r.uploaded_date,
+        downloads: r.downloads ?? 0,
+        fileUrl: r.file_url,
+      }));
 
       setResources(mapped);
       setLoading(false);
@@ -145,10 +120,7 @@ function TraineeResources() {
   const visible = useMemo(() => {
     return resources
       .filter((r) => typeFilter === "All" || r.type === typeFilter)
-      .filter((r) => {
-        const haystack = `${r.title} ${r.moduleTitle ?? ""}`.toLowerCase();
-        return haystack.includes(query.toLowerCase());
-      })
+      .filter((r) => r.title.toLowerCase().includes(query.toLowerCase()))
       .sort((a, b) => b.downloads - a.downloads);
   }, [query, typeFilter, resources]);
 
@@ -171,8 +143,7 @@ function TraineeResources() {
         </Badge>
         <h1 className="font-display text-3xl font-bold md:text-4xl">Learning Resources</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Handbooks, worksheets, datasets and session recordings uploaded by your trainers,
-          organised by module.
+          Handbooks, worksheets, datasets and session recordings uploaded by your trainers.
         </p>
       </header>
 
@@ -184,7 +155,7 @@ function TraineeResources() {
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search resources, modules…"
+              placeholder="Search resources…"
               className="h-11 rounded-xl pl-9"
             />
           </div>
@@ -250,11 +221,6 @@ function TraineeResources() {
                       <h2 className="font-display text-sm font-bold leading-snug md:text-base">
                         {resource.title}
                       </h2>
-                      {resource.moduleTitle && (
-                        <p className="text-xs text-muted-foreground">
-                          Module: {resource.moduleTitle}
-                        </p>
-                      )}
                     </div>
 
                     <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
