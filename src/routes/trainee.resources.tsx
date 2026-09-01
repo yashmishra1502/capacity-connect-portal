@@ -38,7 +38,7 @@ type Resource = {
   type: string;
   size: string | null;
   courseId: string | null;
-  courseTitle: string;
+  courseTitle: string | null;
   moduleId: string | null;
   moduleTitle: string | null;
   uploadedDate: string | null;
@@ -118,7 +118,7 @@ function TraineeResources() {
         type: r.type ?? "File",
         size: r.size,
         courseId: r.course_id,
-        courseTitle: r.courses?.title ?? "Unlinked course",
+        courseTitle: r.courses?.title ?? null,
         moduleId: r.course_module_id,
         moduleTitle: r.course_modules?.title ?? null,
         uploadedDate: r.uploaded_date,
@@ -142,11 +142,24 @@ function TraineeResources() {
     return resources
       .filter((r) => typeFilter === "All" || r.type === typeFilter)
       .filter((r) => {
-        const haystack = `${r.title} ${r.courseTitle} ${r.moduleTitle ?? ""}`.toLowerCase();
+        const haystack = `${r.title} ${r.courseTitle ?? ""} ${r.moduleTitle ?? ""}`.toLowerCase();
         return haystack.includes(query.toLowerCase());
       })
       .sort((a, b) => b.downloads - a.downloads);
   }, [query, typeFilter, resources]);
+
+  const handleDownloadIncrement = async (id: string, currentDownloads: number) => {
+    // Update state locally first
+    setResources((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, downloads: r.downloads + 1 } : r))
+    );
+
+    // Sync count increment to Supabase
+    await supabase
+      .from("resources")
+      .update({ downloads: currentDownloads + 1 })
+      .eq("id", id);
+  };
 
   return (
     <div className="space-y-8">
@@ -157,7 +170,7 @@ function TraineeResources() {
         <h1 className="font-display text-3xl font-bold md:text-4xl">Learning Resources</h1>
         <p className="max-w-2xl text-muted-foreground">
           Handbooks, worksheets, datasets and session recordings uploaded by your trainers,
-          organised by course.
+          organised by course and module.
         </p>
       </header>
 
@@ -193,7 +206,7 @@ function TraineeResources() {
         </CardContent>
       </Card>
 
-      {/* Loading / error states */}
+      {/* Loading / error / list states */}
       {loading ? (
         <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
@@ -205,7 +218,6 @@ function TraineeResources() {
         </p>
       ) : (
         <>
-          {/* Resource grid */}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((resource, index) => {
               const Icon = TYPE_ICON[resource.type] ?? File;
@@ -234,10 +246,12 @@ function TraineeResources() {
                       <h2 className="font-display text-sm font-bold leading-snug md:text-base">
                         {resource.title}
                       </h2>
-                      <p className="text-xs text-muted-foreground">
-                        {resource.courseTitle}
-                        {resource.moduleTitle ? ` · ${resource.moduleTitle}` : ""}
-                      </p>
+                      {(resource.courseTitle || resource.moduleTitle) && (
+                        <p className="text-xs text-muted-foreground">
+                          {resource.courseTitle}
+                          {resource.moduleTitle ? ` · ${resource.moduleTitle}` : ""}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
@@ -254,9 +268,14 @@ function TraineeResources() {
                       variant="outline"
                       disabled={!resource.fileUrl}
                       className="mt-auto w-full gap-1.5 rounded-full border-border/70"
+                      onClick={() => {
+                        if (resource.fileUrl) {
+                          handleDownloadIncrement(resource.id, resource.downloads);
+                        }
+                      }}
                     >
                       {resource.fileUrl ? (
-                        <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer">
+                        <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" download>
                           <Download className="size-3.5" /> Download
                         </a>
                       ) : (
