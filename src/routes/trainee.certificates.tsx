@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { Award, Download, ShieldCheck, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { certificates } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/trainee/certificates")({
   head: () => ({
@@ -19,18 +19,6 @@ export const Route = createFileRoute("/trainee/certificates")({
   component: TraineeCertificates,
 });
 
-interface CertificateRow {
-  id: string;
-  course_id: string;
-  issued_date: string;
-  grade: string | null;
-  hours: number | null;
-  certificate_path: string | null;
-  status: string;
-  course_title: string;
-  course_code: string;
-}
-
 const GRADE_STYLE: Record<string, string> = {
   "A+": "border-success/40 bg-success/10 text-success",
   A: "border-success/40 bg-success/10 text-success",
@@ -38,22 +26,8 @@ const GRADE_STYLE: Record<string, string> = {
   B: "border-warning/40 bg-warning/10 text-warning",
 };
 
-// Set to empty array to ensure no certificates display on the dashboard
-const MOCK_CERTIFICATES: CertificateRow[] = [];
-
 function TraineeCertificates() {
-  const [certificates, setCertificates] = useState<CertificateRow[]>(MOCK_CERTIFICATES);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-
-  const handleDownload = (cert: CertificateRow) => {
-    setDownloadingId(cert.id);
-    setTimeout(() => {
-      setDownloadingId(null);
-      alert(`Downloading certificate for ${cert.course_title}`);
-    }, 1000);
-  };
-
-  const totalHours = certificates.reduce((acc, c) => acc + (c.hours ?? 0), 0);
+  const totalHours = certificates.reduce((acc, c) => acc + c.hours, 0);
 
   return (
     <div className="space-y-8">
@@ -81,7 +55,6 @@ function TraineeCertificates() {
             </div>
           </CardContent>
         </Card>
-
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardContent className="flex items-center gap-3 p-4">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -93,7 +66,6 @@ function TraineeCertificates() {
             </div>
           </CardContent>
         </Card>
-
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardContent className="flex items-center gap-3 p-4">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success">
@@ -108,64 +80,44 @@ function TraineeCertificates() {
       </div>
 
       {/* Certificate grid */}
-      {certificates.length > 0 ? (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {certificates.map((cert, index) => (
-            <Card
-              key={cert.id}
-              className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
-              style={{ animationDelay: `${index * 60}ms` }}
-            >
-              <div className="relative flex items-center justify-between bg-gradient-to-br from-navy to-[#123368] p-5">
-                <div className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20">
-                  <Award className="size-5" />
-                </div>
-                {cert.grade && (
-                  <Badge className={cn("rounded-full border font-bold", GRADE_STYLE[cert.grade] ?? "border-border bg-muted")}>
-                    Grade {cert.grade}
-                  </Badge>
-                )}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {certificates.map((cert, index) => (
+          <Card
+            key={cert.id}
+            className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
+            style={{ animationDelay: `${index * 60}ms` }}
+          >
+            {/* Certificate "seal" header */}
+            <div className="relative flex items-center justify-between bg-gradient-to-br from-navy to-[#123368] p-5">
+              <div className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20">
+                <Award className="size-5" />
+              </div>
+              <Badge className={cn("rounded-full border font-bold", GRADE_STYLE[cert.grade] ?? "border-border bg-muted")}>
+                Grade {cert.grade}
+              </Badge>
+            </div>
+
+            <CardContent className="flex flex-col gap-4 p-5">
+              <div className="space-y-1">
+                <h2 className="font-display text-base font-bold leading-snug">{cert.course}</h2>
+                <p className="text-xs text-muted-foreground">{cert.code} · {cert.id}</p>
               </div>
 
-              <CardContent className="flex flex-col gap-4 p-5">
-                <div className="space-y-1">
-                  <h2 className="font-display text-base font-bold leading-snug">{cert.course_title}</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {cert.course_code} · {cert.id.slice(0, 8)}
-                  </p>
-                </div>
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                <span>Issued {cert.issued}</span>
+                <span>·</span>
+                <span>{cert.hours}h certified</span>
+              </div>
 
-                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                  <span>
-                    Issued{" "}
-                    {new Date(cert.issued_date).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                  {cert.hours ? (
-                    <>
-                      <span>·</span>
-                      <span>{cert.hours}h certified</span>
-                    </>
-                  ) : null}
-                </div>
+              <Button size="sm" className="cc-btn-glass mt-auto w-full gap-1.5 rounded-full">
+                <Download className="size-3.5" /> Download certificate
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-                <Button
-                  size="sm"
-                  disabled={downloadingId === cert.id}
-                  onClick={() => handleDownload(cert)}
-                  className="cc-btn-glass mt-auto w-full gap-1.5 rounded-full disabled:opacity-50"
-                >
-                  <Download className="size-3.5" />
-                  {downloadingId === cert.id ? "Preparing…" : "Download certificate"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
+      {certificates.length === 0 && (
         <p className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           Complete a course to earn your first certificate.
         </p>
