@@ -175,7 +175,6 @@ function TraineeProfile() {
       const fileExt = file.name.split(".").pop();
       const filePath = `${profile?.id}-${Math.random()}.${fileExt}`;
 
-      // Upload file to Supabase Storage bucket named 'avatars'
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file);
@@ -184,7 +183,6 @@ function TraineeProfile() {
         throw uploadError;
       }
 
-      // Get public URL of the uploaded image
       const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
       setEditAvatarUrl(data.publicUrl);
     } catch (err: any) {
@@ -205,6 +203,7 @@ function TraineeProfile() {
       avatar_url: editAvatarUrl,
     };
 
+    // 1. Update profiles table in database
     const { data, error: updateError } = await supabase
       .from("profiles")
       .update(updatedFields)
@@ -212,12 +211,22 @@ function TraineeProfile() {
       .select("id, name, email, role, dept, status, joined_date, avatar_url")
       .maybeSingle();
 
-    setSaving(false);
-
     if (updateError) {
       setError(updateError.message);
+      setSaving(false);
       return;
     }
+
+    // 2. Sync changes with Supabase Auth metadata for application-wide persistence
+    await supabase.auth.updateUser({
+      data: {
+        name: editName.trim(),
+        avatar_url: editAvatarUrl,
+        dept: editDept.trim() || null,
+      },
+    });
+
+    setSaving(false);
 
     if (data) {
       setProfile(data);
@@ -266,7 +275,7 @@ function TraineeProfile() {
               )}
             </div>
 
-            {/* Avatar upload overlay when in edit mode */}
+            {/* Avatar upload overlay when editing */}
             {editing && (
               <label
                 htmlFor="avatar-upload"
