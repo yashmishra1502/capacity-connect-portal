@@ -67,20 +67,19 @@ function TraineeSettingsPage() {
           setUserId(user.id);
           setEmail(user.email ?? "");
 
-          // 1. Check custom profiles table first
+          // Read database table profile row
           const { data: profileRow } = await supabase
             .from("profiles")
             .select("full_name, name, avatar_url")
             .eq("id", user.id)
             .maybeSingle();
 
-          // 2. Fall back to user_metadata if table row doesn't exist
           const meta = user.user_metadata || {};
           setFullName(profileRow?.full_name || profileRow?.name || meta.full_name || meta.name || "");
           setAvatarUrl(profileRow?.avatar_url || meta.avatar_url || "");
         }
       } catch (err) {
-        console.error("Unexpected error fetching user:", err);
+        console.error("Error fetching user data:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -92,17 +91,21 @@ function TraineeSettingsPage() {
     };
   }, []);
 
-  // Handle Profile Update (Syncs BOTH Auth metadata and DB profiles table)
+  // Handle Profile Update
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
     setProfileMessage(null);
 
     try {
-      if (!userId) throw new Error("User session not found.");
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      // 1. Update Auth Metadata
-      const { error: authError } = await supabase.auth.updateUser({
+      if (userError || !user) {
+        throw new Error("User session expired. Please log in again.");
+      }
+
+      // 1. Update Auth user metadata
+      const { error: authUpdateError } = await supabase.auth.updateUser({
         data: {
           full_name: fullName,
           name: fullName,
@@ -110,23 +113,25 @@ function TraineeSettingsPage() {
         },
       });
 
-      if (authError) throw authError;
+      if (authUpdateError) throw authUpdateError;
 
-      // 2. Upsert into Supabase Database `profiles` table
+      // 2. Upsert into database profiles table
       const { error: dbError } = await supabase
         .from("profiles")
         .upsert({
-          id: userId,
+          id: user.id,
           full_name: fullName,
           name: fullName,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString(),
-        }, { onConflict: "id" });
+        });
 
       if (dbError) {
-        // If table doesn't exist yet, Auth update still succeeded
-        console.warn("Database profiles table sync note:", dbError.message);
+        console.warn("Database sync warning:", dbError.message);
       }
+
+      // 3. Force session refresh to apply new user_metadata across the app
+      await supabase.auth.refreshSession();
 
       setProfileMessage({ type: "success", text: "Profile details updated successfully!" });
     } catch (err: any) {
