@@ -352,7 +352,7 @@ function LogosPanel() {
                     type="file"
                     accept="image/png,image/jpeg,image/svg+xml,image/webp"
                     style={{ display: "none" }}
-                    ref={(el) => (replaceInputRef.current[logo.id] = el)}
+                    ref={(el) => { replaceInputRef.current[logo.id] = el; }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleReplaceImage(logo, f);
@@ -673,7 +673,7 @@ function FeatureCardsPanel() {
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     style={{ display: "none" }}
-                    ref={(el) => (replaceInputRef.current[card.id] = el)}
+                    ref={(el) => { replaceInputRef.current[card.id] = el; }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleReplaceImage(card, f);
