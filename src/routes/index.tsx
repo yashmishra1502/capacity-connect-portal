@@ -24,6 +24,8 @@ import {
   LayoutDashboard,
   Moon,
   Sun,
+  Menu,
+  X,
 } from "lucide-react";
 import "../landing.css";
 import heroImg from "@/assets/hero-capitol.jpg";
@@ -337,6 +339,7 @@ function Landing() {
   useParallax();
   const navigate = useNavigate();
   const { session, profile, loading } = useAuth();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   // Hero background ref, used to trigger a brief glitch pulse each time
   // the rotating tagline below the hero copy finishes a cycle.
