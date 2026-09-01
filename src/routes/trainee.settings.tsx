@@ -6,9 +6,7 @@ import {
   KeyRound,
   Loader2,
   Lock,
-  Save,
   Shield,
-  User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +22,7 @@ export const Route = createFileRoute("/trainee/settings")({
       { title: "Settings — Trainee · Capacity Connect" },
       {
         name: "description",
-        content: "Manage your account settings, profile, and security preferences.",
+        content: "Manage your account security and notification preferences.",
       },
     ],
   }),
@@ -33,12 +31,7 @@ export const Route = createFileRoute("/trainee/settings")({
 
 function TraineeSettingsPage() {
   const [loading, setLoading] = useState(true);
-  const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -46,13 +39,12 @@ function TraineeSettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [courseUpdates, setCourseUpdates] = useState(true);
 
-  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchUserData = async () => {
+    const checkSession = async () => {
       try {
         setLoading(true);
         const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -61,85 +53,18 @@ function TraineeSettingsPage() {
           if (authError) console.error("Auth error:", authError.message);
           return;
         }
-
-        if (isMounted) {
-          setEmail(user.email ?? "");
-
-          // 1. Check custom database table
-          const { data: profileRow } = await supabase
-            .from("profiles")
-            .select("full_name, name, avatar_url")
-            .eq("id", user.id)
-            .maybeSingle();
-
-          const meta = user.user_metadata || {};
-          setFullName(profileRow?.full_name || profileRow?.name || meta.full_name || meta.name || "");
-          setAvatarUrl(profileRow?.avatar_url || meta.avatar_url || "");
-        }
       } catch (err) {
-        console.error("Error loading user data:", err);
+        console.error("Error loading session:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchUserData();
+    checkSession();
     return () => {
       isMounted = false;
     };
   }, []);
-
-  // Handle Profile Details Update
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingProfile(true);
-    setProfileMessage(null);
-
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        throw new Error("Active user session not found. Try logging out and in again.");
-      }
-
-      // Update metadata in Supabase Auth
-      const { error: authUpdateError } = await supabase.auth.updateUser({
-        data: {
-          full_name: fullName,
-          name: fullName,
-          avatar_url: avatarUrl,
-        },
-      });
-
-      if (authUpdateError) throw authUpdateError;
-
-      // Upsert into Supabase database table
-      const { error: dbError } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            id: user.id,
-            full_name: fullName,
-            name: fullName,
-            avatar_url: avatarUrl,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "id" }
-        );
-
-      if (dbError) throw dbError;
-
-      // Force session refresh to ensure updated metadata state propagates through TanStack Router
-      await supabase.auth.refreshSession();
-
-      setProfileMessage({ type: "success", text: "Profile updated successfully!" });
-    } catch (err: any) {
-      console.error("Update profile error:", err);
-      setProfileMessage({ type: "error", text: err.message || "Could not update profile details." });
-    } finally {
-      setSavingProfile(false);
-    }
-  };
 
   // Handle Password Update
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -195,86 +120,11 @@ function TraineeSettingsPage() {
         </Badge>
         <h1 className="font-display text-3xl font-bold md:text-4xl">Settings</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Manage your account profile details, change security credentials, and configure notification preferences.
+          Change your security credentials and configure notification preferences.
         </p>
       </header>
 
       <div className="space-y-6">
-        {/* Profile Information */}
-        <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="size-5 text-primary" />
-              <CardTitle className="text-xl">Profile Details</CardTitle>
-            </div>
-            <CardDescription>
-              Update your basic user details linked to your account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              {profileMessage && (
-                <div
-                  className={`p-3 rounded-xl text-xs font-medium border ${
-                    profileMessage.type === "success"
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
-                      : "border-destructive/30 bg-destructive/10 text-destructive"
-                  }`}
-                >
-                  {profileMessage.text}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="h-11 rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled
-                  className="h-11 rounded-xl bg-muted/50 cursor-not-allowed opacity-80"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="avatarUrl">Avatar Image URL</Label>
-                <Input
-                  id="avatarUrl"
-                  type="url"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                  className="h-11 rounded-xl"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={savingProfile}
-                className="gap-2 rounded-full"
-              >
-                {savingProfile ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Save className="size-4" />
-                )}
-                Save Changes
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
         {/* Security & Password */}
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardHeader>
