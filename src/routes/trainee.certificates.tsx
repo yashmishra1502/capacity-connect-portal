@@ -20,6 +20,22 @@ export const Route = createFileRoute("/trainee/certificates")({
   component: TraineeCertificates,
 });
 
+interface CourseRelation {
+  title?: string | null;
+  code?: string | null;
+}
+
+interface RawCertificateData {
+  id: string;
+  course_id: string;
+  issued_date: string;
+  grade: string | null;
+  hours: number | null;
+  certificate_path: string | null;
+  status: string;
+  courses: CourseRelation | CourseRelation[] | null;
+}
+
 interface CertificateRow {
   id: string;
   course_id: string;
@@ -41,7 +57,7 @@ const GRADE_STYLE: Record<string, string> = {
 
 function TraineeCertificates() {
   const [certificates, setCertificates] = useState<CertificateRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
@@ -53,7 +69,11 @@ function TraineeCertificates() {
         setLoading(true);
         setError(null);
 
-        // 1. Get current authenticated user
+        if (!supabase) {
+          if (isMounted) setLoading(false);
+          return;
+        }
+
         const {
           data: { user },
           error: authError,
@@ -64,7 +84,7 @@ function TraineeCertificates() {
           return;
         }
 
-        // 2. Query certificates table with related course information
+        // Selected 'code' instead of 'course_code' matching your database column
         const { data, error: fetchError } = await supabase
           .from("certificates")
           .select(`
@@ -77,7 +97,7 @@ function TraineeCertificates() {
             status,
             courses (
               title,
-              course_code
+              code
             )
           `)
           .eq("trainee_id", user.id)
@@ -93,8 +113,8 @@ function TraineeCertificates() {
         }
 
         if (isMounted && data) {
-          // Format query results
-          const formattedCertificates: CertificateRow[] = data.map((row: any) => {
+          const rawData = data as unknown as RawCertificateData[];
+          const formattedCertificates: CertificateRow[] = rawData.map((row) => {
             const courseInfo = Array.isArray(row.courses) ? row.courses[0] : row.courses;
             return {
               id: row.id,
@@ -105,15 +125,16 @@ function TraineeCertificates() {
               certificate_path: row.certificate_path,
               status: row.status,
               course_title: courseInfo?.title ?? "Course Certificate",
-              course_code: courseInfo?.course_code ?? "",
+              course_code: courseInfo?.code ?? "",
             };
           });
 
           setCertificates(formattedCertificates);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
-          setError(err?.message || "An unexpected error occurred.");
+          const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+          setError(message);
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -128,11 +149,10 @@ function TraineeCertificates() {
   }, []);
 
   const handleDownload = async (cert: CertificateRow) => {
-    if (!cert.certificate_path) return;
+    if (!cert.certificate_path || !supabase) return;
     setDownloadingId(cert.id);
 
     try {
-      // Get signed temporary download URL from Supabase Storage bucket
       const { data, error: downloadError } = await supabase.storage
         .from("certificates")
         .createSignedUrl(cert.certificate_path, 300);
@@ -143,7 +163,7 @@ function TraineeCertificates() {
       }
 
       window.open(data.signedUrl, "_blank");
-    } catch (err: any) {
+    } catch {
       setError("Failed to download certificate.");
     } finally {
       setDownloadingId(null);
@@ -210,7 +230,7 @@ function TraineeCertificates() {
         </Card>
       </div>
 
-      {/* Dynamic Content */}
+      {/* Content grid */}
       {loading ? (
         <div className="flex h-32 items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="size-5 animate-spin text-primary" />
