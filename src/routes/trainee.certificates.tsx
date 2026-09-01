@@ -38,7 +38,7 @@ const GRADE_STYLE: Record<string, string> = {
   B: "border-warning/40 bg-warning/10 text-warning",
 };
 
-// Mock data set to empty array to remove all certificates from the dashboard
+// Set to empty array to ensure no certificates display on the dashboard
 const MOCK_CERTIFICATES: CertificateRow[] = [];
 
 function TraineeCertificates() {
@@ -53,30 +53,19 @@ function TraineeCertificates() {
     }, 1000);
   };
 
-  const handleClearAll = () => {
-    setCertificates([]);
-  };
-
   const totalHours = certificates.reduce((acc, c) => acc + (c.hours ?? 0), 0);
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-3">
-          <Badge variant="secondary" className="rounded-full uppercase tracking-widest">
-            Recognition
-          </Badge>
-          <h1 className="font-display text-3xl font-bold md:text-4xl">Your Certificates</h1>
-          <p className="max-w-2xl text-muted-foreground">
-            Verified certificates issued on completion, linked to your service record and
-            recognised across departments under the Capacity Building Commission.
-          </p>
-        </div>
-        {certificates.length > 0 && (
-          <Button variant="outline" size="sm" onClick={handleClearAll} className="rounded-full">
-            Clear All
-          </Button>
-        )}
+      <header className="space-y-3">
+        <Badge variant="secondary" className="rounded-full uppercase tracking-widest">
+          Recognition
+        </Badge>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">Your Certificates</h1>
+        <p className="max-w-2xl text-muted-foreground">
+          Verified certificates issued on completion, linked to your service record and
+          recognised across departments under the Capacity Building Commission.
+        </p>
       </header>
 
       {/* Stat strip */}
@@ -127,7 +116,6 @@ function TraineeCertificates() {
               className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
               style={{ animationDelay: `${index * 60}ms` }}
             >
-              {/* Certificate header */}
               <div className="relative flex items-center justify-between bg-gradient-to-br from-navy to-[#123368] p-5">
                 <div className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20">
                   <Award className="size-5" />
