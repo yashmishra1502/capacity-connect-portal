@@ -36,7 +36,6 @@ function TraineeSettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  const [userId, setUserId] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -64,10 +63,9 @@ function TraineeSettingsPage() {
         }
 
         if (isMounted) {
-          setUserId(user.id);
           setEmail(user.email ?? "");
 
-          // Read database table profile row
+          // 1. Check custom database table
           const { data: profileRow } = await supabase
             .from("profiles")
             .select("full_name, name, avatar_url")
@@ -79,7 +77,7 @@ function TraineeSettingsPage() {
           setAvatarUrl(profileRow?.avatar_url || meta.avatar_url || "");
         }
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error("Error loading user data:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -91,7 +89,7 @@ function TraineeSettingsPage() {
     };
   }, []);
 
-  // Handle Profile Update
+  // Handle Profile Details Update
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
@@ -101,10 +99,10 @@ function TraineeSettingsPage() {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        throw new Error("User session expired. Please log in again.");
+        throw new Error("Active user session not found. Try logging out and in again.");
       }
 
-      // 1. Update Auth user metadata
+      // Update metadata in Supabase Auth
       const { error: authUpdateError } = await supabase.auth.updateUser({
         data: {
           full_name: fullName,
@@ -115,27 +113,29 @@ function TraineeSettingsPage() {
 
       if (authUpdateError) throw authUpdateError;
 
-      // 2. Upsert into database profiles table
+      // Upsert into Supabase database table
       const { error: dbError } = await supabase
         .from("profiles")
-        .upsert({
-          id: user.id,
-          full_name: fullName,
-          name: fullName,
-          avatar_url: avatarUrl,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(
+          {
+            id: user.id,
+            full_name: fullName,
+            name: fullName,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        );
 
-      if (dbError) {
-        console.warn("Database sync warning:", dbError.message);
-      }
+      if (dbError) throw dbError;
 
-      // 3. Force session refresh to apply new user_metadata across the app
+      // Force session refresh to ensure updated metadata state propagates through TanStack Router
       await supabase.auth.refreshSession();
 
-      setProfileMessage({ type: "success", text: "Profile details updated successfully!" });
+      setProfileMessage({ type: "success", text: "Profile updated successfully!" });
     } catch (err: any) {
-      setProfileMessage({ type: "error", text: err.message || "Failed to update profile." });
+      console.error("Update profile error:", err);
+      setProfileMessage({ type: "error", text: err.message || "Could not update profile details." });
     } finally {
       setSavingProfile(false);
     }
@@ -146,7 +146,7 @@ function TraineeSettingsPage() {
     e.preventDefault();
     setPasswordMessage(null);
 
-    if (newPassword.length < 6) {
+    if (!newPassword || newPassword.length < 6) {
       setPasswordMessage({ type: "error", text: "Password must be at least 6 characters long." });
       return;
     }
@@ -164,13 +164,14 @@ function TraineeSettingsPage() {
       });
 
       if (error) {
-        setPasswordMessage({ type: "error", text: error.message });
-      } else {
-        setPasswordMessage({ type: "success", text: "Password changed successfully!" });
-        setNewPassword("");
-        setConfirmPassword("");
+        throw error;
       }
+
+      setPasswordMessage({ type: "success", text: "Password changed successfully!" });
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (err: any) {
+      console.error("Update password error:", err);
       setPasswordMessage({ type: "error", text: err.message || "Failed to update password." });
     } finally {
       setSavingPassword(false);
@@ -244,9 +245,6 @@ function TraineeSettingsPage() {
                   disabled
                   className="h-11 rounded-xl bg-muted/50 cursor-not-allowed opacity-80"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Email address is managed by platform authentication.
-                </p>
               </div>
 
               <div className="space-y-2">
