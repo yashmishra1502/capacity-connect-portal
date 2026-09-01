@@ -23,7 +23,7 @@ export const Route = createFileRoute("/trainee/resources")({
       { title: "Learning Resources — Trainee · Capacity Connect" },
       {
         name: "description",
-        content: "Download handbooks, worksheets and session recordings linked to your courses.",
+        content: "Download handbooks, worksheets and session recordings linked to your modules.",
       },
     ],
   }),
@@ -37,7 +37,6 @@ type Resource = {
   title: string;
   type: string;
   size: string | null;
-  courseId: string | null;
   courseTitle: string | null;
   moduleId: string | null;
   moduleTitle: string | null;
@@ -87,6 +86,7 @@ function TraineeResources() {
       setLoading(true);
       setError(null);
 
+      // Join course_modules and its parent courses relation
       const { data, error: fetchError } = await supabase
         .from("resources")
         .select(
@@ -98,10 +98,13 @@ function TraineeResources() {
           uploaded_date,
           downloads,
           file_url,
-          course_id,
           course_module_id,
-          courses ( title ),
-          course_modules ( title )
+          course_modules (
+            title,
+            courses (
+              title
+            )
+          )
         `
         )
         .order("uploaded_date", { ascending: false });
@@ -112,19 +115,28 @@ function TraineeResources() {
         return;
       }
 
-      const mapped: Resource[] = (data ?? []).map((r: any) => ({
-        id: r.id,
-        title: r.title,
-        type: r.type ?? "File",
-        size: r.size,
-        courseId: r.course_id,
-        courseTitle: r.courses?.title ?? null,
-        moduleId: r.course_module_id,
-        moduleTitle: r.course_modules?.title ?? null,
-        uploadedDate: r.uploaded_date,
-        downloads: r.downloads ?? 0,
-        fileUrl: r.file_url,
-      }));
+      const mapped: Resource[] = (data ?? []).map((r: any) => {
+        const moduleData = Array.isArray(r.course_modules)
+          ? r.course_modules[0]
+          : r.course_modules;
+
+        const courseData = Array.isArray(moduleData?.courses)
+          ? moduleData?.courses[0]
+          : moduleData?.courses;
+
+        return {
+          id: r.id,
+          title: r.title,
+          type: r.type ?? "File",
+          size: r.size,
+          moduleId: r.course_module_id,
+          moduleTitle: moduleData?.title ?? null,
+          courseTitle: courseData?.title ?? null,
+          uploadedDate: r.uploaded_date,
+          downloads: r.downloads ?? 0,
+          fileUrl: r.file_url,
+        };
+      });
 
       setResources(mapped);
       setLoading(false);
@@ -149,12 +161,10 @@ function TraineeResources() {
   }, [query, typeFilter, resources]);
 
   const handleDownloadIncrement = async (id: string, currentDownloads: number) => {
-    // Update state locally first
     setResources((prev) =>
       prev.map((r) => (r.id === id ? { ...r, downloads: r.downloads + 1 } : r))
     );
 
-    // Sync count increment to Supabase
     await supabase
       .from("resources")
       .update({ downloads: currentDownloads + 1 })
@@ -170,7 +180,7 @@ function TraineeResources() {
         <h1 className="font-display text-3xl font-bold md:text-4xl">Learning Resources</h1>
         <p className="max-w-2xl text-muted-foreground">
           Handbooks, worksheets, datasets and session recordings uploaded by your trainers,
-          organised by course and module.
+          organised by module.
         </p>
       </header>
 
@@ -182,7 +192,7 @@ function TraineeResources() {
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search resources, courses…"
+              placeholder="Search resources, modules…"
               className="h-11 rounded-xl pl-9"
             />
           </div>
@@ -206,7 +216,7 @@ function TraineeResources() {
         </CardContent>
       </Card>
 
-      {/* Loading / error / list states */}
+      {/* Loading / error states */}
       {loading ? (
         <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
@@ -218,9 +228,12 @@ function TraineeResources() {
         </p>
       ) : (
         <>
+          {/* Resource grid */}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((resource, index) => {
               const Icon = TYPE_ICON[resource.type] ?? File;
+              const hasParentInfo = Boolean(resource.courseTitle || resource.moduleTitle);
+
               return (
                 <Card
                   key={resource.id}
@@ -246,10 +259,11 @@ function TraineeResources() {
                       <h2 className="font-display text-sm font-bold leading-snug md:text-base">
                         {resource.title}
                       </h2>
-                      {(resource.courseTitle || resource.moduleTitle) && (
+                      {hasParentInfo && (
                         <p className="text-xs text-muted-foreground">
                           {resource.courseTitle}
-                          {resource.moduleTitle ? ` · ${resource.moduleTitle}` : ""}
+                          {resource.courseTitle && resource.moduleTitle ? " · " : ""}
+                          {resource.moduleTitle}
                         </p>
                       )}
                     </div>
