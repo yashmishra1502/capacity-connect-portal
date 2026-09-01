@@ -450,15 +450,23 @@
   position: relative;
   border-radius: 28px;
   overflow: hidden;
-  background: linear-gradient(160deg, #0b1e3d 0%, #10284f 55%, #123368 100%);
-  padding: 2px;
+  background: linear-gradient(160deg, #1e6fff 0%, #0b1e3d 60%, #123368 100%);
+  padding: 1.5px;
+  max-width: 760px;
+  box-shadow: 0 40px 90px -30px rgba(11, 30, 61, 0.45);
 }
 .ccl .hero-visual-inner {
-  border-radius: 26px;
-  background: linear-gradient(160deg, #0b1e3d 0%, #0e2547 100%);
-  padding: 28px 28px 0;
+  border-radius: 27px;
+  background: linear-gradient(165deg, #0d1f3f 0%, #0a1830 60%, #081428 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 24px 24px 0;
   overflow: hidden;
   position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ccl .hero-visual-inner:hover {
+  transform: translateY(-4px);
 }
 .ccl .browser-dots {
   display: flex;
@@ -522,8 +530,12 @@
 }
 .ccl .mock-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  padding-bottom: 24px;
+}
+.ccl .mock-cards .mock-card:nth-child(4) {
+  grid-column: 1 / -1;
 }
 @media (max-width: 640px) {
   .ccl .mock-cards {
@@ -531,10 +543,15 @@
   }
 }
 .ccl .mock-card {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.045);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  padding: 16px;
+  padding: 16px 18px;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.ccl .mock-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.07);
 }
 .ccl .mock-card .num {
   color: #fff;
@@ -559,6 +576,7 @@
   height: 100%;
   background: linear-gradient(90deg, var(--sky), var(--blue));
   border-radius: 99px;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- social proof ---------- */
