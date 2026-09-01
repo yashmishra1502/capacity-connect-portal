@@ -8,6 +8,15 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainee/certificates")({
+  head: () => ({
+    meta: [
+      { title: "Certificates — Trainee · Capacity Connect" },
+      {
+        name: "description",
+        content: "View and download your verified certificates linked to your service record.",
+      },
+    ],
+  }),
   component: TraineeCertificates,
 });
 
@@ -39,25 +48,41 @@ function TraineeCertificates() {
   useEffect(() => {
     let isMounted = true;
 
-    const loadCertificates = async () => {
+    const fetchCertificates = async () => {
       try {
-        if (!supabase) {
+        setLoading(true);
+        setError(null);
+
+        // 1. Get current authenticated user
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
+
+        if (authError || !user) {
           if (isMounted) setLoading(false);
           return;
         }
 
-        const { data: authData, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !authData?.user) {
-          if (isMounted) setLoading(false);
-          return;
-        }
-
+        // 2. Query certificates table with related course information
         const { data, error: fetchError } = await supabase
           .from("certificates")
-          .select("id, course_id, issued_date, grade, hours, certificate_path, status, courses(title, course_code)")
-          .eq("trainee_id", authData.user.id)
-          .eq("status", "issued");
+          .select(`
+            id,
+            course_id,
+            issued_date,
+            grade,
+            hours,
+            certificate_path,
+            status,
+            courses (
+              title,
+              course_code
+            )
+          `)
+          .eq("trainee_id", user.id)
+          .eq("status", "issued")
+          .order("issued_date", { ascending: false });
 
         if (fetchError) {
           if (isMounted) {
@@ -67,34 +92,35 @@ function TraineeCertificates() {
           return;
         }
 
-        if (isMounted) {
-          const rows: CertificateRow[] = (data || []).map((row: any) => {
-            const courseData = Array.isArray(row.courses) ? row.courses[0] : row.courses;
+        if (isMounted && data) {
+          // Format query results
+          const formattedCertificates: CertificateRow[] = data.map((row: any) => {
+            const courseInfo = Array.isArray(row.courses) ? row.courses[0] : row.courses;
             return {
-              id: row.id ?? "",
-              course_id: row.course_id ?? "",
-              issued_date: row.issued_date ?? new Date().toISOString(),
-              grade: row.grade ?? null,
+              id: row.id,
+              course_id: row.course_id,
+              issued_date: row.issued_date,
+              grade: row.grade,
               hours: row.hours ?? 0,
-              certificate_path: row.certificate_path ?? null,
-              status: row.status ?? "issued",
-              course_title: courseData?.title ?? "Course Certificate",
-              course_code: courseData?.course_code ?? "",
+              certificate_path: row.certificate_path,
+              status: row.status,
+              course_title: courseInfo?.title ?? "Course Certificate",
+              course_code: courseInfo?.course_code ?? "",
             };
           });
 
-          setCertificates(rows);
+          setCertificates(formattedCertificates);
         }
       } catch (err: any) {
         if (isMounted) {
-          setError(err?.message || "Failed to load certificates.");
+          setError(err?.message || "An unexpected error occurred.");
         }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    loadCertificates();
+    fetchCertificates();
 
     return () => {
       isMounted = false;
@@ -102,16 +128,17 @@ function TraineeCertificates() {
   }, []);
 
   const handleDownload = async (cert: CertificateRow) => {
-    if (!cert.certificate_path || !supabase) return;
+    if (!cert.certificate_path) return;
     setDownloadingId(cert.id);
 
     try {
-      const { data, error: signError } = await supabase.storage
+      // Get signed temporary download URL from Supabase Storage bucket
+      const { data, error: downloadError } = await supabase.storage
         .from("certificates")
         .createSignedUrl(cert.certificate_path, 300);
 
-      if (signError || !data?.signedUrl) {
-        setError(signError?.message ?? "Could not generate download link.");
+      if (downloadError || !data?.signedUrl) {
+        setError(downloadError?.message ?? "Unable to generate download link.");
         return;
       }
 
@@ -138,7 +165,11 @@ function TraineeCertificates() {
         </p>
       </header>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       {/* Stat strip */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -179,7 +210,7 @@ function TraineeCertificates() {
         </Card>
       </div>
 
-      {/* Content area */}
+      {/* Dynamic Content */}
       {loading ? (
         <div className="flex h-32 items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="size-5 animate-spin text-primary" />
@@ -187,10 +218,11 @@ function TraineeCertificates() {
         </div>
       ) : certificates.length > 0 ? (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {certificates.map((cert) => (
+          {certificates.map((cert, index) => (
             <Card
               key={cert.id}
-              className="cc-glow-card overflow-hidden border-border/70 bg-card/70 backdrop-blur"
+              className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300 hover:shadow-lg"
+              style={{ animationDelay: `${index * 60}ms` }}
             >
               <div className="relative flex items-center justify-between bg-gradient-to-br from-navy to-[#123368] p-5">
                 <div className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20">
@@ -207,7 +239,7 @@ function TraineeCertificates() {
                 <div className="space-y-1">
                   <h2 className="font-display text-base font-bold leading-snug">{cert.course_title}</h2>
                   <p className="text-xs text-muted-foreground">
-                    {cert.course_code} · {cert.id.slice(0, 8)}
+                    {cert.course_code ? `${cert.course_code} · ` : ""}{cert.id.slice(0, 8)}
                   </p>
                 </div>
 
