@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, MessageSquareText, Send, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { courses } from "@/lib/mock-data";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/trainee/feedback")({
   head: () => ({
@@ -20,39 +20,85 @@ export const Route = createFileRoute("/trainee/feedback")({
   component: TraineeFeedback,
 });
 
-interface SubmittedFeedback {
+interface CourseRow {
   id: string;
-  courseId: string;
+  code: string;
+  title: string;
+}
+
+interface FeedbackRow {
+  id: string;
+  course_id: string;
   rating: number;
   comment: string;
   date: string;
 }
 
 function TraineeFeedback() {
-  // Only courses the trainee has actually started/enrolled in make sense
-  // to leave feedback on.
-  const eligibleCourses = courses.filter((c) => c.status !== "Not Started");
-
-  const [courseId, setCourseId] = useState(eligibleCourses[0]?.id ?? "");
+  const [courses, setCourses] = useState<CourseRow[]>([]);
+  const [courseId, setCourseId] = useState("");
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [submitted, setSubmitted] = useState<SubmittedFeedback[]>([]);
+  const [submitted, setSubmitted] = useState<FeedbackRow[]>([]);
   const [justSubmitted, setJustSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load current user + courses + this trainee's existing feedback
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+
+      const { data: courseData } = await supabase
+        .from("courses")
+        .select("id, code, title")
+        .order("code");
+      if (courseData) {
+        setCourses(courseData);
+        setCourseId(courseData[0]?.id ?? "");
+      }
+
+      const { data: feedbackData } = await supabase
+        .from("feedback")
+        .select("id, course_id, rating, comment, date")
+        .eq("trainee_id", user.id)
+        .order("date", { ascending: false });
+      if (feedbackData) setSubmitted(feedbackData);
+    };
+    init();
+  }, []);
 
   const selectedCourse = courses.find((c) => c.id === courseId);
-  const canSubmit = courseId && rating > 0 && comment.trim().length > 0;
+  const canSubmit = courseId && rating > 0 && comment.trim().length > 0 && !!userId;
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-    const entry: SubmittedFeedback = {
-      id: `local-${Date.now()}`,
-      courseId,
-      rating,
-      comment: comment.trim(),
-      date: new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
-    };
-    setSubmitted((prev) => [entry, ...prev]);
+  const handleSubmit = async () => {
+    if (!canSubmit || !userId) return;
+    setLoading(true);
+    setError(null);
+
+    const { data, error: insertError } = await supabase
+      .from("feedback")
+      .insert({
+        trainee_id: userId,
+        course_id: courseId,
+        rating,
+        comment: comment.trim(),
+      })
+      .select("id, course_id, rating, comment, date")
+      .single();
+
+    setLoading(false);
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+
+    if (data) setSubmitted((prev) => [data, ...prev]);
     setRating(0);
     setComment("");
     setJustSubmitted(true);
@@ -81,7 +127,7 @@ function TraineeFeedback() {
                 Course
               </label>
               <div className="flex flex-wrap gap-2">
-                {eligibleCourses.map((c) => (
+                {courses.map((c) => (
                   <button
                     key={c.id}
                     type="button"
@@ -144,9 +190,11 @@ function TraineeFeedback() {
               />
             </div>
 
+            {error && <p className="text-xs text-destructive">{error}</p>}
+
             <Button
               onClick={handleSubmit}
-              disabled={!canSubmit}
+              disabled={!canSubmit || loading}
               className="cc-btn-glass w-full gap-1.5 rounded-full disabled:opacity-50"
             >
               {justSubmitted ? (
@@ -155,17 +203,17 @@ function TraineeFeedback() {
                 </>
               ) : (
                 <>
-                  <Send className="size-3.5" /> Submit feedback
+                  <Send className="size-3.5" /> {loading ? "Submitting..." : "Submit feedback"}
                 </>
               )}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Recently submitted (session-local) */}
+        {/* Previously submitted */}
         <div className="space-y-3 lg:col-span-2">
           <h2 className="flex items-center gap-2 font-display text-sm font-bold text-muted-foreground">
-            <MessageSquareText className="size-4" /> Submitted this session
+            <MessageSquareText className="size-4" /> Your feedback
           </h2>
           {submitted.length === 0 && (
             <Card className="border-dashed border-border/70 bg-transparent">
@@ -175,7 +223,7 @@ function TraineeFeedback() {
             </Card>
           )}
           {submitted.map((entry) => {
-            const course = courses.find((c) => c.id === entry.courseId);
+            const course = courses.find((c) => c.id === entry.course_id);
             return (
               <Card key={entry.id} className="cc-page-in border-border/70 bg-card/70 backdrop-blur">
                 <CardContent className="space-y-2 p-4">
