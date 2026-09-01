@@ -554,7 +554,9 @@ function ResultsScreen({
                   <p className="mt-2 text-xs text-muted-foreground">
                     Your answer:{" "}
                     <span className={correct ? "text-success" : "text-destructive"}>
-                      {userAnswer !== null ? q.options[userAnswer] : "Not answered"}
+                      {userAnswer !== null && userAnswer !== undefined
+                        ? q.options[userAnswer]
+                        : "Not answered"}
                     </span>
                   </p>
                   {!correct && (
