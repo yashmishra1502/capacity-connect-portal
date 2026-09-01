@@ -197,7 +197,7 @@ function LogosPanel() {
     const target = index + dir;
     if (target < 0 || target >= logos.length) return;
     const next = [...logos];
-    [next[index], next[target]] = [next[target], next[index]];
+    [next[index], next[target]] = [next[target]!, next[index]!];
     setLogos(next);
     try {
       await reorderLogos(next.map((l, i) => ({ id: l.id, display_order: i })));
@@ -352,7 +352,7 @@ function LogosPanel() {
                     type="file"
                     accept="image/png,image/jpeg,image/svg+xml,image/webp"
                     style={{ display: "none" }}
-                    ref={(el) => (replaceInputRef.current[logo.id] = el)}
+                    ref={(el) => { replaceInputRef.current[logo.id] = el; }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleReplaceImage(logo, f);
@@ -482,7 +482,7 @@ function FeatureCardsPanel() {
     const target = index + dir;
     if (target < 0 || target >= cards.length) return;
     const next = [...cards];
-    [next[index], next[target]] = [next[target], next[index]];
+    [next[index], next[target]] = [next[target]!, next[index]!];
     setCards(next);
     try {
       await reorderFeatureCards(next.map((c, i) => ({ id: c.id, display_order: i })));
@@ -673,7 +673,7 @@ function FeatureCardsPanel() {
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     style={{ display: "none" }}
-                    ref={(el) => (replaceInputRef.current[card.id] = el)}
+                    ref={(el) => { replaceInputRef.current[card.id] = el; }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleReplaceImage(card, f);

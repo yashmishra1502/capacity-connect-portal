@@ -56,19 +56,21 @@ function TrainerDashboard() {
 
   // Real-Time Notifications Subscription
   useEffect(() => {
-    if (!session?.user?.id) return;
+    const userId = session?.user?.id;
+    if (!userId) return;
 
     async function fetchNotifications() {
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       if (!error && data) {
         setNotifications(data);
       }
     }
+
 
     fetchNotifications();
 
@@ -80,7 +82,7 @@ function TrainerDashboard() {
           event: "INSERT",
           schema: "public",
           table: "notifications",
-          filter: `user_id=eq.${session.user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           setNotifications((prev) => [payload.new as Notification, ...prev]);

@@ -48,7 +48,7 @@ export interface Course {
 function getPlaylistId(url?: string): string {
   if (!url) return "PLlw9qxNtFom0IBuCE9bU0BWQ-pl-eA9Z-";
   const match = url.match(/[?&]list=([^&]+)/);
-  return match ? match[1] : url;
+  return match?.[1] ?? url;
 }
 
 // Default course fallback when Supabase table has no records

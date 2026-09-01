@@ -273,7 +273,7 @@ function QuizRunner({
     const bank = quizQuestions;
     if (bank.length === 0) return [];
     const count = Math.min(assessment.questions || bank.length, 12);
-    return Array.from({ length: count }, (_, i) => bank[i % bank.length]);
+    return Array.from({ length: count }, (_, i) => bank[i % bank.length]!);
   }, [assessment.questions]);
 
   const totalSeconds = questions.length * 60;
@@ -450,7 +450,7 @@ function ResultsScreen({
     const bank = quizQuestions;
     if (bank.length === 0) return [];
     const count = Math.min(assessment.questions || bank.length, 12);
-    return Array.from({ length: count }, (_, i) => bank[i % bank.length]);
+    return Array.from({ length: count }, (_, i) => bank[i % bank.length]!);
   }, [assessment.questions]);
 
   const correctCount = questions.reduce(
@@ -554,7 +554,9 @@ function ResultsScreen({
                   <p className="mt-2 text-xs text-muted-foreground">
                     Your answer:{" "}
                     <span className={correct ? "text-success" : "text-destructive"}>
-                      {userAnswer !== null ? q.options[userAnswer] : "Not answered"}
+                      {userAnswer !== null && userAnswer !== undefined
+                        ? q.options[userAnswer]
+                        : "Not answered"}
                     </span>
                   </p>
                   {!correct && (

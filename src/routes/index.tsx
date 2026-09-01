@@ -24,6 +24,8 @@ import {
   LayoutDashboard,
   Moon,
   Sun,
+  Menu,
+  X,
 } from "lucide-react";
 import "../landing.css";
 import heroImg from "@/assets/hero-capitol.jpg";
@@ -51,6 +53,7 @@ export const Route = createFileRoute("/")({
         content: "Role-based learning management for government capacity building programmes.",
       },
     ],
+    links: [{ rel: "preload", as: "image", href: heroImg, fetchpriority: "high" }],
   }),
   component: Landing,
 });
@@ -337,23 +340,15 @@ function Landing() {
   useParallax();
   const navigate = useNavigate();
   const { session, profile, loading } = useAuth();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   // Hero background ref, used to trigger a brief glitch pulse each time
   // the rotating tagline below the hero copy finishes a cycle.
   const heroBgRef = React.useRef<HTMLDivElement>(null);
-  const triggerHeroGlitch = React.useCallback(() => {
-    const el = heroBgRef.current;
-    if (!el) return;
-    el.classList.remove("hero-bg-glitch");
-    // force reflow so the animation can be restarted immediately
-    void el.offsetWidth;
-    el.classList.add("hero-bg-glitch");
-  }, []);
   const { text: typedText, visible: typedVisible } = useCyclingReveal(
     TYPED_PHRASES,
-    2200,
-    550,
-    triggerHeroGlitch
+    2600,
+    550
   );
 
   const userRole = profile?.role || "trainee";
@@ -429,25 +424,73 @@ function Landing() {
             <CclThemeToggle />
             {loading ? null : session && profile ? (
               <>
-                <button className="btn btn-primary" onClick={() => navigate({ to: dashboardPath })}>
+                <button
+                  className="btn btn-primary nav-desktop-only"
+                  onClick={() => navigate({ to: dashboardPath })}
+                >
                   Dashboard
                 </button>
                 <NavUserMenu profile={profile} />
               </>
             ) : (
               <>
-                <Link to="/admin-login" className="btn-ghost" style={{ display: "none" }} />
-                <a href="/admin-login" className="btn-ghost">
+                <a href="/admin-login" className="btn-ghost nav-desktop-only">
                   Admin Login
                 </a>
-                <Link to="/login" className="btn btn-primary">
+                <Link to="/login" className="btn btn-primary nav-desktop-only">
                   Sign in <ArrowRight size={15} />
                 </Link>
               </>
             )}
+            <button
+              className="theme-btn nav-burger"
+              aria-label="Open menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              {menuOpen ? <X size={16} /> : <Menu size={16} />}
+            </button>
           </div>
         </nav>
+
+        {menuOpen && (
+          <div className="nav-mobile-panel">
+            <a href="#top" onClick={() => setMenuOpen(false)}>
+              Home
+            </a>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>
+              About
+            </Link>
+            <a href="#how-it-works" onClick={() => setMenuOpen(false)}>
+              How it works
+            </a>
+            <Link to="/contact" onClick={() => setMenuOpen(false)}>
+              Contact
+            </Link>
+            <div className="nav-mobile-actions">
+              {session && profile ? (
+                <Link
+                  to={dashboardPath}
+                  className="btn btn-primary"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <a href="/admin-login" className="btn-ghost">
+                    Admin Login
+                  </a>
+                  <Link to="/login" className="btn btn-primary" onClick={() => setMenuOpen(false)}>
+                    Sign in <ArrowRight size={15} />
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
+
 
            {/* ---------- HERO ---------- */}
       <section className="hero" id="top" style={{ position: "relative", overflow: "hidden" }}>
@@ -600,12 +643,7 @@ function Landing() {
       <section style={{ paddingTop: 64, paddingBottom: 64 }}>
         <div className="wrap">
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 32,
-            }}
-            className="reveal"
+            className="trust-grid reveal"
             data-reveal
           >
             {trustStrip.map((s) => (
