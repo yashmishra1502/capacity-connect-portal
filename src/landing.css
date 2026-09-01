@@ -450,23 +450,34 @@
   position: relative;
   border-radius: 28px;
   overflow: hidden;
-  background: linear-gradient(160deg, #1e6fff 0%, #0b1e3d 60%, #123368 100%);
+  background: linear-gradient(160deg, #5fa8ff 0%, #1e6fff 35%, #0b1e3d 75%, #123368 100%);
   padding: 1.5px;
   max-width: 760px;
-  box-shadow: 0 40px 90px -30px rgba(11, 30, 61, 0.45);
+  box-shadow: 0 50px 110px -30px rgba(11, 30, 61, 0.55), 0 0 60px -20px rgba(30, 111, 255, 0.35);
+}
+.ccl .hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 90% at 20% 0%, rgba(95, 168, 255, 0.5), transparent 60%);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
 }
 .ccl .hero-visual-inner {
   border-radius: 27px;
-  background: linear-gradient(165deg, #0d1f3f 0%, #0a1830 60%, #081428 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 24px 24px 0;
+  background: linear-gradient(165deg, #0f2547 0%, #0b1c38 55%, #081428 100%);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  padding: 26px 26px 0;
   overflow: hidden;
   position: relative;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
 }
 .ccl .hero-visual-inner:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
 }
 .ccl .browser-dots {
   display: flex;
@@ -509,9 +520,10 @@
   margin-bottom: 4px;
 }
 .ccl .mock-sidebar .item.active {
-  background: rgba(30, 111, 255, 0.18);
+  background: linear-gradient(90deg, rgba(30, 111, 255, 0.3), rgba(30, 111, 255, 0.1));
   color: #fff;
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(95, 168, 255, 0.35), 0 4px 14px -6px rgba(30, 111, 255, 0.5);
 }
 .ccl .mock-main {
   padding: 24px 26px 0;
@@ -543,26 +555,33 @@
   }
 }
 .ccl .mock-card {
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 16px 18px;
-  transition: transform 0.25s ease, background 0.25s ease;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 18px 20px;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.28s ease,
+    border-color 0.28s ease, box-shadow 0.28s ease;
 }
 .ccl .mock-card:hover {
-  transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-4px);
+  background: linear-gradient(160deg, rgba(95, 168, 255, 0.16), rgba(255, 255, 255, 0.03));
+  border-color: rgba(95, 168, 255, 0.4);
+  box-shadow: 0 16px 32px -14px rgba(30, 111, 255, 0.45);
 }
 .ccl .mock-card .num {
   color: #fff;
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.02em;
+  text-shadow: 0 0 24px rgba(95, 168, 255, 0.25);
 }
 .ccl .mock-card .lbl {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 11px;
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 10.5px;
+  font-weight: 600;
+  margin-top: 5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   font-family: var(--mono);
 }
 .ccl .mock-bar-track {
@@ -576,6 +595,7 @@
   height: 100%;
   background: linear-gradient(90deg, var(--sky), var(--blue));
   border-radius: 99px;
+  box-shadow: 0 0 10px 1px rgba(95, 168, 255, 0.55);
   transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
