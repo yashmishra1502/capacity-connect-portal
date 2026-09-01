@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Award,
   BarChart3,
   CheckCircle2,
   ChevronDown,
+  Loader2,
   RotateCcw,
   Search,
   Target,
@@ -15,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { results } from "@/lib/mock-data";
+import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainee/results")({
   head: () => ({
@@ -29,6 +30,18 @@ export const Route = createFileRoute("/trainee/results")({
   }),
   component: TraineeResults,
 });
+
+/* ---------------- types ---------------- */
+
+type Result = {
+  id: string;
+  assessment: string;
+  course: string;
+  score: number;
+  total: number;
+  status: "Passed" | "Reattempt" | string;
+  date: string;
+};
 
 /* ---------------- helpers ---------------- */
 
@@ -49,25 +62,82 @@ function scoreColor(pct: number) {
   return "text-destructive";
 }
 
+function formatDate(value: string) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 /* ---------------- page ---------------- */
 
 function TraineeResults() {
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchResults = async () => {
+      setLoading(true);
+      setError(null);
+
+      // Get logged-in user to fetch user-specific results
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      let queryBuilder = supabase
+        .from("results")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (user) {
+        queryBuilder = queryBuilder.eq("user_id", user.id);
+      }
+
+      const { data, error: fetchError } = await queryBuilder;
+
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        const mapped: Result[] = (data ?? []).map((item: any) => ({
+          id: item.id,
+          assessment: item.assessment_title ?? item.assessment ?? "Untitled Assessment",
+          course: item.course_title ?? item.course ?? "General",
+          score: item.score ?? 0,
+          total: item.total_score ?? item.total ?? 100,
+          status: item.status ?? (item.score >= 60 ? "Passed" : "Reattempt"),
+          date: item.created_at ? formatDate(item.created_at) : formatDate(item.date),
+        }));
+
+        setResults(mapped);
+      }
+
+      setLoading(false);
+    };
+
+    fetchResults();
+  }, []);
+
   const statuses = useMemo(
     () => ["All", ...Array.from(new Set(results.map((r) => r.status)))],
-    [],
+    [results]
   );
 
   const stats = useMemo(() => {
     const total = results.length;
     const passed = results.filter((r) => r.status === "Passed").length;
-    const avgScore = total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
+    const avgScore =
+      total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
     const best = total > 0 ? Math.max(...results.map((r) => r.score)) : 0;
     return { total, passed, avgScore, best };
-  }, []);
+  }, [results]);
 
   const visible = useMemo(() => {
     return results
@@ -75,9 +145,8 @@ function TraineeResults() {
       .filter((r) => {
         const haystack = `${r.assessment} ${r.course}`.toLowerCase();
         return haystack.includes(query.toLowerCase());
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [query, statusFilter]);
+      });
+  }, [query, statusFilter, results]);
 
   return (
     <div className="space-y-8">
@@ -122,7 +191,7 @@ function TraineeResults() {
                   "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-300",
                   statusFilter === item
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border/70 text-muted-foreground hover:-translate-y-0.5 hover:text-foreground",
+                    : "border-border/70 text-muted-foreground hover:-translate-y-0.5 hover:text-foreground"
                 )}
               >
                 {item}
@@ -132,100 +201,112 @@ function TraineeResults() {
         </CardContent>
       </Card>
 
-      {/* Results list */}
-      <div className="space-y-3">
-        {visible.map((result, index) => {
-          const isOpen = expanded === result.id;
-          return (
-            <Card
-              key={result.id}
-              className="cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <button
-                type="button"
-                onClick={() => setExpanded(isOpen ? null : result.id)}
-                className="flex w-full items-center gap-4 p-5 text-left"
+      {/* Loading & Error States */}
+      {loading ? (
+        <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          Loading assessment results...
+        </div>
+      ) : error ? (
+        <p className="rounded-xl border border-dashed border-destructive/50 p-10 text-center text-sm text-destructive">
+          {error}
+        </p>
+      ) : (
+        /* Results list */
+        <div className="space-y-3">
+          {visible.map((result, index) => {
+            const isOpen = expanded === result.id;
+            return (
+              <Card
+                key={result.id}
+                className="cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div
-                  className={cn(
-                    "flex size-11 shrink-0 items-center justify-center rounded-xl border text-sm font-bold",
-                    statusStyle(result.status),
-                  )}
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isOpen ? null : result.id)}
+                  className="flex w-full items-center gap-4 p-5 text-left"
                 >
-                  {result.status === "Passed" ? <Award className="size-5" /> : <Target className="size-5" />}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-sm font-bold md:text-base">
-                    {result.assessment}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {result.course} · {result.date}
-                  </p>
-                </div>
-
-                <div className="hidden shrink-0 items-center gap-4 sm:flex">
-                  <Badge className={cn("rounded-full border uppercase tracking-wide", statusStyle(result.status))}>
-                    {result.status}
-                  </Badge>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className={cn("font-display text-lg font-bold tabular-nums", scoreColor(result.score))}>
-                    {result.score}
-                    <span className="text-xs font-medium text-muted-foreground">/{result.total}</span>
-                  </span>
-                  <ChevronDown
+                  <div
                     className={cn(
-                      "size-4 shrink-0 text-muted-foreground transition-transform duration-300",
-                      isOpen && "rotate-180",
+                      "flex size-11 shrink-0 items-center justify-center rounded-xl border text-sm font-bold",
+                      statusStyle(result.status)
                     )}
-                  />
-                </div>
-              </button>
+                  >
+                    {result.status === "Passed" ? <Award className="size-5" /> : <Target className="size-5" />}
+                  </div>
 
-              {isOpen && (
-                <div className="border-t border-border/70 px-5 pb-5 pt-4">
-                  <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground sm:hidden">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display text-sm font-bold md:text-base">
+                      {result.assessment}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {result.course} · {result.date}
+                    </p>
+                  </div>
+
+                  <div className="hidden shrink-0 items-center gap-4 sm:flex">
                     <Badge className={cn("rounded-full border uppercase tracking-wide", statusStyle(result.status))}>
                       {result.status}
                     </Badge>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Score breakdown</span>
-                      <span>{result.score}%</span>
-                    </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-700 ease-out",
-                          result.score >= 80
-                            ? "bg-success"
-                            : result.score >= 60
-                              ? "bg-warning"
-                              : "bg-destructive",
-                        )}
-                        style={{ width: `${result.score}%` }}
-                      />
-                    </div>
+
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className={cn("font-display text-lg font-bold tabular-nums", scoreColor(result.score))}>
+                      {result.score}
+                      <span className="text-xs font-medium text-muted-foreground">/{result.total}</span>
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "size-4 shrink-0 text-muted-foreground transition-transform duration-300",
+                        isOpen && "rotate-180"
+                      )}
+                    />
                   </div>
+                </button>
 
-                  {result.status === "Reattempt" && (
-                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
-                      <RotateCcw className="size-3.5 shrink-0" />
-                      Score fell below the pass mark. Head to Assessments to reattempt this test.
+                {isOpen && (
+                  <div className="border-t border-border/70 px-5 pb-5 pt-4">
+                    <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground sm:hidden">
+                      <Badge className={cn("rounded-full border uppercase tracking-wide", statusStyle(result.status))}>
+                        {result.status}
+                      </Badge>
                     </div>
-                  )}
-                </div>
-              )}
-            </Card>
-          );
-        })}
-      </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Score breakdown</span>
+                        <span>{result.score}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all duration-700 ease-out",
+                            result.score >= 80
+                              ? "bg-success"
+                              : result.score >= 60
+                              ? "bg-warning"
+                              : "bg-destructive"
+                          )}
+                          style={{ width: `${result.score}%` }}
+                        />
+                      </div>
+                    </div>
 
-      {visible.length === 0 && (
+                    {result.status === "Reattempt" && (
+                      <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+                        <RotateCcw className="size-3.5 shrink-0" />
+                        Score fell below the pass mark. Head to Assessments to reattempt this test.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {!loading && !error && visible.length === 0 && (
         <p className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           No results match your search criteria.
         </p>
