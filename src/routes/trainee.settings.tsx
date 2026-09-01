@@ -31,8 +31,6 @@ export const Route = createFileRoute("/trainee/settings")({
   component: TraineeSettingsPage,
 });
 
-/* ---------------- page component ---------------- */
-
 function TraineeSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -56,21 +54,33 @@ function TraineeSettingsPage() {
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchUserData = async () => {
-      setLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        setLoading(true);
+        const { data, error } = await supabase.auth.getUser();
 
-      if (user) {
-        setEmail(user.email ?? "");
-        setFullName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "");
-        setAvatarUrl(user.user_metadata?.avatar_url ?? "");
+        if (error) {
+          console.error("Auth error:", error.message);
+          return;
+        }
+
+        if (data?.user && isMounted) {
+          setEmail(data.user.email ?? "");
+          setFullName(data.user.user_metadata?.full_name ?? data.user.user_metadata?.name ?? "");
+          setAvatarUrl(data.user.user_metadata?.avatar_url ?? "");
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching user:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchUserData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Handle Profile Update
@@ -79,19 +89,24 @@ function TraineeSettingsPage() {
     setSavingProfile(true);
     setProfileMessage(null);
 
-    const { error } = await supabase.auth.updateUser({
-      data: {
-        full_name: fullName,
-        avatar_url: avatarUrl,
-      },
-    });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: fullName,
+          avatar_url: avatarUrl,
+        },
+      });
 
-    if (error) {
-      setProfileMessage({ type: "error", text: error.message });
-    } else {
-      setProfileMessage({ type: "success", text: "Profile updated successfully!" });
+      if (error) {
+        setProfileMessage({ type: "error", text: error.message });
+      } else {
+        setProfileMessage({ type: "success", text: "Profile updated successfully!" });
+      }
+    } catch (err: any) {
+      setProfileMessage({ type: "error", text: err.message || "Failed to update profile." });
+    } finally {
+      setSavingProfile(false);
     }
-    setSavingProfile(false);
   };
 
   // Handle Password Update
@@ -111,18 +126,23 @@ function TraineeSettingsPage() {
 
     setSavingPassword(true);
 
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
 
-    if (error) {
-      setPasswordMessage({ type: "error", text: error.message });
-    } else {
-      setPasswordMessage({ type: "success", text: "Password changed successfully!" });
-      setNewPassword("");
-      setConfirmPassword("");
+      if (error) {
+        setPasswordMessage({ type: "error", text: error.message });
+      } else {
+        setPasswordMessage({ type: "success", text: "Password changed successfully!" });
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err: any) {
+      setPasswordMessage({ type: "error", text: err.message || "Failed to update password." });
+    } finally {
+      setSavingPassword(false);
     }
-    setSavingPassword(false);
   };
 
   if (loading) {
@@ -135,7 +155,7 @@ function TraineeSettingsPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-4xl mx-auto pb-10">
       <header className="space-y-3">
         <Badge variant="secondary" className="rounded-full uppercase tracking-widest">
           Account Preferences
@@ -162,12 +182,11 @@ function TraineeSettingsPage() {
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               {profileMessage && (
                 <div
-                  className={cn(
-                    "p-3 rounded-xl text-xs font-medium border",
+                  className={`p-3 rounded-xl text-xs font-medium border ${
                     profileMessage.type === "success"
-                      ? "border-success/30 bg-success/10 text-success"
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                       : "border-destructive/30 bg-destructive/10 text-destructive"
-                  )}
+                  }`}
                 >
                   {profileMessage.text}
                 </div>
@@ -194,7 +213,7 @@ function TraineeSettingsPage() {
                   className="h-11 rounded-xl bg-muted/50 cursor-not-allowed opacity-80"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Email address cannot be changed directly for security reasons.
+                  Email address cannot be changed directly.
                 </p>
               </div>
 
@@ -241,12 +260,11 @@ function TraineeSettingsPage() {
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               {passwordMessage && (
                 <div
-                  className={cn(
-                    "p-3 rounded-xl text-xs font-medium border",
+                  className={`p-3 rounded-xl text-xs font-medium border ${
                     passwordMessage.type === "success"
-                      ? "border-success/30 bg-success/10 text-success"
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                       : "border-destructive/30 bg-destructive/10 text-destructive"
-                  )}
+                  }`}
                 >
                   {passwordMessage.text}
                 </div>
@@ -299,7 +317,7 @@ function TraineeSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 3. Notifications Configuration */}
+        {/* 3. Notification Preferences */}
         <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -320,7 +338,7 @@ function TraineeSettingsPage() {
               </div>
               <Switch
                 checked={emailNotifications}
-                onCheckedChange={setEmailNotifications}
+                onCheckedChange={(val) => setEmailNotifications(Boolean(val))}
               />
             </div>
 
@@ -333,7 +351,7 @@ function TraineeSettingsPage() {
               </div>
               <Switch
                 checked={courseUpdates}
-                onCheckedChange={setCourseUpdates}
+                onCheckedChange={(val) => setCourseUpdates(Boolean(val))}
               />
             </div>
           </CardContent>
