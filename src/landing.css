@@ -2247,3 +2247,284 @@
     max-width: 100%;
   }
 }
+
+/* ================= Government identity + hero showcase ================= */
+
+/* Indian tricolor strip across the very top of the page */
+.ccl .tricolor {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #f48024 0%,
+    #f48024 33.3%,
+    #ffffff 33.3%,
+    #ffffff 66.6%,
+    #138808 66.6%,
+    #138808 100%
+  );
+}
+.dark .ccl .tricolor {
+  background: linear-gradient(
+    to right,
+    #f48024 0%,
+    #f48024 33.3%,
+    #dfe4ea 33.3%,
+    #dfe4ea 66.6%,
+    #1ea85c 66.6%,
+    #1ea85c 100%
+  );
+}
+
+/* slim official government bar above the nav */
+.ccl .govt-bar {
+  background: var(--navy);
+  color: #e8edf5;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ccl .govt-bar-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 7px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .ccl .govt-bar-inner {
+    padding: 6px 20px;
+    font-size: 9.5px;
+  }
+  .ccl .govt-bar-right {
+    display: none;
+  }
+}
+
+/* light-mode govt polish: crisper official surfaces */
+.ccl:not(.dark) {
+  --bg: #f7f8f6;
+}
+
+/* ---------- hero visual: slide-up entrance on page load ---------- */
+@keyframes ccl-visual-up {
+  from {
+    opacity: 0;
+    transform: translateY(72px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.ccl .hero-visual {
+  animation: ccl-visual-up 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+}
+
+.ccl .browser-url {
+  margin-left: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  padding: 3px 12px;
+  align-self: center;
+}
+
+/* sidebar items are clickable tabs synced with the showcase */
+.ccl .mock-sidebar .item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.ccl .mock-sidebar .item:hover {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ccl .mock-main-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.ccl .mock-main-head p {
+  margin-bottom: 0;
+}
+.ccl .mock-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ccl .mock-tab {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 99px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+.ccl .mock-tab:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.ccl .mock-tab.active {
+  background: rgba(30, 111, 255, 0.25);
+  border-color: rgba(95, 168, 255, 0.5);
+  color: #fff;
+}
+
+/* ---------- showcase panel cross-fade/slide on tab switch ---------- */
+@keyframes ccl-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+.ccl .showcase-panel {
+  animation: ccl-panel-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  min-height: 208px;
+}
+
+/* courses panel rows */
+.ccl .mock-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ccl .mock-row {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.ccl .mock-row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.ccl .mock-row-name {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ccl .mock-row-dept {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-family: var(--mono);
+}
+
+/* certificates panel */
+.ccl .mock-cert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ccl .mock-cert-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, var(--blue), var(--blue-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ccl .mock-cert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.ccl .mock-cert-id {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+/* analytics panel bar chart */
+.ccl .mock-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 208px;
+  padding: 8px 6px 0;
+}
+@keyframes ccl-bar-up {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.ccl .mock-chart-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.ccl .mock-chart-bar {
+  width: 100%;
+  max-width: 44px;
+  border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(180deg, var(--sky), var(--blue));
+  transform-origin: bottom;
+  animation: ccl-bar-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ccl .mock-chart-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 760px) {
+  .ccl .showcase-panel {
+    min-height: 0;
+  }
+  .ccl .mock-chart {
+    height: 150px;
+    gap: 8px;
+  }
+  .ccl .browser-url {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ccl .hero-visual,
+  .ccl .showcase-panel,
+  .ccl .mock-chart-bar {
+    animation: none !important;
+  }
+}
