@@ -25,7 +25,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainer/")({
   head: () => ({
-    meta: [{ title: "Dashboard — Trainee Portal · Capacity Connect" }],
+    meta: [{ title: "Assessments — Trainee Portal · Capacity Connect" }],
   }),
   component: TrainerDashboard,
 });
@@ -180,7 +180,7 @@ function TrainerDashboard() {
     return (
       <div className="flex h-[350px] items-center justify-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
-        Loading your live dashboard...
+        Loading your live assessments...
       </div>
     );
   }
@@ -191,7 +191,7 @@ function TrainerDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-bold">Welcome back, {displayName}</h1>
+          <h1 className="font-display text-xl font-bold">Assessments, {displayName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {userProfile?.title} · {userProfile?.dept}
           </p>
