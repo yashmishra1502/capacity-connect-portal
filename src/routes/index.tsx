@@ -407,7 +407,14 @@ function Landing() {
   return (
     <div className="ccl cc-homepage">
       {/* ---------- HEADER ---------- */}
+      <div className="tricolor" aria-hidden />
       <header>
+        <div className="govt-bar">
+          <div className="govt-bar-inner">
+            <span>भारत सरकार · Government of India</span>
+            <span className="govt-bar-right">Capacity Building Commission</span>
+          </div>
+        </div>
         <nav>
           <Link to="/" className="brand">
             <BrandLogo className="!h-9 !w-auto !max-w-[220px]" />
