@@ -20,7 +20,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { quizQuestions } from "@/lib/mock-data";
 import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainee/assessment")({
@@ -38,14 +37,20 @@ export const Route = createFileRoute("/trainee/assessment")({
 
 /* ---------------- types & helpers ---------------- */
 
+export interface QuestionItem {
+  question: string;
+  options: string[];
+  answer: number; // index of the correct option
+}
+
 export interface AssessmentItem {
   id: string;
   title: string;
   course: string;
-  questions: number;
   status: string;
   attempts: number;
-  avg: number;
+  avg?: number;
+  questions?: QuestionItem[]; // Questions stored directly inside the assessment record
   created_at?: string;
 }
 
@@ -197,6 +202,10 @@ function AssessmentList({
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {assessments.map((assessment, index) => {
             const isLive = isAssessmentLive(assessment.status);
+            const questionCount = Array.isArray(assessment.questions)
+              ? assessment.questions.length
+              : 0;
+
             return (
               <Card
                 key={assessment.id}
@@ -214,7 +223,7 @@ function AssessmentList({
                       {assessment.status || "Unknown"}
                     </Badge>
                     <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                      <ListChecks className="size-3.5" /> {assessment.questions || 1} questions
+                      <ListChecks className="size-3.5" /> {questionCount} questions
                     </span>
                   </div>
 
@@ -227,10 +236,6 @@ function AssessmentList({
 
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                      <Clock className="size-3.5" /> ~
-                      {Math.max(5, Math.round((assessment.questions || 1) * 1.5))} min
-                    </span>
-                    <span className="flex items-center gap-1.5">
                       <TrendingUp className="size-3.5" /> {assessment.avg || 0}% avg score
                     </span>
                   </div>
@@ -242,179 +247,4 @@ function AssessmentList({
                     <Button
                       size="sm"
                       disabled={!isLive}
-                      onClick={() => onStart(assessment.id)}
-                      className="cc-btn-glass gap-1.5 rounded-full disabled:opacity-50"
-                    >
-                      <FileCheck2 className="size-3.5" />
-                      {isLive
-                        ? "Start Assessment"
-                        : assessment.status?.toLowerCase() === "draft"
-                        ? "Not yet open"
-                        : "Closed"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------------- quiz runner ---------------- */
-
-function QuizRunner({
-  assessment,
-  onExit,
-  onSubmit,
-}: {
-  assessment: AssessmentItem;
-  onExit: () => void;
-  onSubmit: (answers: (number | null)[], elapsedSeconds: number) => void;
-}) {
-  const questions = useMemo(() => {
-    const bank = quizQuestions;
-    if (bank.length === 0) return [];
-    const count = Math.min(assessment.questions || bank.length, 12);
-    return Array.from({ length: count }, (_, i) => bank[i % bank.length]!);
-  }, [assessment.questions]);
-
-  const totalSeconds = questions.length * 60;
-  const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
-  const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
-  const startedAt = useRef(Date.now());
-  const submittedRef = useRef(false);
-
-  const handleSubmit = () => {
-    if (submittedRef.current) return;
-    submittedRef.current = true;
-    const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
-    onSubmit(answers, elapsed);
-  };
-
-  useEffect(() => {
-    if (secondsLeft <= 0) {
-      handleSubmit();
-      return;
-    }
-    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [secondsLeft]);
-
-  const q = questions[current];
-  const answeredCount = answers.filter((a) => a !== null).length;
-  const isLast = current === questions.length - 1;
-  const lowTime = secondsLeft <= 30;
-
-  const selectAnswer = (optionIndex: number) => {
-    setAnswers((prev) => {
-      const next = [...prev];
-      next[current] = optionIndex;
-      return next;
-    });
-  };
-
-  if (!q) {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          No questions available for this assessment.
-        </p>
-        <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
-          <ArrowLeft className="size-3.5" /> Back to assessments
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {assessment.course}
-          </p>
-          <h1 className="font-display text-xl font-bold md:text-2xl">{assessment.title}</h1>
-        </div>
-        <div
-          className={cn(
-            "flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold tabular-nums transition-colors",
-            lowTime
-              ? "border-destructive/50 bg-destructive/10 text-destructive"
-              : "border-border/70 bg-card/70 text-foreground",
-          )}
-        >
-          <Timer className={cn("size-4", lowTime && "animate-pulse")} />
-          {formatClock(secondsLeft)}
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Question {current + 1} of {questions.length}
-          </span>
-          <span>{answeredCount} answered</span>
-        </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-            style={{ width: `${((current + 1) / questions.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
-        <CardContent className="space-y-5 p-6">
-          <h2 className="font-display text-lg font-semibold leading-snug md:text-xl">
-            {q.question}
-          </h2>
-
-          <div className="space-y-2.5">
-            {q.options.map((option, i) => {
-              const selected = answers[current] === i;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => selectAnswer(i)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all duration-200",
-                    selected
-                      ? "border-primary bg-primary/10 text-foreground shadow-sm"
-                      : "border-border/70 text-muted-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:text-foreground",
-                  )}
-                >
-                  {selected ? (
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" />
-                  ) : (
-                    <Circle className="size-4 shrink-0 text-muted-foreground/50" />
-                  )}
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-          disabled={current === 0}
-          className="gap-1.5 rounded-full"
-        >
-          <ArrowLeft className="size-3.5" /> Previous
-        </Button>
-
-        {isLast ? (
-          <Button onClick={handleSubmit} className="cc-btn-glass gap-1.5 rounded-full">
-            Submit Assessment <FileCheck2 className="size-3.5" />
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setCurrent((c
+                      onClick={() => onStart
