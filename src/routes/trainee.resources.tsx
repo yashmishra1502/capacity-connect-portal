@@ -35,8 +35,6 @@ export const Route = createFileRoute("/trainer/resources")({
   component: TrainerResources,
 });
 
-/* ---------------- types ---------------- */
-
 type Resource = {
   id: string;
   title: string;
@@ -47,8 +45,6 @@ type Resource = {
   fileUrl: string | null;
   user_id?: string;
 };
-
-/* ---------------- helpers ---------------- */
 
 const TYPE_ICON: Record<string, typeof FileText> = {
   PDF: FileText,
@@ -75,8 +71,6 @@ function formatDate(value: string | null) {
   });
 }
 
-/* ---------------- page ---------------- */
-
 function TrainerResources() {
   const { session } = useAuth();
   const [resources, setResources] = useState<Resource[]>([]);
@@ -85,7 +79,6 @@ function TrainerResources() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
 
-  // Modal & Form States for Create/Edit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [title, setTitle] = useState("");
@@ -99,8 +92,7 @@ function TrainerResources() {
     setLoading(true);
     setError(null);
 
-    // Fetch only resources uploaded by the logged-in trainer
-    // Change '.eq("user_id", session.user.id)' to '.eq("trainer_id", session.user.id)' if your column is named trainer_id
+    // Fetch strictly resources belonging to this logged-in trainer
     const { data, error: fetchError } = await supabase
       .from("resources")
       .select("id, title, type, size, uploaded_date, downloads, file_url, user_id")
@@ -129,7 +121,9 @@ function TrainerResources() {
   };
 
   useEffect(() => {
-    fetchResources();
+    if (session?.user?.id) {
+      fetchResources();
+    }
   }, [session?.user?.id]);
 
   const types = useMemo(
@@ -144,28 +138,28 @@ function TrainerResources() {
       .sort((a, b) => b.downloads - a.downloads);
   }, [query, typeFilter, resources]);
 
-  // Handle Create or Update
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      alert("You must be logged in as a trainer.");
+      return;
+    }
     setSubmitting(true);
 
     if (editingResource) {
-      // Update
       const { error: updateError } = await supabase
         .from("resources")
         .update({ title, type, size, file_url: fileUrl })
         .eq("id", editingResource.id);
 
       if (updateError) {
-        alert("Failed to update resource: " + updateError.message);
+        alert("Update failed: " + updateError.message);
       } else {
         setIsModalOpen(false);
         resetForm();
-        fetchResources();
+        await fetchResources();
       }
     } else {
-      // Insert new
       const { error: insertError } = await supabase.from("resources").insert([
         {
           title,
@@ -174,28 +168,27 @@ function TrainerResources() {
           file_url: fileUrl,
           downloads: 0,
           uploaded_date: new Date().toISOString().split("T")[0],
-          user_id: session.user.id, // associate with current trainer
+          user_id: session.user.id,
         },
       ]);
 
       if (insertError) {
-        alert("Failed to upload resource: " + insertError.message);
+        alert("Upload failed: " + insertError.message);
       } else {
         setIsModalOpen(false);
         resetForm();
-        fetchResources();
+        await fetchResources();
       }
     }
     setSubmitting(false);
   };
 
-  // Handle Delete
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this resource?")) return;
 
     const { error: deleteError } = await supabase.from("resources").delete().eq("id", id);
     if (deleteError) {
-      alert("Failed to delete: " + deleteError.message);
+      alert("Delete failed: " + deleteError.message);
     } else {
       setResources((prev) => prev.filter((r) => r.id !== id));
     }
@@ -227,7 +220,7 @@ function TrainerResources() {
           </Badge>
           <h1 className="font-display text-3xl font-bold md:text-4xl">My Resource Library</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Upload, manage, and edit handbooks, worksheets, and session recordings for your trainees.
+            Upload, manage, and edit handbooks, worksheets, and session recordings.
           </p>
         </div>
         <Button
@@ -241,7 +234,6 @@ function TrainerResources() {
         </Button>
       </header>
 
-      {/* Filters & Search */}
       <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center">
           <div className="relative flex-1">
@@ -273,7 +265,6 @@ function TrainerResources() {
         </CardContent>
       </Card>
 
-      {/* Content states */}
       {loading ? (
         <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
@@ -324,7 +315,6 @@ function TrainerResources() {
                       <span>{resource.downloads.toLocaleString()} downloads</span>
                     </div>
 
-                    {/* Action Buttons: Download, Edit, Delete */}
                     <div className="flex items-center gap-2 mt-auto pt-2">
                       <Button
                         asChild={!!resource.fileUrl}
@@ -370,16 +360,15 @@ function TrainerResources() {
 
           {visible.length === 0 && (
             <p className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              You haven't uploaded any resources matching your search.
+              You haven't uploaded any resources matching your search criteria.
             </p>
           )}
         </>
       )}
 
-      {/* Upload / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-card border rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-card border rounded-2xl w-full max-w-lg shadow-xl overflow-hidden">
             <div className="flex justify-between items-center px-6 py-4 border-b">
               <h3 className="font-semibold text-lg">
                 {editingResource ? "Edit Resource" : "Upload New Resource"}
