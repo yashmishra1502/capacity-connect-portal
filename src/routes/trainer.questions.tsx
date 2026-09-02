@@ -38,6 +38,7 @@ function TrainerAssessmentsPage() {
   const [description, setDescription] = useState("");
   const [passingScore, setPassingScore] = useState(70);
   const [selectedCourse, setSelectedCourse] = useState("");
+  const [status, setStatus] = useState("upcoming");
   const [questions, setQuestions] = useState<Question[]>([
     { question_text: "", options: ["", "", "", ""], correct_answer: "" },
   ]);
@@ -111,6 +112,7 @@ function TrainerAssessmentsPage() {
     setDescription("");
     setPassingScore(70);
     setSelectedCourse("");
+    setStatus("upcoming");
     setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
     setEditingId(null);
   };
@@ -127,7 +129,7 @@ function TrainerAssessmentsPage() {
       const trainerId = session?.user?.id;
 
       if (editingId) {
-        // Update existing assessment
+        // Update existing assessment including status
         const { error } = await supabase
           .from("assessments")
           .update({
@@ -135,6 +137,7 @@ function TrainerAssessmentsPage() {
             description,
             passing_score: passingScore,
             course: selectedCourse || null,
+            status,
             question_text: questions[0]?.question_text || "",
             options: questions[0]?.options || [],
             correct_answer: questions[0]?.correct_answer || "",
@@ -145,12 +148,13 @@ function TrainerAssessmentsPage() {
         if (error) throw error;
         alert("Assessment successfully updated!");
       } else {
-        // Insert new assessments with trainer ID in created_by column
+        // Insert new assessments with trainer ID in created_by and status
         const rowsToInsert = questions.map((q) => ({
           title,
           description,
           passing_score: passingScore,
           course: selectedCourse || null,
+          status,
           question_text: q.question_text,
           options: q.options,
           correct_answer: q.correct_answer,
@@ -178,6 +182,7 @@ function TrainerAssessmentsPage() {
     setDescription(item.description || "");
     setPassingScore(item.passing_score || 70);
     setSelectedCourse(item.course || "");
+    setStatus(item.status || "upcoming");
     setQuestions([
       {
         question_text: item.question_text || "",
@@ -275,6 +280,17 @@ function TrainerAssessmentsPage() {
                       {c.title}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground">Assessment Status</label>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="upcoming">Upcoming</option>
+                  <option value="live">Live</option>
                 </select>
               </div>
               <div>
@@ -414,10 +430,21 @@ function TrainerAssessmentsPage() {
                 <Card key={item.id || idx}>
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-sm font-bold">{item.title}</CardTitle>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-sm font-bold">{item.title}</CardTitle>
+                          <span
+                            className={`inline-block rounded px-2 py-0.5 text-[10px] font-medium uppercase ${
+                              item.status === "live"
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                            }`}
+                          >
+                            {item.status || "upcoming"}
+                          </span>
+                        </div>
                         {item.course && (
-                          <span className="mt-1 inline-block rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          <span className="inline-block rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                             Course: {item.course}
                           </span>
                         )}
