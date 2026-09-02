@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
 
-export const Route = createFileRoute("/trainer/create-quiz")({
+export const Route = createFileRoute("/trainer/questions")({
   head: () => ({
     meta: [{ title: "Assessments Management — Trainer Portal · Capacity Connect" }],
   }),
