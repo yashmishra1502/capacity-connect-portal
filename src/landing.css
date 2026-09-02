@@ -2304,7 +2304,7 @@
 }
 
 /* light-mode govt polish: crisper official surfaces */
-.ccl:not(.dark) {
+:root:not(.dark) .ccl {
   --bg: #f7f8f6;
 }
 
