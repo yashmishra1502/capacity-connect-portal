@@ -90,19 +90,22 @@ function TrainerAssessmentsPage() {
 
   const handleQuestionChange = (index: number, text: string) => {
     const updated = [...questions];
-    updated[index].question_text = text;
+    const q = updated[index];
+    if (q) q.question_text = text;
     setQuestions(updated);
   };
 
   const handleOptionChange = (qIndex: number, optIndex: number, text: string) => {
     const updated = [...questions];
-    updated[qIndex].options[optIndex] = text;
+    const q = updated[qIndex];
+    if (q) q.options[optIndex] = text;
     setQuestions(updated);
   };
 
   const handleCorrectAnswerChange = (qIndex: number, answer: string) => {
     const updated = [...questions];
-    updated[qIndex].correct_answer = answer;
+    const q = updated[qIndex];
+    if (q) q.correct_answer = answer;
     setQuestions(updated);
   };
 
