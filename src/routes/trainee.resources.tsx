@@ -92,7 +92,6 @@ function TrainerResources() {
     setLoading(true);
     setError(null);
 
-    // Fetch strictly resources belonging to this logged-in trainer
     const { data, error: fetchError } = await supabase
       .from("resources")
       .select("id, title, type, size, uploaded_date, downloads, file_url, user_id")
@@ -147,10 +146,14 @@ function TrainerResources() {
     setSubmitting(true);
 
     if (editingResource) {
-      const { error: updateError } = await supabase
+      console.log("Updating resource ID:", editingResource.id);
+      const { data, error: updateError } = await supabase
         .from("resources")
         .update({ title, type, size, file_url: fileUrl })
-        .eq("id", editingResource.id);
+        .eq("id", editingResource.id)
+        .select();
+
+      console.log("Update response:", { data, updateError });
 
       if (updateError) {
         alert("Update failed: " + updateError.message);
@@ -160,17 +163,22 @@ function TrainerResources() {
         await fetchResources();
       }
     } else {
-      const { error: insertError } = await supabase.from("resources").insert([
-        {
-          title,
-          type,
-          size,
-          file_url: fileUrl,
-          downloads: 0,
-          uploaded_date: new Date().toISOString().split("T")[0],
-          user_id: session.user.id,
-        },
-      ]);
+      const { data, error: insertError } = await supabase
+        .from("resources")
+        .insert([
+          {
+            title,
+            type,
+            size,
+            file_url: fileUrl,
+            downloads: 0,
+            uploaded_date: new Date().toISOString().split("T")[0],
+            user_id: session.user.id,
+          },
+        ])
+        .select();
+
+      console.log("Insert response:", { data, insertError });
 
       if (insertError) {
         alert("Upload failed: " + insertError.message);
@@ -186,7 +194,11 @@ function TrainerResources() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this resource?")) return;
 
+    console.log("Deleting resource ID:", id);
     const { error: deleteError } = await supabase.from("resources").delete().eq("id", id);
+    
+    console.log("Delete response error:", deleteError);
+
     if (deleteError) {
       alert("Delete failed: " + deleteError.message);
     } else {
