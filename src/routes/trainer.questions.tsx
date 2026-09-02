@@ -288,6 +288,8 @@ function TrainerAssessmentsPage() {
                 >
                   <option value="upcoming">Upcoming</option>
                   <option value="live">Live</option>
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
                 </select>
               </div>
               <div>
@@ -432,7 +434,7 @@ function TrainerAssessmentsPage() {
                           <CardTitle className="text-sm font-bold">{item.title}</CardTitle>
                           <span
                             className={`inline-block rounded px-2 py-0.5 text-[10px] font-medium uppercase ${
-                              item.status === "live"
+                              item.status === "live" || item.status === "active"
                                 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                 : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                             }`}
