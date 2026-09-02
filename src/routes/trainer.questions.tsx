@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2, Save, ArrowLeft, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,16 +25,26 @@ function CreateQuizPage() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState<any[]>([]);
 
   // Quiz Meta Details
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [passingScore, setPassingScore] = useState(70);
+  const [selectedCourse, setSelectedCourse] = useState("");
 
   // Dynamic Questions State
   const [questions, setQuestions] = useState<Question[]>([
     { question_text: "", options: ["", "", "", ""], correct_answer: "" },
   ]);
+
+  useEffect(() => {
+    async function fetchCourses() {
+      const { data } = await supabase.from("courses").select("id, title");
+      if (data) setCourses(data);
+    }
+    fetchCourses();
+  }, []);
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -74,9 +84,8 @@ function CreateQuizPage() {
 
     try {
       setLoading(true);
-      const trainerId = session?.user?.id;
 
-      // 1. Insert into assessments table
+      // 1. Insert into assessments table including the course
       const { data: assessmentData, error: assessmentError } = await supabase
         .from("assessments")
         .insert([
@@ -84,7 +93,7 @@ function CreateQuizPage() {
             title,
             description,
             passing_score: passingScore,
-            created_by: trainerId,
+            course: selectedCourse || null,
           },
         ])
         .select()
@@ -148,6 +157,21 @@ function CreateQuizPage() {
               />
             </div>
             <div>
+              <label className="text-xs font-semibold text-muted-foreground">Select Course</label>
+              <select
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+              >
+                <option value="">-- Select a Course (Optional) --</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.title || c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="text-xs font-semibold text-muted-foreground">Description</label>
               <Textarea
                 placeholder="Brief summary of what this assessment covers..."
@@ -206,7 +230,7 @@ function CreateQuizPage() {
                   />
                 </div>
 
-                <div className="grid grid-gap-2 space-y-2">
+                <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-muted-foreground">
                     Options (Fill choices and match exact correct answer below)
                   </label>
