@@ -38,7 +38,7 @@ function TrainerAssessmentsPage() {
   const [description, setDescription] = useState("");
   const [passingScore, setPassingScore] = useState(70);
   const [selectedCourse, setSelectedCourse] = useState("");
-  const [status, setStatus] = useState("Upcoming");
+  const [status, setStatus] = useState("upcoming");
   const [questions, setQuestions] = useState<Question[]>([
     { question_text: "", options: ["", "", "", ""], correct_answer: "" },
   ]);
@@ -111,7 +111,7 @@ function TrainerAssessmentsPage() {
     setDescription("");
     setPassingScore(70);
     setSelectedCourse("");
-    setStatus("Upcoming");
+    setStatus("upcoming");
     setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
     setEditingId(null);
   };
@@ -179,7 +179,7 @@ function TrainerAssessmentsPage() {
     setDescription(item.description || "");
     setPassingScore(item.passing_score || 70);
     setSelectedCourse(item.course || "");
-    setStatus(item.status || "Upcoming");
+    setStatus(item.status || "upcoming");
     setQuestions([
       {
         question_text: item.question_text || "",
@@ -286,8 +286,8 @@ function TrainerAssessmentsPage() {
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
-                  <option value="Upcoming">Upcoming</option>
-                  <option value="Live">Live</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="live">Live</option>
                 </select>
               </div>
               <div>
@@ -432,12 +432,12 @@ function TrainerAssessmentsPage() {
                           <CardTitle className="text-sm font-bold">{item.title}</CardTitle>
                           <span
                             className={`inline-block rounded px-2 py-0.5 text-[10px] font-medium uppercase ${
-                              item.status === "Live"
+                              item.status === "live"
                                 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                 : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                             }`}
                           >
-                            {item.status || "Upcoming"}
+                            {item.status || "upcoming"}
                           </span>
                         </div>
                         {item.course && (
