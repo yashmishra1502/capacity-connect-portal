@@ -43,7 +43,7 @@ export interface AssessmentItem {
   title: string;
   course: string;
   questions: number;
-  status: "Live" | "Closed" | "Draft";
+  status: string;
   attempts: number;
   avg: number;
   created_at?: string;
@@ -51,17 +51,22 @@ export interface AssessmentItem {
 
 const PASS_THRESHOLD = 60; // percent
 
+// Helper to reliably check if an assessment is live or active (case-insensitive)
+function isAssessmentLive(status: string) {
+  if (!status) return false;
+  const s = status.toLowerCase().trim();
+  return s === "live" || s === "active";
+}
+
 function statusStyle(status: string) {
-  switch (status) {
-    case "Live":
-      return "border-success/40 bg-success/10 text-success";
-    case "Closed":
-      return "border-muted-foreground/30 bg-muted text-muted-foreground";
-    case "Draft":
-      return "border-warning/40 bg-warning/10 text-warning";
-    default:
-      return "border-border bg-muted text-muted-foreground";
+  if (isAssessmentLive(status)) {
+    return "border-success/40 bg-success/10 text-success";
   }
+  const s = status?.toLowerCase().trim();
+  if (s === "draft") {
+    return "border-warning/40 bg-warning/10 text-warning";
+  }
+  return "border-muted-foreground/30 bg-muted text-muted-foreground";
 }
 
 function formatClock(totalSeconds: number) {
@@ -191,7 +196,7 @@ function AssessmentList({
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {assessments.map((assessment, index) => {
-            const isLive = assessment.status === "Live";
+            const isLive = isAssessmentLive(assessment.status);
             return (
               <Card
                 key={assessment.id}
@@ -206,10 +211,10 @@ function AssessmentList({
                         statusStyle(assessment.status),
                       )}
                     >
-                      {assessment.status}
+                      {assessment.status || "Unknown"}
                     </Badge>
                     <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                      <ListChecks className="size-3.5" /> {assessment.questions} questions
+                      <ListChecks className="size-3.5" /> {assessment.questions || 1} questions
                     </span>
                   </div>
 
@@ -223,7 +228,7 @@ function AssessmentList({
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Clock className="size-3.5" /> ~
-                      {Math.max(5, Math.round(assessment.questions * 1.5))} min
+                      {Math.max(5, Math.round((assessment.questions || 1) * 1.5))} min
                     </span>
                     <span className="flex items-center gap-1.5">
                       <TrendingUp className="size-3.5" /> {assessment.avg || 0}% avg score
@@ -232,7 +237,7 @@ function AssessmentList({
 
                   <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
                     <span className="text-xs text-muted-foreground">
-                      {assessment.attempts} attempts so far
+                      {assessment.attempts || 0} attempts so far
                     </span>
                     <Button
                       size="sm"
@@ -243,7 +248,7 @@ function AssessmentList({
                       <FileCheck2 className="size-3.5" />
                       {isLive
                         ? "Start Assessment"
-                        : assessment.status === "Draft"
+                        : assessment.status?.toLowerCase() === "draft"
                         ? "Not yet open"
                         : "Closed"}
                     </Button>
@@ -412,174 +417,4 @@ function QuizRunner({
           </Button>
         ) : (
           <Button
-            onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}
-            className="cc-btn-glass gap-1.5 rounded-full"
-          >
-            Next <ArrowRight className="size-3.5" />
-          </Button>
-        )}
-      </div>
-
-      <button
-        type="button"
-        onClick={onExit}
-        className="mx-auto block text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-      >
-        Exit without submitting
-      </button>
-    </div>
-  );
-}
-
-/* ---------------- results screen ---------------- */
-
-function ResultsScreen({
-  assessment,
-  answers,
-  elapsedSeconds,
-  onRetake,
-  onBackToList,
-}: {
-  assessment: AssessmentItem;
-  answers: (number | null)[];
-  elapsedSeconds: number;
-  onRetake: () => void;
-  onBackToList: () => void;
-}) {
-  const questions = useMemo(() => {
-    const bank = quizQuestions;
-    if (bank.length === 0) return [];
-    const count = Math.min(assessment.questions || bank.length, 12);
-    return Array.from({ length: count }, (_, i) => bank[i % bank.length]!);
-  }, [assessment.questions]);
-
-  const correctCount = questions.reduce(
-    (acc, q, i) => acc + (answers[i] === q.answer ? 1 : 0),
-    0,
-  );
-  const scorePct =
-    questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-  const passed = scorePct >= PASS_THRESHOLD;
-
-  // Increment total attempts counter in Supabase
-  useEffect(() => {
-    async function updateAttempts() {
-      try {
-        await supabase
-          .from("assessments")
-          .update({ attempts: assessment.attempts + 1 })
-          .eq("id", assessment.id);
-      } catch (err) {
-        console.error("Error updating attempts in Supabase:", err);
-      }
-    }
-    updateAttempts();
-  }, [assessment]);
-
-  return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <Card className="cc-glow-card cc-page-in overflow-hidden border-border/70 bg-card/70 backdrop-blur">
-        <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-          <div
-            className={cn(
-              "flex size-16 items-center justify-center rounded-full",
-              passed ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
-            )}
-          >
-            {passed ? <Trophy className="size-8" /> : <XCircle className="size-8" />}
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              {assessment.title}
-            </p>
-            <h1 className="font-display text-3xl font-bold md:text-4xl">{scorePct}%</h1>
-            <Badge
-              className={cn(
-                "rounded-full border uppercase tracking-wide",
-                passed
-                  ? "border-success/40 bg-success/10 text-success"
-                  : "border-destructive/40 bg-destructive/10 text-destructive",
-              )}
-            >
-              {passed ? "Passed" : "Reattempt Required"}
-            </Badge>
-          </div>
-
-          <div className="grid w-full grid-cols-3 gap-3 pt-2">
-            <div className="rounded-xl border border-border/70 bg-background/50 p-3">
-              <p className="font-display text-lg font-bold">
-                {correctCount}/{questions.length}
-              </p>
-              <p className="text-[11px] text-muted-foreground">Correct</p>
-            </div>
-            <div className="rounded-xl border border-border/70 bg-background/50 p-3">
-              <p className="font-display text-lg font-bold">{formatClock(elapsedSeconds)}</p>
-              <p className="text-[11px] text-muted-foreground">Time taken</p>
-            </div>
-            <div className="rounded-xl border border-border/70 bg-background/50 p-3">
-              <p className="font-display text-lg font-bold">{PASS_THRESHOLD}%</p>
-              <p className="text-[11px] text-muted-foreground">Pass mark</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border/70 bg-card/70 backdrop-blur">
-        <CardContent className="space-y-4 p-6">
-          <h2 className="flex items-center gap-2 font-display text-base font-bold">
-            <Award className="size-4 text-primary" /> Answer review
-          </h2>
-          <div className="space-y-3">
-            {questions.map((q, i) => {
-              const userAnswer = answers[i];
-              const correct = userAnswer === q.answer;
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    "rounded-xl border p-4 text-sm",
-                    correct
-                      ? "border-success/30 bg-success/5"
-                      : "border-destructive/30 bg-destructive/5",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium leading-snug">{q.question}</p>
-                    {correct ? (
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
-                    ) : (
-                      <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
-                    )}
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Your answer:{" "}
-                    <span className={correct ? "text-success" : "text-destructive"}>
-                      {userAnswer !== null && userAnswer !== undefined
-                        ? q.options[userAnswer]
-                        : "Not answered"}
-                    </span>
-                  </p>
-                  {!correct && (
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Correct answer:{" "}
-                      <span className="text-success">{q.options[q.answer]}</span>
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button variant="outline" onClick={onBackToList} className="gap-1.5 rounded-full">
-          <ArrowLeft className="size-3.5" /> Back to assessments
-        </Button>
-        <Button onClick={onRetake} className="cc-btn-glass gap-1.5 rounded-full">
-          <RotateCcw className="size-3.5" /> Retake assessment
-        </Button>
-      </div>
-    </div>
-  );
-}
+            onClick={() => setCurrent((c
