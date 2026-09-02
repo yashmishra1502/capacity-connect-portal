@@ -43,7 +43,7 @@ type DisplayStatus = "Live" | "Upcoming" | "Draft";
 export interface QuestionItem {
   question: string;
   options: string[];
-  answer: number; // index of the correct option
+  answer: number;
 }
 
 export interface AssessmentItem {
@@ -55,7 +55,9 @@ export interface AssessmentItem {
   avg: number;
   created_at?: string;
   passing_score?: number | null;
-  questions?: QuestionItem[] | string | any; // Stored directly inside the assessment row
+  questions?: any;
+  content?: any;
+  data?: any;
 }
 
 const DEFAULT_PASS_THRESHOLD = 70;
@@ -217,15 +219,14 @@ function AssessmentList({
             
             let parsedQuestions: QuestionItem[] = [];
             try {
-              const raw = assessment.questions;
-              if (Array.isArray(raw)) {
-                parsedQuestions = raw;
-              } else if (typeof raw === "string") {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) parsedQuestions = parsed;
-                else if (parsed && Array.isArray(parsed.questions)) parsedQuestions = parsed.questions;
-              } else if (raw && typeof raw === "object" && Array.isArray(raw.questions)) {
-                parsedQuestions = raw.questions;
+              const target = assessment.questions || assessment.content || assessment.data;
+              if (Array.isArray(target)) parsedQuestions = target;
+              else if (typeof target === "string") {
+                const p = JSON.parse(target);
+                if (Array.isArray(p)) parsedQuestions = p;
+                else if (p && Array.isArray(p.questions)) parsedQuestions = p.questions;
+              } else if (target && typeof target === "object" && Array.isArray(target.questions)) {
+                parsedQuestions = target.questions;
               }
             } catch {
               parsedQuestions = [];
@@ -310,35 +311,38 @@ function QuizRunner({
   onSubmit: (answers: (number | null)[], elapsedSeconds: number) => void;
 }) {
   useEffect(() => {
-    console.log("Raw Assessment Object:", assessment);
-    console.log("Raw assessment.questions:", assessment.questions, typeof assessment.questions);
+    console.group("🔍 Assessment Data Inspection");
+    console.log("Full assessment object keys:", Object.keys(assessment));
+    console.log("Full assessment object:", assessment);
+    console.log("assessment.questions value:", assessment.questions);
+    console.groupEnd();
   }, [assessment]);
 
   const questions: QuestionItem[] = useMemo(() => {
     try {
-      const raw = assessment.questions;
-      if (!raw) return [];
+      const target = assessment.questions || assessment.content || assessment.data;
+      if (!target) return [];
 
-      if (Array.isArray(raw)) return raw;
+      if (Array.isArray(target)) return target;
 
-      if (typeof raw === "string") {
-        const parsed = JSON.parse(raw);
+      if (typeof target === "string") {
+        const parsed = JSON.parse(target);
         if (Array.isArray(parsed)) return parsed;
         if (parsed && typeof parsed === "object" && Array.isArray(parsed.questions)) {
           return parsed.questions;
         }
       }
 
-      if (typeof raw === "object" && raw !== null) {
-        if (Array.isArray((raw as any).questions)) {
-          return (raw as any).questions;
+      if (typeof target === "object" && target !== null) {
+        if (Array.isArray((target as any).questions)) {
+          return (target as any).questions;
         }
       }
     } catch (err) {
       console.error("Failed to parse assessment questions:", err);
     }
     return [];
-  }, [assessment.questions]);
+  }, [assessment]);
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
@@ -366,14 +370,14 @@ function QuizRunner({
   if (questions.length === 0) {
     return (
       <div className="mx-auto max-w-lg space-y-4 py-12 text-center">
-        <Card className="p-6 border-border/70 bg-card/70 backdrop-blur">
-          <p className="text-sm font-medium text-destructive mb-2">
-            No questions found or failed to parse question structure.
+        <Card className="p-6 border-border/70 bg-card/70 backdrop-blur space-y-3">
+          <p className="text-sm font-medium text-destructive">
+            No questions found (Column value is a number/ID instead of question array).
           </p>
-          <p className="text-xs text-muted-foreground mb-4">
-            Check your browser console (F12) to inspect what data columns exist on this assessment row.
+          <p className="text-xs text-muted-foreground">
+            Check your browser console (F12) under <b>🔍 Assessment Data Inspection</b> to see what columns your Supabase table actually returned.
           </p>
-          <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
+          <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full mt-2">
             <ArrowLeft className="size-3.5" /> Back to assessments
           </Button>
         </Card>
@@ -517,22 +521,22 @@ function ResultsScreen({
 }) {
   const questions: QuestionItem[] = useMemo(() => {
     try {
-      const raw = assessment.questions;
-      if (!raw) return [];
-      if (Array.isArray(raw)) return raw;
-      if (typeof raw === "string") {
-        const parsed = JSON.parse(raw);
+      const target = assessment.questions || assessment.content || assessment.data;
+      if (!target) return [];
+      if (Array.isArray(target)) return target;
+      if (typeof target === "string") {
+        const parsed = JSON.parse(target);
         if (Array.isArray(parsed)) return parsed;
         if (parsed && Array.isArray(parsed.questions)) return parsed.questions;
       }
-      if (raw && typeof raw === "object" && Array.isArray(raw.questions)) {
-        return raw.questions;
+      if (target && typeof target === "object" && Array.isArray(target.questions)) {
+        return target.questions;
       }
     } catch {
       return [];
     }
     return [];
-  }, [assessment.questions]);
+  }, [assessment]);
 
   const correctCount = questions.reduce(
     (acc, q, i) => acc + (answers[i] === q.answer ? 1 : 0),
