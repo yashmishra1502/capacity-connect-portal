@@ -397,7 +397,7 @@ function TrainerAssessmentsPage() {
             <Button type="submit" className={editingId ? "w-2/3" : "w-full"} disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" /> Saving...
+                  <Loader2 className="mr-2 size-4 animate-spin" /> Saving Assessment...
                 </>
               ) : (
                 <>
