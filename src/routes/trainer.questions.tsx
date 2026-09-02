@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Save, ArrowLeft, Loader2, ListChecks, FileText } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, Loader2, ListChecks, FileText, Pencil } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,8 +30,9 @@ function TrainerAssessmentsPage() {
   const [assessments, setAssessments] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
 
-  // Form State
+  // Form State & Edit Mode
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -50,17 +51,21 @@ function TrainerAssessmentsPage() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === "list") {
+    if (activeTab === "list" && session?.user?.id) {
       fetchAssessments();
     }
-  }, [activeTab]);
+  }, [activeTab, session]);
 
   const fetchAssessments = async () => {
     try {
       setLoadingList(true);
+      const trainerId = session?.user?.id;
+      
+      // Fetch only assessments created by the currently logged-in trainer
       const { data, error } = await supabase
         .from("assessments")
         .select("*")
+        .eq("created_by", trainerId)
         .order("id", { ascending: false });
 
       if (error) throw error;
@@ -101,6 +106,15 @@ function TrainerAssessmentsPage() {
     setQuestions(updated);
   };
 
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setPassingScore(70);
+    setSelectedCourse("");
+    setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
+    setEditingId(null);
+  };
+
   const handleSaveQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -112,33 +126,78 @@ function TrainerAssessmentsPage() {
       setLoading(true);
       const trainerId = session?.user?.id;
 
-      const rowsToInsert = questions.map((q) => ({
-        title,
-        description,
-        passing_score: passingScore,
-        course: selectedCourse || null,
-        question_text: q.question_text,
-        options: q.options,
-        correct_answer: q.correct_answer,
-        created_by: trainerId || null,
-      }));
+      if (editingId) {
+        // Update existing assessment
+        const { error } = await supabase
+          .from("assessments")
+          .update({
+            title,
+            description,
+            passing_score: passingScore,
+            course: selectedCourse || null,
+            question_text: questions[0]?.question_text || "",
+            options: questions[0]?.options || [],
+            correct_answer: questions[0]?.correct_answer || "",
+            created_by: trainerId || null,
+          })
+          .eq("id", editingId);
 
-      const { error } = await supabase.from("assessments").insert(rowsToInsert);
+        if (error) throw error;
+        alert("Assessment successfully updated!");
+      } else {
+        // Insert new assessments with trainer ID in created_by column
+        const rowsToInsert = questions.map((q) => ({
+          title,
+          description,
+          passing_score: passingScore,
+          course: selectedCourse || null,
+          question_text: q.question_text,
+          options: q.options,
+          correct_answer: q.correct_answer,
+          created_by: trainerId || null,
+        }));
 
-      if (error) throw error;
+        const { error } = await supabase.from("assessments").insert(rowsToInsert);
+        if (error) throw error;
+        alert("Quiz successfully created and saved to assessments!");
+      }
 
-      alert("Quiz successfully created and saved to assessments!");
-      setTitle("");
-      setDescription("");
-      setPassingScore(70);
-      setSelectedCourse("");
-      setQuestions([{ question_text: "", options: ["", "", "", ""], correct_answer: "" }]);
+      resetForm();
       setActiveTab("list");
     } catch (err: any) {
       console.error("Error saving quiz:", err.message);
       alert(`Failed to save quiz: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingId(item.id);
+    setTitle(item.title || "");
+    setDescription(item.description || "");
+    setPassingScore(item.passing_score || 70);
+    setSelectedCourse(item.course || "");
+    setQuestions([
+      {
+        question_text: item.question_text || "",
+        options: item.options || ["", "", "", ""],
+        correct_answer: item.correct_answer || "",
+      },
+    ]);
+    setActiveTab("create");
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this assessment?")) return;
+
+    try {
+      const { error } = await supabase.from("assessments").delete().eq("id", id);
+      if (error) throw error;
+      setAssessments(assessments.filter((item) => item.id !== id));
+    } catch (err: any) {
+      console.error("Error deleting assessment:", err.message);
+      alert(`Failed to delete: ${err.message}`);
     }
   };
 
@@ -160,14 +219,17 @@ function TrainerAssessmentsPage() {
       {/* Tabs Navigation */}
       <div className="flex rounded-lg border bg-card p-1 text-card-foreground shadow-sm">
         <button
-          onClick={() => setActiveTab("create")}
+          onClick={() => {
+            resetForm();
+            setActiveTab("create");
+          }}
           className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-xs font-semibold transition-all ${
             activeTab === "create"
               ? "bg-primary text-primary-foreground shadow"
               : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
         >
-          <Plus className="size-4" /> Create Quiz
+          <Plus className="size-4" /> {editingId ? "Edit Quiz" : "Create Quiz"}
         </button>
         <button
           onClick={() => setActiveTab("list")}
@@ -181,12 +243,14 @@ function TrainerAssessmentsPage() {
         </button>
       </div>
 
-      {/* Tab 1: Create Quiz Form */}
+      {/* Tab 1: Create / Edit Quiz Form */}
       {activeTab === "create" && (
         <form onSubmit={handleSaveQuiz} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-bold">Quiz Details</CardTitle>
+              <CardTitle className="text-sm font-bold">
+                {editingId ? "Edit Quiz Details" : "Quiz Details"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -238,9 +302,11 @@ function TrainerAssessmentsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-base font-bold">Questions</h2>
-              <Button type="button" variant="outline" size="sm" onClick={handleAddQuestion}>
-                <Plus className="mr-1 size-4" /> Add Question
-              </Button>
+              {!editingId && (
+                <Button type="button" variant="outline" size="sm" onClick={handleAddQuestion}>
+                  <Plus className="mr-1 size-4" /> Add Question
+                </Button>
+              )}
             </div>
 
             {questions.map((q, qIndex) => (
@@ -249,7 +315,7 @@ function TrainerAssessmentsPage() {
                   <CardTitle className="text-xs font-bold text-muted-foreground">
                     Question #{qIndex + 1}
                   </CardTitle>
-                  {questions.length > 1 && (
+                  {questions.length > 1 && !editingId && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -302,24 +368,36 @@ function TrainerAssessmentsPage() {
             ))}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" /> Saving Assessment...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 size-4" /> Save Quiz to Assessments
-              </>
+          <div className="flex gap-2">
+            {editingId && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-1/3"
+                onClick={resetForm}
+              >
+                Cancel
+              </Button>
             )}
-          </Button>
+            <Button type="submit" className={editingId ? "w-2/3" : "w-full"} disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 size-4" /> {editingId ? "Update Assessment" : "Save Quiz to Assessments"}
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       )}
 
       {/* Tab 2: Uploaded Assessments List */}
       {activeTab === "list" && (
         <div className="space-y-4">
-          <h2 className="font-display text-base font-bold">Uploaded Assessments & Questions</h2>
+          <h2 className="font-display text-base font-bold">My Uploaded Assessments</h2>
 
           {loadingList ? (
             <div className="flex justify-center py-12">
@@ -328,7 +406,7 @@ function TrainerAssessmentsPage() {
           ) : assessments.length === 0 ? (
             <Card className="py-12 text-center text-muted-foreground">
               <FileText className="mx-auto mb-2 size-8 opacity-50" />
-              <p>No assessments uploaded yet.</p>
+              <p>You haven't uploaded any assessments yet.</p>
             </Card>
           ) : (
             <div className="grid gap-4">
@@ -344,9 +422,27 @@ function TrainerAssessmentsPage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        Passing Score: {item.passing_score}%
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          Passing: {item.passing_score}%
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleEdit(item)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2 text-xs">
