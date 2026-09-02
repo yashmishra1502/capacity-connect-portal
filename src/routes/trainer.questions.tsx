@@ -86,7 +86,7 @@ function CreateQuizPage() {
       setLoading(true);
       const trainerId = session?.user?.id;
 
-      // Format rows to insert directly into the 'assessment' table
+      // Format rows to insert directly into the 'assessments' table
       const rowsToInsert = questions.map((q) => ({
         title,
         description,
@@ -98,11 +98,11 @@ function CreateQuizPage() {
         created_by: trainerId || null,
       }));
 
-      const { error } = await supabase.from("assessment").insert(rowsToInsert);
+      const { error } = await supabase.from("assessments").insert(rowsToInsert);
 
       if (error) throw error;
 
-      alert("Quiz successfully created and saved to assessment!");
+      alert("Quiz successfully created and saved to assessments!");
       navigate({ to: "/trainer" });
     } catch (err: any) {
       console.error("Error saving quiz:", err.message);
@@ -253,7 +253,7 @@ function CreateQuizPage() {
             </>
           ) : (
             <>
-              <Save className="mr-2 size-4" /> Save Quiz to Assessment
+              <Save className="mr-2 size-4" /> Save Quiz to Assessments
             </>
           )}
         </Button>
