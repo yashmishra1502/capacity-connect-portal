@@ -92,63 +92,67 @@ function TraineeResults() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // Query results and join the assessments table to fetch the real title & course
       let queryBuilder = supabase
         .from("results")
-        .select(`
-          *,
-          assessments (
-            title,
-            course
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (user) {
         queryBuilder = queryBuilder.eq("user_id", user.id);
       }
 
-      const { data, error: fetchError } = await queryBuilder;
+      // Fetch results and assessments separately to avoid schema cache errors
+      const [{ data: resultsData, error: resultsError }, { data: assessmentsData }] = await Promise.all([
+        queryBuilder,
+        supabase.from("assessments").select("id, title, course"),
+      ]);
 
-      if (fetchError) {
-        setError(fetchError.message);
-      } else {
-        const mapped: Result[] = (data ?? []).map((item: any) => {
-          const assessmentRelation = item.assessments;
-          const assessmentTitle =
-            assessmentRelation?.title ?? item.assessment_title ?? item.assessment ?? "Untitled Assessment";
-          const courseTitle =
-            assessmentRelation?.course ?? item.course_title ?? item.course ?? "General";
-
-          const rawScore = item.score ?? 0;
-          const rawTotal = item.total_score ?? item.total ?? 1;
-          const pct = rawTotal > 0 ? Math.round((rawScore / rawTotal) * 100) : 0;
-          
-          const rawStatus = item.status;
-          const statusVal =
-            rawStatus && rawStatus.toLowerCase() === "passed"
-              ? "Passed"
-              : rawStatus && rawStatus.toLowerCase() === "failed"
-              ? "Reattempt"
-              : pct >= 60
-              ? "Passed"
-              : "Reattempt";
-
-          return {
-            id: item.id,
-            assessment: assessmentTitle,
-            course: courseTitle,
-            score: rawScore,
-            total: rawTotal,
-            percentage: pct,
-            status: statusVal,
-            date: item.created_at ? formatDate(item.created_at) : formatDate(item.date),
-          };
-        });
-
-        setResults(mapped);
+      if (resultsError) {
+        setError(resultsError.message);
+        setLoading(false);
+        return;
       }
 
+      // Create a lookup map for assessments by ID
+      const assessmentMap = new Map();
+      (assessmentsData || []).forEach((a: any) => {
+        assessmentMap.set(a.id, a);
+      });
+
+      const mapped: Result[] = (resultsData ?? []).map((item: any) => {
+        const assessmentInfo = assessmentMap.get(item.assessment_id);
+        const assessmentTitle =
+          assessmentInfo?.title ?? item.assessment_title ?? item.assessment ?? "Untitled Assessment";
+        const courseTitle =
+          assessmentInfo?.course ?? item.course_title ?? item.course ?? "General";
+
+        const rawScore = item.score ?? 0;
+        const rawTotal = item.total_score ?? item.total ?? 1;
+        const pct = rawTotal > 0 ? Math.round((rawScore / rawTotal) * 100) : 0;
+        
+        const rawStatus = item.status;
+        const statusVal =
+          rawStatus && rawStatus.toLowerCase() === "passed"
+            ? "Passed"
+            : rawStatus && rawStatus.toLowerCase() === "failed"
+            ? "Reattempt"
+            : pct >= 60
+            ? "Passed"
+            : "Reattempt";
+
+        return {
+          id: item.id,
+          assessment: assessmentTitle,
+          course: courseTitle,
+          score: rawScore,
+          total: rawTotal,
+          percentage: pct,
+          status: statusVal,
+          date: item.created_at ? formatDate(item.created_at) : formatDate(item.date),
+        };
+      });
+
+      setResults(mapped);
       setLoading(false);
     };
 
