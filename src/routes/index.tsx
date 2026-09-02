@@ -53,7 +53,7 @@ export const Route = createFileRoute("/")({
         content: "Role-based learning management for government capacity building programmes.",
       },
     ],
-    links: [{ rel: "preload", as: "image", href: heroImg, fetchpriority: "high" }],
+    links: [{ rel: "preload", as: "image", href: heroImg, fetchPriority: "high" }],
   }),
   component: Landing,
 });
