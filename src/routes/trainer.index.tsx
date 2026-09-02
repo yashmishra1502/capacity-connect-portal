@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BookOpen, Clock, Award, TrendingUp, Bell } from "lucide-react";
+import { BookOpen, Clock, Award, TrendingUp, Bell, Loader2 } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -22,7 +22,6 @@ import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/stat-card";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
-import { currentUsers, courses, weeklyProgress, skillRadar } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/trainer/")({
   head: () => ({
@@ -49,31 +48,113 @@ const tooltipStyle = {
 
 function TrainerDashboard() {
   const { session } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  
+  // Real database states
+  const [userProfile, setUserProfile] = useState<{ name: string; title: string; dept: string } | null>(null);
+  const [stats, setStats] = useState({
+    enrolledCoursesCount: 0,
+    learningHours: "0 hrs",
+    avgScore: "0%",
+    certificatesCount: 0,
+  });
+  const [myCourses, setMyCourses] = useState<any[]>([]);
+  const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
+  const [skillRadar, setSkillRadar] = useState<any[]>([]);
 
-  const user = currentUsers.trainee;
-  const myCourses = courses.slice(0, 3);
-
-  // Real-Time Notifications Subscription
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    async function fetchNotifications() {
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
 
-      if (!error && data) {
-        setNotifications(data);
+        // 1. Fetch User Profile
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
+
+        const meta = session?.user?.user_metadata || {};
+        setUserProfile({
+          name: profileData?.full_name || profileData?.name || meta.full_name || meta.name || session?.user?.email?.split("@")[0] || "User",
+          title: profileData?.title || meta.title || "Trainee",
+          dept: profileData?.department || meta.department || "Engineering",
+        });
+
+        // 2. Fetch Notifications
+        const { data: notifData } = await supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+
+        if (notifData) setNotifications(notifData);
+
+        // 3. Fetch Enrolled Courses & Progress
+        const { data: enrollments } = await supabase
+          .from("enrollments")
+          .select("status, progress, courses(id, title, code, trainer)")
+          .eq("user_id", userId);
+
+        if (enrollments) {
+          const formattedCourses = enrollments.map((e: any) => ({
+            id: e.courses?.id,
+            title: e.courses?.title || "Untitled Course",
+            code: e.courses?.code || "CRS",
+            trainer: e.courses?.trainer || "Instructor",
+            progress: e.progress || 0,
+            status: e.status || "In Progress",
+          }));
+          setMyCourses(formattedCourses.slice(0, 3));
+          setStats((prev) => ({
+            ...prev,
+            enrolledCoursesCount: enrollments.length,
+          }));
+        }
+
+        // 4. Fetch Results / Assessment scores for average & stats
+        const { data: resultsData } = await supabase
+          .from("results")
+          .select("score, created_at")
+          .eq("user_id", userId);
+
+        if (resultsData && resultsData.length > 0) {
+          const totalScore = resultsData.reduce((acc, curr) => acc + (curr.score || 0), 0);
+          const avg = Math.round(totalScore / resultsData.length);
+          setStats((prev) => ({ ...prev, avgScore: `${avg}%` }));
+        }
+
+        // 5. Fetch Dynamic Weekly Progress & Skill Radar if table exists, else fallback gracefully
+        const { data: progressData } = await supabase
+          .from("weekly_progress")
+          .select("*")
+          .eq("user_id", userId);
+        if (progressData && progressData.length > 0) {
+          setWeeklyProgress(progressData);
+        }
+
+        const { data: skillsData } = await supabase
+          .from("skill_radar")
+          .select("*")
+          .eq("user_id", userId);
+        if (skillsData && skillsData.length > 0) {
+          setSkillRadar(skillsData);
+        }
+
+      } catch (err) {
+        console.error("Error fetching dashboard data from Supabase:", err);
+      } finally {
+        setLoading(false);
       }
     }
 
+    fetchDashboardData();
 
-    fetchNotifications();
-
+    // Real-Time Notifications Subscription
     const channel = supabase
       .channel("dashboard-realtime-notifications")
       .on(
@@ -95,12 +176,25 @@ function TrainerDashboard() {
     };
   }, [session?.user?.id]);
 
+  if (loading) {
+    return (
+      <div className="flex h-[350px] items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="size-5 animate-spin" />
+        Loading your live dashboard...
+      </div>
+    );
+  }
+
+  const displayName = userProfile?.name ? userProfile.name.split(" ")[0] : "User";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-bold">Welcome back, {user.name.split(" ")[0]}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{user.title} · {user.dept}</p>
+          <h1 className="font-display text-xl font-bold">Welcome back, {displayName}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {userProfile?.title} · {userProfile?.dept}
+          </p>
         </div>
 
         {/* Live Real-Time Notification Indicator */}
@@ -118,10 +212,10 @@ function TrainerDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={BookOpen} label="Enrolled courses" value="6" trend="2 in progress" accent="indigo" />
-        <StatCard icon={Clock} label="Learning hours" value="64 hrs" trend="+9 hrs this week" trendUp accent="violet" />
-        <StatCard icon={TrendingUp} label="Average score" value="86%" trend="Across 4 assessments" trendUp accent="emerald" />
-        <StatCard icon={Award} label="Certificates" value="3" trend="1 pending completion" accent="amber" />
+        <StatCard icon={BookOpen} label="Enrolled courses" value={stats.enrolledCoursesCount.toString()} trend="Active records" accent="indigo" />
+        <StatCard icon={Clock} label="Learning hours" value={stats.learningHours} trend="Synced with profile" trendUp accent="violet" />
+        <StatCard icon={TrendingUp} label="Average score" value={stats.avgScore} trend="Real-time assessment avg" trendUp accent="emerald" />
+        <StatCard icon={Award} label="Certificates" value={stats.certificatesCount.toString()} trend="Verified completions" accent="amber" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -131,26 +225,32 @@ function TrainerDashboard() {
             <p className="text-xs text-muted-foreground">Weekly study hours and rolling assessment average</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={weeklyProgress} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="hoursFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                <XAxis dataKey="week" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
-                <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="score" stroke="var(--color-chart-1)" fill="url(#scoreFill)" strokeWidth={2} name="Assessment score" />
-                <Area type="monotone" dataKey="hours" stroke="var(--color-chart-2)" fill="url(#hoursFill)" strokeWidth={2} name="Study hours" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {weeklyProgress.length > 0 ? (
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart data={weeklyProgress} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="hoursFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                  <XAxis dataKey="week" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="score" stroke="var(--color-chart-1)" fill="url(#scoreFill)" strokeWidth={2} name="Assessment score" />
+                  <Area type="monotone" dataKey="hours" stroke="var(--color-chart-2)" fill="url(#hoursFill)" strokeWidth={2} name="Study hours" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[240px] items-center justify-center text-xs text-muted-foreground">
+                No weekly trend data recorded yet.
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -159,15 +259,21 @@ function TrainerDashboard() {
             <CardTitle className="font-display text-sm font-bold">Skill strength</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={230}>
-              <RadarChart data={skillRadar}>
-                <PolarGrid stroke="var(--color-border)" />
-                <PolarAngleAxis dataKey="skill" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
-                <PolarRadiusAxis tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
-                <Radar dataKey="value" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.35} />
-                <Tooltip contentStyle={tooltipStyle} />
-              </RadarChart>
-            </ResponsiveContainer>
+            {skillRadar.length > 0 ? (
+              <ResponsiveContainer width="100%" height={230}>
+                <RadarChart data={skillRadar}>
+                  <PolarGrid stroke="var(--color-border)" />
+                  <PolarAngleAxis dataKey="skill" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
+                  <Radar dataKey="value" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.35} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                </RadarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[230px] items-center justify-center text-xs text-muted-foreground">
+                No skill metrics available.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -180,18 +286,24 @@ function TrainerDashboard() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          {myCourses.map((c) => (
-            <div key={c.id} className="flex items-center justify-between rounded-md border p-3">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold leading-tight">{c.title}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code} · {c.trainer}</p>
-                <div className="mt-2 w-48">
-                  <Progress value={c.progress} className="h-1.5" />
+          {myCourses.length > 0 ? (
+            myCourses.map((c) => (
+              <div key={c.id || c.code} className="flex items-center justify-between rounded-md border p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold leading-tight">{c.title}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code} · {c.trainer}</p>
+                  <div className="mt-2 w-48">
+                    <Progress value={c.progress} className="h-1.5" />
+                  </div>
                 </div>
+                <Badge variant="secondary" className="shrink-0 text-[10px]">{c.status}</Badge>
               </div>
-              <Badge variant="secondary" className="shrink-0 text-[10px]">{c.status}</Badge>
+            ))
+          ) : (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              You are not currently enrolled in any active courses.
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
     </div>
