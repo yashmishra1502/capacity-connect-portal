@@ -55,7 +55,7 @@ export interface AssessmentItem {
   avg: number;
   created_at?: string;
   passing_score?: number | null;
-  questions?: QuestionItem[] | string; // Stored directly inside the assessment row
+  questions?: QuestionItem[] | string | any; // Stored directly inside the assessment row
 }
 
 const DEFAULT_PASS_THRESHOLD = 70;
@@ -217,10 +217,15 @@ function AssessmentList({
             
             let parsedQuestions: QuestionItem[] = [];
             try {
-              if (Array.isArray(assessment.questions)) {
-                parsedQuestions = assessment.questions;
-              } else if (typeof assessment.questions === "string") {
-                parsedQuestions = JSON.parse(assessment.questions);
+              const raw = assessment.questions;
+              if (Array.isArray(raw)) {
+                parsedQuestions = raw;
+              } else if (typeof raw === "string") {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) parsedQuestions = parsed;
+                else if (parsed && Array.isArray(parsed.questions)) parsedQuestions = parsed.questions;
+              } else if (raw && typeof raw === "object" && Array.isArray(raw.questions)) {
+                parsedQuestions = raw.questions;
               }
             } catch {
               parsedQuestions = [];
@@ -304,16 +309,33 @@ function QuizRunner({
   onExit: () => void;
   onSubmit: (answers: (number | null)[], elapsedSeconds: number) => void;
 }) {
+  useEffect(() => {
+    console.log("Raw Assessment Object:", assessment);
+    console.log("Raw assessment.questions:", assessment.questions, typeof assessment.questions);
+  }, [assessment]);
+
   const questions: QuestionItem[] = useMemo(() => {
     try {
-      if (Array.isArray(assessment.questions)) {
-        return assessment.questions;
+      const raw = assessment.questions;
+      if (!raw) return [];
+
+      if (Array.isArray(raw)) return raw;
+
+      if (typeof raw === "string") {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && typeof parsed === "object" && Array.isArray(parsed.questions)) {
+          return parsed.questions;
+        }
       }
-      if (typeof assessment.questions === "string") {
-        return JSON.parse(assessment.questions);
+
+      if (typeof raw === "object" && raw !== null) {
+        if (Array.isArray((raw as any).questions)) {
+          return (raw as any).questions;
+        }
       }
-    } catch {
-      return [];
+    } catch (err) {
+      console.error("Failed to parse assessment questions:", err);
     }
     return [];
   }, [assessment.questions]);
@@ -343,13 +365,18 @@ function QuizRunner({
 
   if (questions.length === 0) {
     return (
-      <div className="space-y-4 py-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          No questions have been added to this assessment yet.
-        </p>
-        <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
-          <ArrowLeft className="size-3.5" /> Back to assessments
-        </Button>
+      <div className="mx-auto max-w-lg space-y-4 py-12 text-center">
+        <Card className="p-6 border-border/70 bg-card/70 backdrop-blur">
+          <p className="text-sm font-medium text-destructive mb-2">
+            No questions found or failed to parse question structure.
+          </p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Check your browser console (F12) to inspect what data columns exist on this assessment row.
+          </p>
+          <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
+            <ArrowLeft className="size-3.5" /> Back to assessments
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -490,11 +517,16 @@ function ResultsScreen({
 }) {
   const questions: QuestionItem[] = useMemo(() => {
     try {
-      if (Array.isArray(assessment.questions)) {
-        return assessment.questions;
+      const raw = assessment.questions;
+      if (!raw) return [];
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === "string") {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && Array.isArray(parsed.questions)) return parsed.questions;
       }
-      if (typeof assessment.questions === "string") {
-        return JSON.parse(assessment.questions);
+      if (raw && typeof raw === "object" && Array.isArray(raw.questions)) {
+        return raw.questions;
       }
     } catch {
       return [];
