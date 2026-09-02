@@ -39,6 +39,7 @@ type Result = {
   course: string;
   score: number;
   total: number;
+  percentage: number;
   status: "Passed" | "Reattempt" | string;
   date: string;
 };
@@ -87,14 +88,20 @@ function TraineeResults() {
       setLoading(true);
       setError(null);
 
-      // Get logged-in user to fetch user-specific results
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
+      // Query results and join the assessments table to fetch the real title & course
       let queryBuilder = supabase
         .from("results")
-        .select("*")
+        .select(`
+          *,
+          assessments (
+            title,
+            course
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (user) {
@@ -106,15 +113,38 @@ function TraineeResults() {
       if (fetchError) {
         setError(fetchError.message);
       } else {
-        const mapped: Result[] = (data ?? []).map((item: any) => ({
-          id: item.id,
-          assessment: item.assessment_title ?? item.assessment ?? "Untitled Assessment",
-          course: item.course_title ?? item.course ?? "General",
-          score: item.score ?? 0,
-          total: item.total_score ?? item.total ?? 100,
-          status: item.status ?? (item.score >= 60 ? "Passed" : "Reattempt"),
-          date: item.created_at ? formatDate(item.created_at) : formatDate(item.date),
-        }));
+        const mapped: Result[] = (data ?? []).map((item: any) => {
+          const assessmentRelation = item.assessments;
+          const assessmentTitle =
+            assessmentRelation?.title ?? item.assessment_title ?? item.assessment ?? "Untitled Assessment";
+          const courseTitle =
+            assessmentRelation?.course ?? item.course_title ?? item.course ?? "General";
+
+          const rawScore = item.score ?? 0;
+          const rawTotal = item.total_score ?? item.total ?? 1;
+          const pct = rawTotal > 0 ? Math.round((rawScore / rawTotal) * 100) : 0;
+          
+          const rawStatus = item.status;
+          const statusVal =
+            rawStatus && rawStatus.toLowerCase() === "passed"
+              ? "Passed"
+              : rawStatus && rawStatus.toLowerCase() === "failed"
+              ? "Reattempt"
+              : pct >= 60
+              ? "Passed"
+              : "Reattempt";
+
+          return {
+            id: item.id,
+            assessment: assessmentTitle,
+            course: courseTitle,
+            score: rawScore,
+            total: rawTotal,
+            percentage: pct,
+            status: statusVal,
+            date: item.created_at ? formatDate(item.created_at) : formatDate(item.date),
+          };
+        });
 
         setResults(mapped);
       }
@@ -134,8 +164,8 @@ function TraineeResults() {
     const total = results.length;
     const passed = results.filter((r) => r.status === "Passed").length;
     const avgScore =
-      total > 0 ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / total) : 0;
-    const best = total > 0 ? Math.max(...results.map((r) => r.score)) : 0;
+      total > 0 ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / total) : 0;
+    const best = total > 0 ? Math.max(...results.map((r) => r.percentage)) : 0;
     return { total, passed, avgScore, best };
   }, [results]);
 
@@ -252,9 +282,9 @@ function TraineeResults() {
                   </div>
 
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className={cn("font-display text-lg font-bold tabular-nums", scoreColor(result.score))}>
-                      {result.score}
-                      <span className="text-xs font-medium text-muted-foreground">/{result.total}</span>
+                    <span className={cn("font-display text-lg font-bold tabular-nums", scoreColor(result.percentage))}>
+                      {result.percentage}%
+                      <span className="text-xs font-medium text-muted-foreground"> ({result.score}/{result.total})</span>
                     </span>
                     <ChevronDown
                       className={cn(
@@ -274,20 +304,20 @@ function TraineeResults() {
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Score breakdown</span>
-                        <span>{result.score}%</span>
+                        <span>Score breakdown ({result.score} correct out of {result.total} questions)</span>
+                        <span>{result.percentage}%</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
                           className={cn(
                             "h-full rounded-full transition-all duration-700 ease-out",
-                            result.score >= 80
+                            result.percentage >= 80
                               ? "bg-success"
-                              : result.score >= 60
+                              : result.percentage >= 60
                               ? "bg-warning"
                               : "bg-destructive"
                           )}
-                          style={{ width: `${result.score}%` }}
+                          style={{ width: `${result.percentage}%` }}
                         />
                       </div>
                     </div>
