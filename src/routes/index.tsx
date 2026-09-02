@@ -571,40 +571,8 @@ function Landing() {
             ))}
           </div>
 
-          {/* hero visual — live product summary */}
-          <div className="hero-visual reveal" data-reveal>
-            <div className="hero-visual-inner">
-              <div className="browser-dots">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="mock-grid">
-                <div className="mock-sidebar">
-                  {["Overview", "Courses", "Certificates", "Analytics", "Settings"].map((item, i) => (
-                    <div key={item} className={`item${i === 0 ? " active" : ""}`}>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-                <div className="mock-main">
-                  <h4>Platform overview</h4>
-                  <p>Live snapshot across all departments</p>
-                  <div className="mock-cards">
-                    {statBar.map((s) => (
-                      <div key={s.label} className="mock-card">
-                        <div className="num">{s.value}</div>
-                        <div className="lbl">{s.label.toUpperCase()}</div>
-                        <div className="mock-bar-track">
-                          <div className="mock-bar-fill" style={{ width: "68%" }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* hero visual — animated product showcase */}
+          <ShowcaseMock />
         </div>
       </section>
 
