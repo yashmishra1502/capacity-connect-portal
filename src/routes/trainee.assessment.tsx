@@ -37,39 +37,34 @@ export const Route = createFileRoute("/trainee/assessment")({
 
 /* ---------------- types & helpers ---------------- */
 
-// `status` in the DB is constrained to these values (mixed case exists in the
-// CHECK constraint, so we normalize rather than trust exact casing).
 type RawStatus = string;
 type DisplayStatus = "Live" | "Upcoming" | "Draft";
+
+export interface QuestionItem {
+  question: string;
+  options: string[];
+  answer: number; // index of the correct option
+}
 
 export interface AssessmentItem {
   id: string;
   title: string;
   course: string;
-  questions: number;
   status: RawStatus;
   attempts: number;
   avg: number;
   created_at?: string;
   passing_score?: number | null;
+  questions?: QuestionItem[] | string; // Stored directly inside the assessment row
 }
 
-interface AssessmentQuestion {
-  id: string;
-  assessment_id: string;
-  question_text: string;
-  options: string[];
-  correct_option: number;
-  order_index: number;
-}
-
-const DEFAULT_PASS_THRESHOLD = 70; // matches assessments.passing_score default
+const DEFAULT_PASS_THRESHOLD = 70;
 
 function normalizeStatus(status: RawStatus): DisplayStatus {
-  const s = status.toLowerCase();
+  if (!status) return "Draft";
+  const s = status.toLowerCase().trim();
   if (s === "draft") return "Draft";
   if (s === "upcoming") return "Upcoming";
-  // "live" and "active" both count as attemptable
   return "Live";
 }
 
@@ -102,7 +97,6 @@ type ViewState =
   | {
       mode: "results";
       assessmentId: string;
-      questions: AssessmentQuestion[];
       answers: (number | null)[];
       elapsedSeconds: number;
     };
@@ -157,11 +151,10 @@ function TraineeAssessment() {
       <QuizRunner
         assessment={active}
         onExit={() => setView({ mode: "list" })}
-        onSubmit={(questions, answers, elapsedSeconds) =>
+        onSubmit={(answers, elapsedSeconds) =>
           setView({
             mode: "results",
             assessmentId: active.id,
-            questions,
             answers,
             elapsedSeconds,
           })
@@ -174,7 +167,6 @@ function TraineeAssessment() {
     return (
       <ResultsScreen
         assessment={active}
-        questions={view.questions}
         answers={view.answers}
         elapsedSeconds={view.elapsedSeconds}
         onRetake={() => setView({ mode: "quiz", assessmentId: active.id })}
@@ -222,6 +214,19 @@ function AssessmentList({
           {assessments.map((assessment, index) => {
             const display = normalizeStatus(assessment.status);
             const isLive = display === "Live";
+            
+            let parsedQuestions: QuestionItem[] = [];
+            try {
+              if (Array.isArray(assessment.questions)) {
+                parsedQuestions = assessment.questions;
+              } else if (typeof assessment.questions === "string") {
+                parsedQuestions = JSON.parse(assessment.questions);
+              }
+            } catch {
+              parsedQuestions = [];
+            }
+            const questionCount = parsedQuestions.length;
+
             return (
               <Card
                 key={assessment.id}
@@ -239,7 +244,7 @@ function AssessmentList({
                       {display}
                     </Badge>
                     <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                      <ListChecks className="size-3.5" /> {assessment.questions} questions
+                      <ListChecks className="size-3.5" /> {questionCount} questions
                     </span>
                   </div>
 
@@ -253,7 +258,7 @@ function AssessmentList({
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Clock className="size-3.5" /> ~
-                      {Math.max(5, Math.round(assessment.questions * 1.5))} min
+                      {Math.max(5, Math.round(questionCount * 1.5))} min
                     </span>
                     <span className="flex items-center gap-1.5">
                       <TrendingUp className="size-3.5" /> {assessment.avg || 0}% avg score
@@ -262,7 +267,7 @@ function AssessmentList({
 
                   <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4">
                     <span className="text-xs text-muted-foreground">
-                      {assessment.attempts} attempts so far
+                      {assessment.attempts || 0} attempts so far
                     </span>
                     <Button
                       size="sm"
@@ -297,83 +302,54 @@ function QuizRunner({
 }: {
   assessment: AssessmentItem;
   onExit: () => void;
-  onSubmit: (
-    questions: AssessmentQuestion[],
-    answers: (number | null)[],
-    elapsedSeconds: number,
-  ) => void;
+  onSubmit: (answers: (number | null)[], elapsedSeconds: number) => void;
 }) {
-  const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
-  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const questions: QuestionItem[] = useMemo(() => {
+    try {
+      if (Array.isArray(assessment.questions)) {
+        return assessment.questions;
+      }
+      if (typeof assessment.questions === "string") {
+        return JSON.parse(assessment.questions);
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  }, [assessment.questions]);
+
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>([]);
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>(() => questions.map(() => null));
+  const [secondsLeft, setSecondsLeft] = useState(() => Math.max(questions.length * 60, 60));
   const startedAt = useRef(Date.now());
   const submittedRef = useRef(false);
-
-  // Fetch this assessment's real questions from Supabase
-  useEffect(() => {
-    async function fetchQuestions() {
-      try {
-        setLoadingQuestions(true);
-        const { data, error } = await supabase
-          .from("assessment_questions")
-          .select("*")
-          .eq("assessment_id", assessment.id)
-          .order("order_index", { ascending: true });
-
-        if (error) throw error;
-
-        const normalized: AssessmentQuestion[] = (data || []).map((row) => ({
-          id: row.id,
-          assessment_id: row.assessment_id,
-          question_text: row.question_text,
-          // options is stored as jsonb; guard in case it comes back as a string
-          options: Array.isArray(row.options)
-            ? row.options
-            : JSON.parse(row.options ?? "[]"),
-          correct_option: row.correct_option,
-          order_index: row.order_index,
-        }));
-
-        setQuestions(normalized);
-        setAnswers(normalized.map(() => null));
-        setSecondsLeft(normalized.length * 60);
-        startedAt.current = Date.now();
-      } catch (err) {
-        console.error("Error fetching assessment questions from Supabase:", err);
-        setQuestions([]);
-      } finally {
-        setLoadingQuestions(false);
-      }
-    }
-
-    fetchQuestions();
-  }, [assessment.id]);
 
   const handleSubmit = () => {
     if (submittedRef.current) return;
     submittedRef.current = true;
     const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
-    onSubmit(questions, answers, elapsed);
+    onSubmit(answers, elapsed);
   };
 
   useEffect(() => {
-    if (loadingQuestions || questions.length === 0) return;
+    if (questions.length === 0) return;
     if (secondsLeft <= 0) {
       handleSubmit();
       return;
     }
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft, loadingQuestions, questions.length]);
+  }, [secondsLeft, questions.length]);
 
-  if (loadingQuestions) {
+  if (questions.length === 0) {
     return (
-      <div className="flex h-64 flex-col items-center justify-center gap-2 text-muted-foreground">
-        <Loader2 className="size-8 animate-spin" />
-        <p className="text-sm font-medium">Loading questions...</p>
+      <div className="space-y-4 py-12 text-center">
+        <p className="text-sm text-muted-foreground">
+          No questions have been added to this assessment yet.
+        </p>
+        <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
+          <ArrowLeft className="size-3.5" /> Back to assessments
+        </Button>
       </div>
     );
   }
@@ -390,19 +366,6 @@ function QuizRunner({
       return next;
     });
   };
-
-  if (!q) {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          No questions have been added to this assessment yet.
-        </p>
-        <Button variant="outline" onClick={onExit} className="gap-1.5 rounded-full">
-          <ArrowLeft className="size-3.5" /> Back to assessments
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -444,11 +407,11 @@ function QuizRunner({
       <Card className="cc-glow-card border-border/70 bg-card/70 backdrop-blur">
         <CardContent className="space-y-5 p-6">
           <h2 className="font-display text-lg font-semibold leading-snug md:text-xl">
-            {q.question_text}
+            {q?.question}
           </h2>
 
           <div className="space-y-2.5">
-            {q.options.map((option, i) => {
+            {q?.options?.map((option, i) => {
               const selected = answers[current] === i;
               return (
                 <button
@@ -514,21 +477,33 @@ function QuizRunner({
 
 function ResultsScreen({
   assessment,
-  questions,
   answers,
   elapsedSeconds,
   onRetake,
   onBackToList,
 }: {
   assessment: AssessmentItem;
-  questions: AssessmentQuestion[];
   answers: (number | null)[];
   elapsedSeconds: number;
   onRetake: () => void;
   onBackToList: () => void;
 }) {
+  const questions: QuestionItem[] = useMemo(() => {
+    try {
+      if (Array.isArray(assessment.questions)) {
+        return assessment.questions;
+      }
+      if (typeof assessment.questions === "string") {
+        return JSON.parse(assessment.questions);
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  }, [assessment.questions]);
+
   const correctCount = questions.reduce(
-    (acc, q, i) => acc + (answers[i] === q.correct_option ? 1 : 0),
+    (acc, q, i) => acc + (answers[i] === q.answer ? 1 : 0),
     0,
   );
   const scorePct =
@@ -538,7 +513,6 @@ function ResultsScreen({
 
   const savedRef = useRef(false);
 
-  // Record the attempt: insert into results, bump assessments.attempts/avg
   useEffect(() => {
     if (savedRef.current || questions.length === 0) return;
     savedRef.current = true;
@@ -550,7 +524,7 @@ function ResultsScreen({
         } = await supabase.auth.getUser();
 
         if (user) {
-          const { error: resultError } = await supabase.from("results").insert({
+          await supabase.from("results").insert({
             trainee_id: user.id,
             user_id: user.id,
             assessment_id: assessment.id,
@@ -558,26 +532,23 @@ function ResultsScreen({
             total: questions.length,
             status: passed ? "passed" : "failed",
           });
-          if (resultError) throw resultError;
         }
 
         const newAttempts = (assessment.attempts ?? 0) + 1;
         const priorTotal = (assessment.avg ?? 0) * (assessment.attempts ?? 0);
         const newAvg = Math.round((priorTotal + scorePct) / newAttempts);
 
-        const { error: assessmentError } = await supabase
+        await supabase
           .from("assessments")
           .update({ attempts: newAttempts, avg: newAvg })
           .eq("id", assessment.id);
-        if (assessmentError) throw assessmentError;
       } catch (err) {
         console.error("Error saving assessment attempt to Supabase:", err);
       }
     }
 
     saveAttempt();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [assessment, correctCount, passed, questions.length, scorePct]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -635,10 +606,10 @@ function ResultsScreen({
           <div className="space-y-3">
             {questions.map((q, i) => {
               const userAnswer = answers[i];
-              const correct = userAnswer === q.correct_option;
+              const correct = userAnswer === q.answer;
               return (
                 <div
-                  key={q.id}
+                  key={i}
                   className={cn(
                     "rounded-xl border p-4 text-sm",
                     correct
@@ -647,7 +618,7 @@ function ResultsScreen({
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium leading-snug">{q.question_text}</p>
+                    <p className="font-medium leading-snug">{q.question}</p>
                     {correct ? (
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
                     ) : (
@@ -657,7 +628,7 @@ function ResultsScreen({
                   <p className="mt-2 text-xs text-muted-foreground">
                     Your answer:{" "}
                     <span className={correct ? "text-success" : "text-destructive"}>
-                      {userAnswer !== null && userAnswer !== undefined
+                      {userAnswer !== null && userAnswer !== undefined && q.options?.[userAnswer]
                         ? q.options[userAnswer]
                         : "Not answered"}
                     </span>
@@ -665,7 +636,7 @@ function ResultsScreen({
                   {!correct && (
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       Correct answer:{" "}
-                      <span className="text-success">{q.options[q.correct_option]}</span>
+                      <span className="text-success">{q.options?.[q.answer]}</span>
                     </p>
                   )}
                 </div>
