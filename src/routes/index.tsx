@@ -333,6 +333,150 @@ function useCyclingReveal(phrases: string[], holdTime = 2200, fadeMs = 550, onCy
 
 const TYPED_PHRASES = ["Connecting futures.", "Empowering officers.", "Building excellence."];
 
+/* ---------------- hero showcase (auto-cycling platform preview) ---------------- */
+
+const SHOWCASE_TABS = [
+  { label: "Overview", sub: "Live snapshot across all departments" },
+  { label: "Courses", sub: "Active courses with enrolment progress" },
+  { label: "Certificates", sub: "Recently issued verified certificates" },
+  { label: "Analytics", sub: "Completion trend by quarter" },
+] as const;
+
+const showcaseCourses = [
+  { name: "Ethics in Public Service", dept: "Personnel & Training", pct: 82 },
+  { name: "Digital Governance Basics", dept: "Digital India", pct: 64 },
+  { name: "Financial Management", dept: "Finance", pct: 47 },
+];
+
+const showcaseCerts = [
+  { name: "Ananya Verma", course: "Digital Governance Basics", id: "CC-2026-0481" },
+  { name: "Rohit Kumar", course: "Ethics in Public Service", id: "CC-2026-0479" },
+  { name: "Meera Iyer", course: "Financial Management", id: "CC-2026-0472" },
+];
+
+const showcaseBars = [42, 58, 51, 66, 74, 82];
+
+function ShowcaseMock() {
+  const [tab, setTab] = React.useState(0);
+  const active = SHOWCASE_TABS[tab] ?? SHOWCASE_TABS[0];
+
+  React.useEffect(() => {
+    const id = window.setInterval(
+      () => setTab((t) => (t + 1) % SHOWCASE_TABS.length),
+      3600,
+    );
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className="hero-visual">
+      <div className="hero-visual-inner">
+        <div className="browser-dots">
+          <span />
+          <span />
+          <span />
+          <span className="browser-url">capacityconnect.gov.in/dashboard</span>
+        </div>
+        <div className="mock-grid">
+          <div className="mock-sidebar">
+            {[...SHOWCASE_TABS.map((t) => t.label), "Settings"].map((item, i) => (
+              <button
+                key={item}
+                className={`item${i === tab ? " active" : ""}`}
+                onClick={() => i < SHOWCASE_TABS.length && setTab(i)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+          <div className="mock-main">
+            <div className="mock-main-head">
+              <div>
+                <h4>{active.label === "Overview" ? "Platform overview" : active.label}</h4>
+                <p>{active.sub}</p>
+              </div>
+              <div className="mock-tabs">
+                {SHOWCASE_TABS.map((t, i) => (
+                  <button
+                    key={t.label}
+                    className={`mock-tab${i === tab ? " active" : ""}`}
+                    onClick={() => setTab(i)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="showcase-panel" key={tab}>
+              {tab === 0 && (
+                <div className="mock-cards">
+                  {statBar.map((s) => (
+                    <div key={s.label} className="mock-card">
+                      <div className="num">{s.value}</div>
+                      <div className="lbl">{s.label.toUpperCase()}</div>
+                      <div className="mock-bar-track">
+                        <div className="mock-bar-fill" style={{ width: "68%" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {tab === 1 && (
+                <div className="mock-rows">
+                  {showcaseCourses.map((c) => (
+                    <div className="mock-row" key={c.name}>
+                      <div className="mock-row-top">
+                        <span className="mock-row-name">{c.name}</span>
+                        <span className="mock-row-dept">{c.dept}</span>
+                      </div>
+                      <div className="mock-bar-track">
+                        <div className="mock-bar-fill" style={{ width: `${c.pct}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {tab === 2 && (
+                <div className="mock-rows">
+                  {showcaseCerts.map((c) => (
+                    <div className="mock-row mock-cert" key={c.id}>
+                      <span className="mock-cert-ico">
+                        <BadgeCheck size={15} />
+                      </span>
+                      <div className="mock-cert-body">
+                        <span className="mock-row-name">{c.name}</span>
+                        <span className="mock-row-dept">{c.course}</span>
+                      </div>
+                      <span className="mock-cert-id">{c.id}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {tab === 3 && (
+                <div className="mock-chart">
+                  {showcaseBars.map((h, i) => (
+                    <div className="mock-chart-col" key={i}>
+                      <div
+                        className="mock-chart-bar"
+                        style={{ height: `${h}%`, animationDelay: `${i * 70}ms` }}
+                      />
+                      <span className="mock-chart-lbl">{`Q${(i % 4) + 1}`}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- page ---------------- */
 
 function Landing() {
@@ -407,7 +551,14 @@ function Landing() {
   return (
     <div className="ccl cc-homepage">
       {/* ---------- HEADER ---------- */}
+      <div className="tricolor" aria-hidden />
       <header>
+        <div className="govt-bar">
+          <div className="govt-bar-inner">
+            <span>भारत सरकार · Government of India</span>
+            <span className="govt-bar-right">Capacity Building Commission</span>
+          </div>
+        </div>
         <nav>
           <Link to="/" className="brand">
             <BrandLogo className="!h-9 !w-auto !max-w-[220px]" />
@@ -564,40 +715,8 @@ function Landing() {
             ))}
           </div>
 
-          {/* hero visual — live product summary */}
-          <div className="hero-visual reveal" data-reveal>
-            <div className="hero-visual-inner">
-              <div className="browser-dots">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="mock-grid">
-                <div className="mock-sidebar">
-                  {["Overview", "Courses", "Certificates", "Analytics", "Settings"].map((item, i) => (
-                    <div key={item} className={`item${i === 0 ? " active" : ""}`}>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-                <div className="mock-main">
-                  <h4>Platform overview</h4>
-                  <p>Live snapshot across all departments</p>
-                  <div className="mock-cards">
-                    {statBar.map((s) => (
-                      <div key={s.label} className="mock-card">
-                        <div className="num">{s.value}</div>
-                        <div className="lbl">{s.label.toUpperCase()}</div>
-                        <div className="mock-bar-track">
-                          <div className="mock-bar-fill" style={{ width: "68%" }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* hero visual — animated product showcase */}
+          <ShowcaseMock />
         </div>
       </section>
 

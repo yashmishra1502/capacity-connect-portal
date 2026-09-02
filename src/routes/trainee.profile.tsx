@@ -172,6 +172,7 @@ function TraineeProfile() {
       }
 
       const file = event.target.files[0];
+      if (!file) return;
       const fileExt = file.name.split(".").pop();
       const filePath = `${profile?.id}-${Math.random()}.${fileExt}`;
 

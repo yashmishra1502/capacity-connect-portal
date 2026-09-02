@@ -80,9 +80,9 @@ function TrainerDashboard() {
 
         const meta = session?.user?.user_metadata || {};
         setUserProfile({
-          name: profileData?.full_name || profileData?.name || meta.full_name || meta.name || session?.user?.email?.split("@")[0] || "User",
-          title: profileData?.title || meta.title || "Trainee",
-          dept: profileData?.department || meta.department || "Engineering",
+          name: profileData?.["full_name"] || profileData?.["name"] || meta["full_name"] || meta["name"] || session?.user?.email?.split("@")[0] || "User",
+          title: profileData?.["title"] || meta["title"] || "Trainee",
+          dept: profileData?.["department"] || meta["department"] || "Engineering",
         });
 
         // 2. Fetch Notifications
