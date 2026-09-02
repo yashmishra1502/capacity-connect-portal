@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { supabase } from "@/lib/supabase"; // adjust based on your supabase client path
+import { supabase } from "@/lib/supabaseClient"; // adjust based on your supabase client path
 import { 
   FolderDown, 
   Plus, 
