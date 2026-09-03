@@ -112,7 +112,7 @@ function AdminSupport() {
     }
   };
 
-  const isRead = (m: ContactMessage) => (hasReadColumn ? !!m.read : readIds.has(m.id));
+  const isRead = (m: ContactMessage) => readIds.has(m.id) || (hasReadColumn && !!m.read);
 
   const fetchMessages = async () => {
     setLoading(true);
@@ -151,7 +151,8 @@ function AdminSupport() {
   const selected = messages.find((m) => m.id === selectedId) ?? filtered[0] ?? null;
 
   const markRead = async (id: string, value = true) => {
-    // always update the local fallback, so this works even without the DB column
+    // localStorage is the source of truth — the public form's Supabase key
+    // typically only has INSERT rights, so UPDATE can silently fail via RLS.
     setReadIds((prev) => {
       const next = new Set(prev);
       if (value) next.add(id);
@@ -162,7 +163,8 @@ function AdminSupport() {
 
     if (hasReadColumn) {
       setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: value } : m)));
-      await supabase.from("contact_messages").update({ read: value }).eq("id", id);
+      // best-effort — ignored if RLS blocks it, localStorage already covers it
+      void supabase.from("contact_messages").update({ read: value }).eq("id", id);
     }
   };
 
@@ -277,16 +279,10 @@ function AdminSupport() {
                       <div className="flex items-center justify-between gap-2 pr-6">
                         <span className="flex items-center gap-2 truncate text-[13px] font-semibold">
                           {!isRead(m) && (
-                            <span className="relative flex size-2 shrink-0">
-                              <span
-                                className="absolute inline-flex size-full animate-ping rounded-full opacity-75"
-                                style={{ background: accent }}
-                              />
-                              <span
-                                className="relative inline-flex size-2 rounded-full"
-                                style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
-                              />
-                            </span>
+                            <span
+                              className="inline-block size-2 shrink-0 rounded-full"
+                              style={{ background: accent }}
+                            />
                           )}
                           <span className="truncate">{m.full_name}</span>
                         </span>
@@ -294,6 +290,14 @@ function AdminSupport() {
                           {timeAgo(m.created_at)}
                         </span>
                       </div>
+                      {!isRead(m) && (
+                        <span
+                          className="mt-1 inline-block rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white"
+                          style={{ background: accent }}
+                        >
+                          New
+                        </span>
+                      )}
                       <p className="mt-0.5 truncate pr-6 text-[12px] font-medium text-muted-foreground">
                         {m.subject}
                       </p>
