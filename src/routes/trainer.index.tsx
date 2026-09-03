@@ -1,14 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BookOpen, Clock, Award, TrendingUp, Bell, Loader2 } from "lucide-react";
+import { Users, BookOpen, CheckCircle2, TrendingUp, Bell, Loader2, Award } from "lucide-react";
 import {
   AreaChart,
   Area,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -25,7 +20,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 export const Route = createFileRoute("/trainer/")({
   head: () => ({
-    meta: [{ title: "Dashboard — Trainee Portal · Capacity Connect" }],
+    meta: [{ title: "Dashboard — Trainer Portal · Capacity Connect" }],
   }),
   component: TrainerDashboard,
 });
@@ -51,27 +46,27 @@ function TrainerDashboard() {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   
-  // Real database states
-  const [userProfile, setUserProfile] = useState<{ name: string; title: string; dept: string } | null>(null);
+  // Real backend states for Trainer
+  const [trainerProfile, setTrainerProfile] = useState<{ name: string; title: string; dept: string } | null>(null);
   const [stats, setStats] = useState({
-    enrolledCoursesCount: 0,
-    learningHours: "0 hrs",
-    avgScore: "0%",
-    certificatesCount: 0,
+    totalCourses: 0,
+    activeTrainees: 0,
+    pendingSubmissions: 0,
+    avgCompletionRate: "0%",
   });
-  const [myCourses, setMyCourses] = useState<any[]>([]);
-  const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
-  const [skillRadar, setSkillRadar] = useState<any[]>([]);
+  const [managedCourses, setManagedCourses] = useState<any[]>([]);
+  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [performanceTrend, setPerformanceTrend] = useState<any[]>([]);
 
   useEffect(() => {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    async function fetchDashboardData() {
+    async function fetchTrainerDashboardData() {
       try {
         setLoading(true);
 
-        // 1. Fetch User Profile
+        // 1. Fetch Trainer Profile
         const { data: profileData } = await supabase
           .from("profiles")
           .select("*")
@@ -79,10 +74,10 @@ function TrainerDashboard() {
           .maybeSingle();
 
         const meta = session?.user?.user_metadata || {};
-        setUserProfile({
-          name: profileData?.["full_name"] || profileData?.["name"] || meta["full_name"] || meta["name"] || session?.user?.email?.split("@")[0] || "User",
-          title: profileData?.["title"] || meta["title"] || "Trainee",
-          dept: profileData?.["department"] || meta["department"] || "Engineering",
+        setTrainerProfile({
+          name: profileData?.["full_name"] || profileData?.["name"] || meta["full_name"] || meta["name"] || session?.user?.email?.split("@")[0] || "Trainer",
+          title: profileData?.["title"] || meta["title"] || "Senior Instructor",
+          dept: profileData?.["department"] || meta["department"] || "Training Dept",
         });
 
         // 2. Fetch Notifications
@@ -94,69 +89,68 @@ function TrainerDashboard() {
 
         if (notifData) setNotifications(notifData);
 
-        // 3. Fetch Enrolled Courses & Progress
-        const { data: enrollments } = await supabase
-          .from("enrollments")
-          .select("status, progress, courses(id, title, code, trainer)")
-          .eq("user_id", userId);
+        // 3. Fetch Courses Created/Managed by this Trainer
+        const { data: coursesData } = await supabase
+          .from("courses")
+          .select("id, title, code, created_at")
+          .eq("trainer_id", userId); // Adjust column name if your foreign key differs (e.g., trainer_id or instructor_id)
 
-        if (enrollments) {
-          const formattedCourses = enrollments.map((e: any) => ({
-            id: e.courses?.id,
-            title: e.courses?.title || "Untitled Course",
-            code: e.courses?.code || "CRS",
-            trainer: e.courses?.trainer || "Instructor",
-            progress: e.progress || 0,
-            status: e.status || "In Progress",
-          }));
-          setMyCourses(formattedCourses.slice(0, 3));
+        const courseIds = coursesData?.map((c) => c.id) || [];
+        setStats((prev) => ({ ...prev, totalCourses: coursesData?.length || 0 }));
+        setManagedCourses(coursesData || []);
+
+        if (courseIds.length > 0) {
+          // 4. Fetch Active Trainees & Enrollments for these courses
+          const { data: enrollmentsData } = await supabase
+            .from("enrollments")
+            .select("user_id, progress, status, course_id")
+            .in("course_id", courseIds);
+
+          const uniqueTrainees = new Set(enrollmentsData?.map((e) => e.user_id));
+          const totalProgress = enrollmentsData?.reduce((acc, curr) => acc + (curr.progress || 0), 0) || 0;
+          const avgProgress = enrollmentsData?.length ? Math.round(totalProgress / enrollmentsData.length) : 0;
+
           setStats((prev) => ({
             ...prev,
-            enrolledCoursesCount: enrollments.length,
+            activeTrainees: uniqueTrainees.size,
+            avgCompletionRate: `${avgProgress}%`,
           }));
         }
 
-        // 4. Fetch Results / Assessment scores for average & stats
-        const { data: resultsData } = await supabase
-          .from("results")
-          .select("score, created_at")
-          .eq("user_id", userId);
+        // 5. Fetch Pending Submissions/Assessments to Review
+        const { data: submissionsData } = await supabase
+          .from("submissions")
+          .select("id, status, created_at, profiles(full_name), courses(title)")
+          .eq("status", "pending")
+          .limit(5);
 
-        if (resultsData && resultsData.length > 0) {
-          const totalScore = resultsData.reduce((acc, curr) => acc + (curr.score || 0), 0);
-          const avg = Math.round(totalScore / resultsData.length);
-          setStats((prev) => ({ ...prev, avgScore: `${avg}%` }));
+        if (submissionsData) {
+          setRecentSubmissions(submissionsData);
+          setStats((prev) => ({ ...prev, pendingSubmissions: submissionsData.length }));
         }
 
-        // 5. Fetch Dynamic Weekly Progress & Skill Radar if table exists, else fallback gracefully
-        const { data: progressData } = await supabase
-          .from("weekly_progress")
+        // 6. Fetch Trainee Performance Trends (or fallback data)
+        const { data: trendData } = await supabase
+          .from("trainer_performance_trends")
           .select("*")
-          .eq("user_id", userId);
-        if (progressData && progressData.length > 0) {
-          setWeeklyProgress(progressData);
-        }
+          .eq("trainer_id", userId);
 
-        const { data: skillsData } = await supabase
-          .from("skill_radar")
-          .select("*")
-          .eq("user_id", userId);
-        if (skillsData && skillsData.length > 0) {
-          setSkillRadar(skillsData);
+        if (trendData && trendData.length > 0) {
+          setPerformanceTrend(trendData);
         }
 
       } catch (err) {
-        console.error("Error fetching dashboard data from Supabase:", err);
+        console.error("Error fetching trainer dashboard data from Supabase:", err);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchDashboardData();
+    fetchTrainerDashboardData();
 
-    // Real-Time Notifications Subscription
+    // Real-Time Notification Listener
     const channel = supabase
-      .channel("dashboard-realtime-notifications")
+      .channel("trainer-dashboard-realtime")
       .on(
         "postgres_changes",
         {
@@ -180,12 +174,12 @@ function TrainerDashboard() {
     return (
       <div className="flex h-[350px] items-center justify-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
-        Loading your live dashboard...
+        Loading trainer console...
       </div>
     );
   }
 
-  const displayName = userProfile?.name ? userProfile.name.split(" ")[0] : "User";
+  const displayName = trainerProfile?.name ? trainerProfile.name.split(" ")[0] : "Trainer";
 
   return (
     <div className="space-y-6">
@@ -193,11 +187,10 @@ function TrainerDashboard() {
         <div>
           <h1 className="font-display text-xl font-bold">Welcome back, {displayName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {userProfile?.title} · {userProfile?.dept}
+            {trainerProfile?.title} · {trainerProfile?.dept}
           </p>
         </div>
 
-        {/* Live Real-Time Notification Indicator */}
         <div className="relative">
           <Button variant="outline" size="icon" className="relative">
             <Bell className="size-4" />
@@ -212,43 +205,32 @@ function TrainerDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={BookOpen} label="Enrolled courses" value={stats.enrolledCoursesCount.toString()} trend="Active records" accent="indigo" />
-        <StatCard icon={Clock} label="Learning hours" value={stats.learningHours} trend="Synced with profile" trendUp accent="violet" />
-        <StatCard icon={TrendingUp} label="Average score" value={stats.avgScore} trend="Real-time assessment avg" trendUp accent="emerald" />
-        <StatCard icon={Award} label="Certificates" value={stats.certificatesCount.toString()} trend="Verified completions" accent="amber" />
+        <StatCard icon={BookOpen} label="Managed courses" value={stats.totalCourses.toString()} trend="Active modules" accent="indigo" />
+        <StatCard icon={Users} label="Active trainees" value={stats.activeTrainees.toString()} trend="Enrolled learners" trendUp accent="violet" />
+        <StatCard icon={CheckCircle2} label="Pending reviews" value={stats.pendingSubmissions.toString()} trend="Action required" accent="amber" />
+        <StatCard icon={TrendingUp} label="Avg completion" value={stats.avgCompletionRate} trend="Trainee progress avg" trendUp accent="emerald" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Learning trend</CardTitle>
-            <p className="text-xs text-muted-foreground">Weekly study hours and rolling assessment average</p>
+            <CardTitle className="font-display text-sm font-bold">Trainee progression overview</CardTitle>
+            <p className="text-xs text-muted-foreground">Overall cohort performance metrics over time</p>
           </CardHeader>
           <CardContent>
-            {weeklyProgress.length > 0 ? (
+            {performanceTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
-                <AreaChart data={weeklyProgress} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="hoursFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
+                <AreaChart data={performanceTrend} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="week" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                  <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
                   <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
                   <Tooltip contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="score" stroke="var(--color-chart-1)" fill="url(#scoreFill)" strokeWidth={2} name="Assessment score" />
-                  <Area type="monotone" dataKey="hours" stroke="var(--color-chart-2)" fill="url(#hoursFill)" strokeWidth={2} name="Study hours" />
+                  <Area type="monotone" dataKey="score" stroke="var(--color-chart-1)" fill="url(#scoreFill)" strokeWidth={2} name="Avg Score" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-[240px] items-center justify-center text-xs text-muted-foreground">
-                No weekly trend data recorded yet.
+                No cohort performance records found.
               </div>
             )}
           </CardContent>
@@ -256,22 +238,22 @@ function TrainerDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Skill strength</CardTitle>
+            <CardTitle className="font-display text-sm font-bold">Pending Assessments</CardTitle>
           </CardHeader>
-          <CardContent>
-            {skillRadar.length > 0 ? (
-              <ResponsiveContainer width="100%" height={230}>
-                <RadarChart data={skillRadar}>
-                  <PolarGrid stroke="var(--color-border)" />
-                  <PolarAngleAxis dataKey="skill" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
-                  <PolarRadiusAxis tick={{ fontSize: 9 }} stroke="var(--color-muted-foreground)" />
-                  <Radar dataKey="value" stroke="var(--color-chart-1)" fill="var(--color-chart-1)" fillOpacity={0.35} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                </RadarChart>
-              </ResponsiveContainer>
+          <CardContent className="space-y-3">
+            {recentSubmissions.length > 0 ? (
+              recentSubmissions.map((sub: any) => (
+                <div key={sub.id} className="flex items-center justify-between rounded-md border p-2.5">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold truncate">{sub.profiles?.full_name || "Trainee"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{sub.courses?.title || "Course assessment"}</p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px]">Review</Badge>
+                </div>
+              ))
             ) : (
-              <div className="flex h-[230px] items-center justify-center text-xs text-muted-foreground">
-                No skill metrics available.
+              <div className="flex h-[180px] items-center justify-center text-xs text-muted-foreground text-center">
+                All caught up! No pending submissions to review.
               </div>
             )}
           </CardContent>
@@ -280,28 +262,25 @@ function TrainerDashboard() {
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-display text-sm font-bold">Continue where you left off</CardTitle>
+          <CardTitle className="font-display text-sm font-bold">Your Managed Courses</CardTitle>
           <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
-            <Link to="/trainee/courses">All courses</Link>
+            <Link to="/trainer/courses">Manage all</Link>
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          {myCourses.length > 0 ? (
-            myCourses.map((c) => (
-              <div key={c.id || c.code} className="flex items-center justify-between rounded-md border p-3">
+          {managedCourses.length > 0 ? (
+            managedCourses.map((c) => (
+              <div key={c.id} className="flex items-center justify-between rounded-md border p-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold leading-tight">{c.title}</p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code} · {c.trainer}</p>
-                  <div className="mt-2 w-48">
-                    <Progress value={c.progress} className="h-1.5" />
-                  </div>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code}</p>
                 </div>
-                <Badge variant="secondary" className="shrink-0 text-[10px]">{c.status}</Badge>
+                <Badge variant="secondary" className="shrink-0 text-[10px]">Active</Badge>
               </div>
             ))
           ) : (
             <div className="py-6 text-center text-xs text-muted-foreground">
-              You are not currently enrolled in any active courses.
+              You haven't been assigned or created any courses yet.
             </div>
           )}
         </CardContent>
