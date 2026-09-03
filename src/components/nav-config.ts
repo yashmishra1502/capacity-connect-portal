@@ -43,6 +43,8 @@ export const navConfig: Record<Role, NavItem[]> = {
     { label: "Approvals", to: "/admin/approvals", group: "Governance" },
     
     { label: "Announcements", to: "/admin/announcements", group: "Governance" },
+
+    { label: "Support", to: "/admin/support", group: "Governance" },
     
     { label: "Notifications", to: "/admin/notifications", group: "Account" },
     { label: "Settings", to: "/admin/settings", group: "Account" },
