@@ -486,9 +486,6 @@ function Landing() {
   const { session, profile, loading } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
-  // Hero background ref, used to trigger a brief glitch pulse each time
-  // the rotating tagline below the hero copy finishes a cycle.
-  const heroBgRef = React.useRef<HTMLDivElement>(null);
   const { text: typedText, visible: typedVisible } = useCyclingReveal(
     TYPED_PHRASES,
     2600,
@@ -646,7 +643,6 @@ function Landing() {
            {/* ---------- HERO ---------- */}
       <section className="hero" id="top" style={{ position: "relative", overflow: "hidden" }}>
         <div
-          ref={heroBgRef}
           aria-hidden
           className="hero-bg"
           style={{
@@ -693,7 +689,7 @@ function Landing() {
             </a>
           </div>
 
-          <div style={{ marginTop: 28, display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <div className="hero-badges" style={{ marginTop: 28, display: "flex", flexWrap: "wrap", gap: 10 }}>
             {heroBadges.map((b) => (
               <span
                 key={b.label}
@@ -836,9 +832,9 @@ function Landing() {
             </div>
           </div>
 
-          <div className="portal-grid">
+          <div className="portal-grid reveal" data-reveal>
             {portals.map((p) => (
-              <div className="portal-card reveal" data-reveal key={p.role}>
+              <div className="portal-card" key={p.role}>
                 <div className="portal-icon">
                   <p.icon />
                 </div>
@@ -900,9 +896,9 @@ function Landing() {
             </div>
           </div>
 
-          <div className="feature-grid">
+          <div className="feature-grid reveal" data-reveal>
             {displayFeatures.map((f, i) => (
-              <div className="fcard reveal" data-reveal key={`${f.title}-${i}`}>
+              <div className="fcard" key={`${f.title}-${i}`}>
                 <div className="fmedia">
                   <span className="ftag">{f.tag}</span>
                   {f.imageUrl ? (
