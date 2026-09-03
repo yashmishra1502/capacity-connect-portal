@@ -168,12 +168,6 @@ const faqs = [
   },
 ];
 
-const heroBadges = [
-  { icon: Gift, label: "Free for Departments" },
-  { icon: ShieldCheck, label: "Verified Certification" },
-  { icon: Users, label: "Role-based Access" },
-];
-
 const govDepartments = [
   { name: "Home Affairs", icon: ShieldCheck },
   { name: "Digital India", icon: Sparkles },
@@ -526,7 +520,7 @@ function Landing() {
 
           <p className="hero-sub">
             A centralised digital platform for training management, competency development
-            and knowledge sharing — built to empower departments and the people within them.
+            and knowledge sharing built to empower departments and the people within them.
             <br />
             <strong
               className={`cc-typed-fade${typedVisible ? "" : " cc-typed-hidden"}`}
@@ -660,7 +654,7 @@ function Landing() {
           <p className="reveal" data-reveal>
             An initiative of the <span className="hi">Capacity Building Commission</span>,
             Capacity Connect brings a <span className="dim">seamless</span> digital experience
-            to training, assessments and knowledge sharing — so every department can plan{" "}
+            to training, assessments and knowledge sharing, so every department can plan{" "}
             <span className="hi">competency growth</span> in one place.
           </p>
           <div style={{ marginTop: 28 }}>
