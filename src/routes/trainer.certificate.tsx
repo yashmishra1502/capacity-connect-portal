@@ -35,6 +35,9 @@ function CertificateGenerator() {
   const [certNo, setCertNo] = useState(
     `CC/${today.getFullYear()}/${Math.floor(1000 + Math.random() * 9000)}`,
   );
+  const [coordinatorName, setCoordinatorName] = useState("Kumar");
+  const [trainerName, setTrainerName] = useState("Priya");
+  const [signatoryName, setSignatoryName] = useState("Sharma");
 
   const certRef = useRef<HTMLDivElement>(null);
 
@@ -123,6 +126,33 @@ function CertificateGenerator() {
               </div>
             </div>
 
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="coordinatorName">Coordinator</Label>
+                <Input
+                  id="coordinatorName"
+                  value={coordinatorName}
+                  onChange={(e) => setCoordinatorName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="trainerName">Trainer</Label>
+                <Input
+                  id="trainerName"
+                  value={trainerName}
+                  onChange={(e) => setTrainerName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="signatoryName">Signatory</Label>
+                <Input
+                  id="signatoryName"
+                  value={signatoryName}
+                  onChange={(e) => setSignatoryName(e.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="flex gap-2 pt-2">
               <Button onClick={handleDownload} className="flex-1 gap-2">
                 <Download className="size-4" />
@@ -163,9 +193,21 @@ function CertificateGenerator() {
                   <span className="text-[9px] font-normal text-slate-500">भारत 2023 INDIA</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="flex size-10 items-center justify-center rounded-full border-2 border-amber-600 text-amber-700">
-                    <Award className="size-5" />
-                  </div>
+                  <svg viewBox="0 0 100 100" className="size-12">
+                    <circle cx="50" cy="50" r="46" fill="none" stroke="#b8860b" strokeWidth="2" />
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <line
+                        key={i}
+                        x1="50"
+                        y1="50"
+                        x2={50 + 42 * Math.cos((i * Math.PI) / 12)}
+                        y2={50 + 42 * Math.sin((i * Math.PI) / 12)}
+                        stroke="#b8860b"
+                        strokeWidth="0.8"
+                      />
+                    ))}
+                    <circle cx="50" cy="50" r="8" fill="#b8860b" />
+                  </svg>
                 </div>
                 <div className="text-right text-[9px] font-semibold leading-tight text-orange-600">
                   75<br />
@@ -185,9 +227,23 @@ function CertificateGenerator() {
 
               <div className="my-2 h-px w-2/3 bg-amber-500" />
 
-              <h1 className="text-2xl font-bold tracking-wide text-red-800">
-                CERTIFICATE OF APPRECIATION
-              </h1>
+              <div className="relative flex w-full items-center justify-center">
+                <div className="absolute left-2 flex flex-col items-center text-[7px] font-semibold leading-tight text-blue-800">
+                  <div className="mb-1 flex size-12 items-center justify-center rounded-full border-2 border-blue-800">
+                    <Award className="size-5" />
+                  </div>
+                  CAPACITY<br />CONNECT
+                </div>
+                <h1 className="text-2xl font-bold tracking-wide text-red-800">
+                  CERTIFICATE OF APPRECIATION
+                </h1>
+                <div className="absolute right-2 flex flex-col items-center text-[7px] font-semibold leading-tight text-blue-800">
+                  <div className="mb-1 flex size-12 items-center justify-center rounded-full border-2 border-blue-800">
+                    <Award className="size-5" />
+                  </div>
+                  SKILLING<br />INDIA
+                </div>
+              </div>
 
               <div className="mt-2 rounded bg-blue-900 px-4 py-1 text-[11px] font-semibold tracking-wide text-white">
                 THIS CERTIFICATE IS PROUDLY PRESENTED TO
@@ -233,15 +289,30 @@ function CertificateGenerator() {
 
                 <div className="flex gap-10 text-center text-[9px] text-slate-600">
                   <div>
-                    <div className="mb-1 h-8 w-20 border-b border-slate-400" />
+                    <div
+                      className="mb-1 flex h-8 w-20 items-end justify-center border-b border-slate-400 text-lg text-blue-700"
+                      style={{ fontFamily: "'Brush Script MT', cursive" }}
+                    >
+                      {coordinatorName}
+                    </div>
                     Programme Coordinator
                   </div>
                   <div>
-                    <div className="mb-1 h-8 w-20 border-b border-slate-400" />
+                    <div
+                      className="mb-1 flex h-8 w-20 items-end justify-center border-b border-slate-400 text-lg text-blue-700"
+                      style={{ fontFamily: "'Brush Script MT', cursive" }}
+                    >
+                      {trainerName}
+                    </div>
                     Trainer
                   </div>
                   <div>
-                    <div className="mb-1 h-8 w-20 border-b border-slate-400" />
+                    <div
+                      className="mb-1 flex h-8 w-20 items-end justify-center border-b border-slate-400 text-lg text-green-700"
+                      style={{ fontFamily: "'Brush Script MT', cursive" }}
+                    >
+                      {signatoryName}
+                    </div>
                     Authorised Signatory
                   </div>
                 </div>
