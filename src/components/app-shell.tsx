@@ -13,6 +13,7 @@ import {
   Users,
   ShieldCheck,
   BarChart3,
+  Award,
   X,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
@@ -47,6 +48,7 @@ const primaryNav: Record<Role, Primary[]> = {
     { label: "Dashboard", to: "/trainer", icon: LayoutDashboard },
     { label: "Courses", to: "/trainer/courses", icon: BookOpen },
     { label: "Questions", to: "/trainer/questions", icon: FileCheck2 },
+    { label: "Certificates", to: "/trainer/certificate", icon: Award },
     { label: "Profile", to: "/trainer/profile", icon: User },
   ],
   admin: [
