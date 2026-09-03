@@ -69,6 +69,16 @@ function TrainerDashboard() {
     const userId = session?.user?.id;
     if (!userId) return;
 
+    async function refreshActiveTraineeCount() {
+      const { count } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "trainee")
+        .eq("status", "active");
+
+      setStats((prev) => ({ ...prev, activeTrainees: count ?? 0 }));
+    }
+
     async function fetchTrainerDashboardData() {
       try {
         setLoading(true);
@@ -115,14 +125,18 @@ function TrainerDashboard() {
         setStats((prev) => ({ ...prev, totalCourses: coursesData?.length || 0 }));
         setManagedCourses(coursesData || []);
 
+        // 4. Active trainees — count directly from public.profiles (role = 'trainee'),
+        //    since enrollments doesn't reliably reflect registered trainees yet.
+        //    Kept live via the realtime subscription below.
+        await refreshActiveTraineeCount();
+
         if (courseIds.length > 0) {
-          // 4. Enrollments + progress for those courses (trainee_id, not user_id)
+          // 5. Progress for this trainer's courses (trainee_id, not user_id)
           const { data: enrollmentsData } = await supabase
             .from("enrollments")
             .select("trainee_id, progress, status, course_id")
             .in("course_id", courseIds);
 
-          const uniqueTrainees = new Set(enrollmentsData?.map((e) => e.trainee_id));
           const totalProgress =
             enrollmentsData?.reduce((acc, curr) => acc + (curr.progress || 0), 0) || 0;
           const avgProgress = enrollmentsData?.length
@@ -131,12 +145,11 @@ function TrainerDashboard() {
 
           setStats((prev) => ({
             ...prev,
-            activeTrainees: uniqueTrainees.size,
             avgCompletionRate: `${avgProgress}%`,
           }));
         }
 
-        // 5. Assessments/quizzes this trainer created (public.assessments.created_by)
+        // 6. Assessments/quizzes this trainer created (public.assessments.created_by)
         const { data: assessmentsData } = await supabase
           .from("assessments")
           .select("id, title, course, status, questions, attempts, avg, passing_score, created_at")
@@ -189,6 +202,19 @@ function TrainerDashboard() {
         },
         (payload) => {
           setNotifications((prev) => [payload.new as Notification, ...prev]);
+        },
+      )
+      // Any registration, role change, or activation/deactivation of a trainee
+      // updates the "Active trainees" tile without a page refresh.
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "profiles",
+        },
+        () => {
+          refreshActiveTraineeCount();
         },
       )
       .subscribe();
