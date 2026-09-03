@@ -9,6 +9,9 @@ import {
   MessagesSquare,
   Inbox,
   Clock,
+  Trash2,
+  CheckCheck,
+  CircleDot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,15 +132,30 @@ function AdminSupport() {
   const unreadCount = messages.filter((m) => !m.read).length;
   const selected = messages.find((m) => m.id === selectedId) ?? filtered[0] ?? null;
 
-  const markRead = async (id: string) => {
+  const markRead = async (id: string, value = true) => {
     if (!hasReadColumn) return;
-    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: true } : m)));
-    await supabase.from("contact_messages").update({ read: true }).eq("id", id);
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: value } : m)));
+    await supabase.from("contact_messages").update({ read: value }).eq("id", id);
+  };
+
+  const deleteMessage = async (id: string) => {
+    const ok = window.confirm("Delete this message? This can't be undone.");
+    if (!ok) return;
+
+    const prev = messages;
+    setMessages((cur) => cur.filter((m) => m.id !== id));
+    if (selectedId === id) setSelectedId(null);
+
+    const { error } = await supabase.from("contact_messages").delete().eq("id", id);
+    if (error) {
+      alert(`Failed to delete message: ${error.message}`);
+      setMessages(prev);
+    }
   };
 
   const openMessage = (m: ContactMessage) => {
     setSelectedId(m.id);
-    if (!m.read) markRead(m.id);
+    if (!m.read) markRead(m.id, true);
   };
 
   return (
@@ -209,36 +227,48 @@ function AdminSupport() {
               filtered.map((m) => {
                 const isActive = selected?.id === m.id;
                 return (
-                  <button
+                  <div
                     key={m.id}
-                    onClick={() => openMessage(m)}
-                    className={`w-full rounded-xl border px-3 py-2.5 text-left transition-all duration-200 ${
+                    className={`group relative w-full rounded-xl border px-3 py-2.5 transition-all duration-200 ${
                       isActive
                         ? "border-white/50 bg-white/60 dark:border-white/20 dark:bg-white/10"
                         : "border-white/20 bg-white/20 hover:bg-white/35 dark:border-white/5 dark:bg-white/[0.03] dark:hover:bg-white/10"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5 truncate text-[13px] font-semibold">
-                        {hasReadColumn && !m.read && (
-                          <span
-                            className="size-1.5 shrink-0 rounded-full"
-                            style={{ background: accent }}
-                          />
-                        )}
-                        <span className="truncate">{m.full_name}</span>
-                      </span>
-                      <span className="shrink-0 text-[10px] text-muted-foreground">
-                        {timeAgo(m.created_at)}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 truncate text-[12px] font-medium text-muted-foreground">
-                      {m.subject}
-                    </p>
-                    <p className="mt-0.5 truncate text-[11px] text-muted-foreground/70">
-                      {m.message}
-                    </p>
-                  </button>
+                    <button onClick={() => openMessage(m)} className="w-full text-left">
+                      <div className="flex items-center justify-between gap-2 pr-6">
+                        <span className="flex items-center gap-1.5 truncate text-[13px] font-semibold">
+                          {hasReadColumn && !m.read && (
+                            <span
+                              className="size-1.5 shrink-0 rounded-full"
+                              style={{ background: accent }}
+                            />
+                          )}
+                          <span className="truncate">{m.full_name}</span>
+                        </span>
+                        <span className="shrink-0 text-[10px] text-muted-foreground">
+                          {timeAgo(m.created_at)}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 truncate pr-6 text-[12px] font-medium text-muted-foreground">
+                        {m.subject}
+                      </p>
+                      <p className="mt-0.5 truncate pr-6 text-[11px] text-muted-foreground/70">
+                        {m.message}
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteMessage(m.id);
+                      }}
+                      title="Delete message"
+                      className="absolute right-2 top-2.5 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 );
               })
             )}
@@ -281,6 +311,37 @@ function AdminSupport() {
                     <Send className="size-3.5" />
                     Reply by email
                   </a>
+                </Button>
+
+                {hasReadColumn && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-white/20 bg-white/20 backdrop-blur-md hover:bg-white/30"
+                    onClick={() => markRead(selected.id, !selected.read)}
+                  >
+                    {selected.read ? (
+                      <>
+                        <CircleDot className="size-3.5" />
+                        Mark as unread
+                      </>
+                    ) : (
+                      <>
+                        <CheckCheck className="size-3.5" />
+                        Mark as read
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-white/20 bg-white/20 text-destructive backdrop-blur-md hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => deleteMessage(selected.id)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Delete
                 </Button>
               </div>
             </div>
