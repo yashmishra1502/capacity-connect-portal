@@ -17,7 +17,6 @@ import {
   LineChart,
   Building2,
   Bell,
-  Gift,
   Landmark,
   LogOut,
   User as UserIcon,
@@ -166,12 +165,6 @@ const faqs = [
     q: "How is trainee data kept secure?",
     a: "All data is handled in line with Government of India IT security guidelines, with role-based access control restricting visibility to authorised users only.",
   },
-];
-
-const heroBadges = [
-  { icon: Gift, label: "Free for Departments" },
-  { icon: ShieldCheck, label: "Verified Certification" },
-  { icon: Users, label: "Role-based Access" },
 ];
 
 const govDepartments = [
@@ -543,28 +536,6 @@ function Landing() {
             <a href="#how-it-works" className="link-arrow">
               How it works <ArrowRight size={14} />
             </a>
-          </div>
-
-          <div className="hero-badges" style={{ marginTop: 28, display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {heroBadges.map((b) => (
-              <span
-                key={b.label}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--ink-soft)",
-                  border: "1px solid var(--line)",
-                  borderRadius: 999,
-                  padding: "7px 14px",
-                }}
-              >
-                <b.icon size={14} style={{ color: "var(--blue)" }} />
-                {b.label}
-              </span>
-            ))}
           </div>
 
         </div>
