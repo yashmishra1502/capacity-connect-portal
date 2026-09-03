@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type FormEvent, type MouseEvent } from "react";
-import { ArrowRight, Eye, EyeOff, ShieldAlert, ShieldCheck, Loader2, Mail, Lock } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ShieldAlert, Loader2, Mail, Lock } from "lucide-react";
 import "../landing.css";
 import { BrandIcon } from "@/components/brand-logo";
-import { demoCredentials, login } from "@/lib/auth";
+import { login } from "@/lib/auth";
 import type { Role } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/login")({
@@ -22,8 +22,6 @@ function TraineeTrainerLogin() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-
-  const demo = demoCredentials(role);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -200,16 +198,6 @@ function TraineeTrainerLogin() {
               )}
             </button>
           </form>
-
-          <div className="demo-box">
-            <strong>
-              <ShieldCheck size={12} style={{ display: "inline", marginRight: 5, marginBottom: -1 }} />
-              Demo credentials ({role})
-            </strong>
-            Email: {demo.email}
-            <br />
-            Password: {demo.password}
-          </div>
 
           <p className="auth-foot">
             Signing in as an administrator?{" "}
