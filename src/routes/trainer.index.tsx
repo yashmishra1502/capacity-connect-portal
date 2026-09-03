@@ -317,8 +317,6 @@ function TrainerDashboard() {
               <CardTitle className="font-display text-sm font-bold">
                 Trainee progression overview
               </CardTitle>
-           
-              )}
             </div>
             <p className="text-xs text-muted-foreground">
               {usingMockTrend
