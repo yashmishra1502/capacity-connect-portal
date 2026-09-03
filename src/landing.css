@@ -686,7 +686,6 @@
    inside holds itself at the hidden pose until the parent is revealed,
    then plays the same slide-up with an increasing delay per child —
    one coordinated cascade instead of cards popping in one at a time. */
-.ccl .portal-grid.reveal .portal-card,
 .ccl .feature-grid.reveal .fcard,
 .ccl .process.reveal .p-step,
 .ccl .trust-grid.reveal > div,
@@ -694,8 +693,6 @@
   opacity: 0;
   transform: translateY(42px);
 }
-.ccl .portal-grid.reveal.in .portal-card,
-.ccl .portal-grid.reveal.cc-revealed .portal-card,
 .ccl .feature-grid.reveal.in .fcard,
 .ccl .feature-grid.reveal.cc-revealed .fcard,
 .ccl .process.reveal.in .p-step,
@@ -707,9 +704,43 @@
   animation: ccl-slide-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* portal cards: alternating left/right/left slide-in instead of a
+   uniform slide-up, so the row feels like it's converging into place */
+@keyframes ccl-slide-left {
+  from { opacity: 0; transform: translateX(-70px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes ccl-slide-right {
+  from { opacity: 0; transform: translateX(70px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.ccl .portal-grid.reveal .portal-card:nth-child(odd) {
+  opacity: 0;
+  transform: translateX(-70px);
+}
+.ccl .portal-grid.reveal .portal-card:nth-child(even) {
+  opacity: 0;
+  transform: translateX(70px);
+}
+.ccl .portal-grid.reveal.in .portal-card:nth-child(odd),
+.ccl .portal-grid.reveal.cc-revealed .portal-card:nth-child(odd) {
+  animation: ccl-slide-left 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ccl .portal-grid.reveal.in .portal-card:nth-child(even),
+.ccl .portal-grid.reveal.cc-revealed .portal-card:nth-child(even) {
+  animation: ccl-slide-right 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccl .portal-grid.reveal .portal-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 .ccl .portal-grid .portal-card:nth-child(1) { animation-delay: 0.05s; }
-.ccl .portal-grid .portal-card:nth-child(2) { animation-delay: 0.16s; }
-.ccl .portal-grid .portal-card:nth-child(3) { animation-delay: 0.27s; }
+.ccl .portal-grid .portal-card:nth-child(2) { animation-delay: 0.2s; }
+.ccl .portal-grid .portal-card:nth-child(3) { animation-delay: 0.35s; }
 
 .ccl .feature-grid .fcard:nth-child(1) { animation-delay: 0.04s; }
 .ccl .feature-grid .fcard:nth-child(2) { animation-delay: 0.11s; }
@@ -734,7 +765,6 @@
 .ccl .stat-strip .stat:nth-child(4) { animation-delay: 0.28s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ccl .portal-grid.reveal .portal-card,
   .ccl .feature-grid.reveal .fcard,
   .ccl .process.reveal .p-step,
   .ccl .trust-grid.reveal > div,
@@ -1287,18 +1317,18 @@
   from { opacity: 0; transform: translateX(-10px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.ccl .portal-grid .portal-card:nth-child(1) .portal-icon { animation-delay: 0.2s; }
-.ccl .portal-grid .portal-card:nth-child(2) .portal-icon { animation-delay: 0.31s; }
-.ccl .portal-grid .portal-card:nth-child(3) .portal-icon { animation-delay: 0.42s; }
-.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(1) { animation-delay: 0.32s; }
-.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(2) { animation-delay: 0.39s; }
-.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(3) { animation-delay: 0.46s; }
-.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(1) { animation-delay: 0.43s; }
-.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(2) { animation-delay: 0.5s; }
-.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(3) { animation-delay: 0.57s; }
-.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(1) { animation-delay: 0.54s; }
-.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(2) { animation-delay: 0.61s; }
-.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(3) { animation-delay: 0.68s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-icon { animation-delay: 0.35s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-icon { animation-delay: 0.5s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-icon { animation-delay: 0.65s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(1) { animation-delay: 0.47s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(2) { animation-delay: 0.54s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(3) { animation-delay: 0.61s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(1) { animation-delay: 0.62s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(2) { animation-delay: 0.69s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(3) { animation-delay: 0.76s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(1) { animation-delay: 0.77s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(2) { animation-delay: 0.84s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(3) { animation-delay: 0.91s; }
 
 /* icon gets a little extra lift on card hover, on top of the card's own hover */
 .ccl .portal-card .portal-icon {
