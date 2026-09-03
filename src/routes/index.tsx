@@ -41,13 +41,13 @@ import { fetchFeatureCards, type FeatureCard } from "@/lib/features";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Capacity Connect — Digital Capacity Building Portal" },
+      { title: "CAPACITY CONNECT" },
       {
         name: "description",
         content:
           "Capacity Connect is a digital capacity building and learning management portal for trainees, trainers and administrators.",
       },
-      { property: "og:title", content: "Capacity Connect — Digital Capacity Building Portal" },
+      { property: "og:title", content: "Capacity Connect" },
       {
         property: "og:description",
         content: "Role-based learning management for government capacity building programmes.",
