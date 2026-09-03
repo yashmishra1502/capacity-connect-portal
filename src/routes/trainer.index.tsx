@@ -44,6 +44,17 @@ const tooltipStyle = {
   fontSize: 12,
 };
 
+// Placeholder trend shown until enough graded results exist to populate
+// the real public.trainer_performance_trends view.
+const MOCK_PERFORMANCE_TREND = [
+  { period: "Apr 2026", score: 61 },
+  { period: "May 2026", score: 66 },
+  { period: "Jun 2026", score: 70 },
+  { period: "Jul 2026", score: 74 },
+  { period: "Aug 2026", score: 79 },
+  { period: "Sep 2026", score: 83 },
+];
+
 function TrainerDashboard() {
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -64,6 +75,7 @@ function TrainerDashboard() {
   const [managedCourses, setManagedCourses] = useState<any[]>([]);
   const [myAssessments, setMyAssessments] = useState<any[]>([]);
   const [performanceTrend, setPerformanceTrend] = useState<any[]>([]);
+  const [usingMockTrend, setUsingMockTrend] = useState(false);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -179,6 +191,12 @@ function TrainerDashboard() {
 
         if (trendData && trendData.length > 0) {
           setPerformanceTrend(trendData);
+          setUsingMockTrend(false);
+        } else {
+          // No graded results yet for this trainer's assessments — show
+          // sample data so the chart isn't just an empty state.
+          setPerformanceTrend(MOCK_PERFORMANCE_TREND);
+          setUsingMockTrend(true);
         }
       } catch (err) {
         console.error("Error fetching trainer dashboard data from Supabase:", err);
@@ -295,11 +313,20 @@ function TrainerDashboard() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">
-              Trainee progression overview
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="font-display text-sm font-bold">
+                Trainee progression overview
+              </CardTitle>
+              {usingMockTrend && (
+                <Badge variant="outline" className="text-[10px] font-normal">
+                  Sample data
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Avg assessment score per month across your courses
+              {usingMockTrend
+                ? "No graded results yet — showing sample trend until real data comes in"
+                : "Avg assessment score per month across your courses"}
             </p>
           </CardHeader>
           <CardContent>
