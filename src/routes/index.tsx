@@ -168,6 +168,12 @@ const faqs = [
   },
 ];
 
+const heroBadges = [
+  { icon: Gift, label: "Free for Departments" },
+  { icon: ShieldCheck, label: "Verified Certification" },
+  { icon: Users, label: "Role-based Access" },
+];
+
 const govDepartments = [
   { name: "Home Affairs", icon: ShieldCheck },
   { name: "Digital India", icon: Sparkles },
