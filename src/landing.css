@@ -1260,6 +1260,63 @@
   justify-content: center;
 }
 
+/* per-card choreography: icon bounces in, then bullet points cascade
+   in one by one, all timed off the parent grid's reveal so nothing
+   moves until the section is actually in view */
+.ccl .portal-grid.reveal .portal-icon {
+  opacity: 0;
+  transform: scale(0.5) rotate(-10deg);
+}
+.ccl .portal-grid.reveal .portal-points li {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+.ccl .portal-grid.reveal.in .portal-icon,
+.ccl .portal-grid.reveal.cc-revealed .portal-icon {
+  animation: ccl-icon-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.ccl .portal-grid.reveal.in .portal-points li,
+.ccl .portal-grid.reveal.cc-revealed .portal-points li {
+  animation: ccl-point-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes ccl-icon-pop {
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes ccl-point-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.ccl .portal-grid .portal-card:nth-child(1) .portal-icon { animation-delay: 0.2s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-icon { animation-delay: 0.31s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-icon { animation-delay: 0.42s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(1) { animation-delay: 0.32s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(2) { animation-delay: 0.39s; }
+.ccl .portal-grid .portal-card:nth-child(1) .portal-points li:nth-child(3) { animation-delay: 0.46s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(1) { animation-delay: 0.43s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(2) { animation-delay: 0.5s; }
+.ccl .portal-grid .portal-card:nth-child(2) .portal-points li:nth-child(3) { animation-delay: 0.57s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(1) { animation-delay: 0.54s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(2) { animation-delay: 0.61s; }
+.ccl .portal-grid .portal-card:nth-child(3) .portal-points li:nth-child(3) { animation-delay: 0.68s; }
+
+/* icon gets a little extra lift on card hover, on top of the card's own hover */
+.ccl .portal-card .portal-icon {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ccl .portal-card:hover .portal-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ccl .portal-grid.reveal .portal-icon,
+  .ccl .portal-grid.reveal .portal-points li {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 /* ---------- department marquee ---------- */
 .ccl .dept-marquee {
   overflow: hidden;
@@ -1437,6 +1494,27 @@
   font-size: 14px;
   color: var(--ink-soft);
   line-height: 1.6;
+}
+
+/* faq list: cards cascade in one after another */
+.ccl .faq-list.reveal .faq-item {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.ccl .faq-list.reveal.in .faq-item,
+.ccl .faq-list.reveal.cc-revealed .faq-item {
+  animation: ccl-slide-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ccl .faq-list .faq-item:nth-child(1) { animation-delay: 0.04s; }
+.ccl .faq-list .faq-item:nth-child(2) { animation-delay: 0.13s; }
+.ccl .faq-list .faq-item:nth-child(3) { animation-delay: 0.22s; }
+.ccl .faq-list .faq-item:nth-child(4) { animation-delay: 0.31s; }
+@media (prefers-reduced-motion: reduce) {
+  .ccl .faq-list.reveal .faq-item {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 /* ================= Shared inner-page patterns ================= */
