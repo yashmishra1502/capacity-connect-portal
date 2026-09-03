@@ -1,394 +1,440 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, GraduationCap, Edit3, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Users, BookOpen, CheckCircle2, TrendingUp, Bell, Loader2 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Glass, GlassBackground, GlassInputWrap, accent } from "@/components/glass-ui";
+import { StatCard } from "@/components/stat-card";
+import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabaseClient";
 
-export const Route = createFileRoute("/admin/trainers")({
+export const Route = createFileRoute("/trainer/")({
   head: () => ({
-    meta: [{ title: "Trainer Management — Administration · Capacity Connect" }],
+    meta: [{ title: "Dashboard — Trainer Portal · Capacity Connect" }],
   }),
-  component: TrainerManagement,
+  component: TrainerDashboard,
 });
 
-type TrainerStatus = "active" | "suspended";
-
-type Trainer = {
+// Matches public.notifications
+export interface Notification {
   id: string;
-  name: string;
-  email: string;
-  specialization: string;
-  assignedCourses: number;
-  status: TrainerStatus;
+  user_id: string;
+  title: string;
+  body: string | null;
+  time: string;
+  unread: boolean;
+  sender_role: string | null;
+  recipient_role: string | null;
+  created_at: string;
+}
+
+const tooltipStyle = {
+  background: "var(--color-card)",
+  border: "1px solid var(--color-border)",
+  borderRadius: 8,
+  fontSize: 12,
 };
 
-const containerVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, staggerChildren: 0.05 },
-  },
-};
+// Placeholder trend shown until enough graded results exist to populate
+// the real public.trainer_performance_trends view.
+const MOCK_PERFORMANCE_TREND = [
+  { period: "Apr 2026", score: 61 },
+  { period: "May 2026", score: 66 },
+  { period: "Jun 2026", score: 70 },
+  { period: "Jul 2026", score: 74 },
+  { period: "Aug 2026", score: 79 },
+  { period: "Sep 2026", score: 83 },
+];
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
-};
-
-function TrainerManagement() {
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+function TrainerDashboard() {
+  const { session } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Dialog & Form state for Editing
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingTrainer, setEditingTrainer] = useState<Trainer | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState<{
+  const [trainerProfile, setTrainerProfile] = useState<{
     name: string;
-    email: string;
-    specialization: string;
-    status: TrainerStatus;
-  }>({
-    name: "",
-    email: "",
-    specialization: "",
-    status: "active",
+    title: string;
+    dept: string;
+  } | null>(null);
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    activeTrainees: 0,
+    totalAssessments: 0,
+    liveAssessments: 0,
+    avgCompletionRate: "0%",
   });
-
-  const fetchTrainers = async () => {
-    setLoading(true);
-    setError(null);
-
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, name, email, dept, status")
-      .eq("role", "trainer")
-      .order("joined_date", { ascending: false });
-
-    if (profileError) {
-      setError(profileError.message);
-      setLoading(false);
-      return;
-    }
-
-    const { data: courses, error: coursesError } = await supabase
-      .from("courses")
-      .select("trainer_id");
-
-    if (coursesError) {
-      setError(coursesError.message);
-      setLoading(false);
-      return;
-    }
-
-    const countByTrainer: Record<string, number> = {};
-    (courses ?? []).forEach((c: { trainer_id: string | null }) => {
-      if (!c.trainer_id) return;
-      countByTrainer[c.trainer_id] = (countByTrainer[c.trainer_id] ?? 0) + 1;
-    });
-
-    const mapped: Trainer[] = (profiles ?? []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      email: p.email ?? "—",
-      specialization: p.dept ?? "—",
-      assignedCourses: countByTrainer[p.id] ?? 0,
-      status: (p.status as TrainerStatus) ?? "active",
-    }));
-
-    setTrainers(mapped);
-    setLoading(false);
-  };
+  const [managedCourses, setManagedCourses] = useState<any[]>([]);
+  const [myAssessments, setMyAssessments] = useState<any[]>([]);
+  const [performanceTrend, setPerformanceTrend] = useState<any[]>([]);
+  const [usingMockTrend, setUsingMockTrend] = useState(false);
 
   useEffect(() => {
-    fetchTrainers();
-  }, []);
+    const userId = session?.user?.id;
+    if (!userId) return;
 
-  const handleOpenEdit = (trainer: Trainer) => {
-    setEditingTrainer(trainer);
-    setFormData({
-      name: trainer.name,
-      email: trainer.email === "—" ? "" : trainer.email,
-      specialization: trainer.specialization === "—" ? "" : trainer.specialization,
-      status: trainer.status === "suspended" ? "suspended" : "active",
-    });
-    setIsDialogOpen(true);
-  };
+    async function refreshActiveTraineeCount() {
+      const { count } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "trainee")
+        .eq("status", "active");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingTrainer) return;
-
-    setSubmitting(true);
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        name: formData.name,
-        email: formData.email.trim(),
-        dept: formData.specialization.trim() || null,
-        status: formData.status,
-      })
-      .eq("id", editingTrainer.id);
-
-    if (updateError) {
-      alert(`Failed to update trainer: ${updateError.message}`);
-      setSubmitting(false);
-      return;
+      setStats((prev) => ({ ...prev, activeTrainees: count ?? 0 }));
     }
 
-    setSubmitting(false);
-    setIsDialogOpen(false);
-    fetchTrainers();
-  };
+    async function fetchTrainerDashboardData() {
+      try {
+        setLoading(true);
 
-  const filteredTrainers = trainers.filter(
-    (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.email.toLowerCase().includes(search.toLowerCase())
-  );
+        // 1. Trainer profile — public.profiles has full_name/name, dept,
+        //    specialization and role. There is no "title"/"department" column,
+        //    so derive a display title from specialization/role instead.
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, name, dept, specialization, role")
+          .eq("id", userId)
+          .maybeSingle();
+
+        const meta = session?.user?.user_metadata || {};
+        setTrainerProfile({
+          name:
+            profileData?.full_name ||
+            profileData?.name ||
+            meta["full_name"] ||
+            meta["name"] ||
+            session?.user?.email?.split("@")[0] ||
+            "Trainer",
+          title: profileData?.specialization || "Senior Instructor",
+          dept: profileData?.dept || meta["department"] || "Training Dept",
+        });
+
+        // 2. Notifications
+        const { data: notifData } = await supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+
+        if (notifData) setNotifications(notifData as Notification[]);
+
+        // 3. Courses this trainer owns (public.courses.trainer_id)
+        const { data: coursesData } = await supabase
+          .from("courses")
+          .select("id, title, code, created_at")
+          .eq("trainer_id", userId)
+          .order("created_at", { ascending: false });
+
+        const courseIds = coursesData?.map((c) => c.id) || [];
+        setStats((prev) => ({ ...prev, totalCourses: coursesData?.length || 0 }));
+        setManagedCourses(coursesData || []);
+
+        // 4. Active trainees — count directly from public.profiles (role = 'trainee'),
+        //    since enrollments doesn't reliably reflect registered trainees yet.
+        //    Kept live via the realtime subscription below.
+        await refreshActiveTraineeCount();
+
+        if (courseIds.length > 0) {
+          // 5. Progress for this trainer's courses (trainee_id, not user_id)
+          const { data: enrollmentsData } = await supabase
+            .from("enrollments")
+            .select("trainee_id, progress, status, course_id")
+            .in("course_id", courseIds);
+
+          const totalProgress =
+            enrollmentsData?.reduce((acc, curr) => acc + (curr.progress || 0), 0) || 0;
+          const avgProgress = enrollmentsData?.length
+            ? Math.round(totalProgress / enrollmentsData.length)
+            : 0;
+
+          setStats((prev) => ({
+            ...prev,
+            avgCompletionRate: `${avgProgress}%`,
+          }));
+        }
+
+        // 6. Assessments/quizzes this trainer created (public.assessments.created_by).
+        //    Fetch the 5 most recent for the "My Assessments" list, plus a separate
+        //    exact count so the stat card isn't capped by the list's limit.
+        const { data: assessmentsData } = await supabase
+          .from("assessments")
+          .select("id, title, course, status, questions, attempts, avg, passing_score, created_at")
+          .eq("created_by", userId)
+          .order("created_at", { ascending: false })
+          .limit(5);
+
+        const { count: assessmentsCount } = await supabase
+          .from("assessments")
+          .select("id", { count: "exact", head: true })
+          .eq("created_by", userId);
+
+        const { count: liveAssessmentsCount } = await supabase
+          .from("assessments")
+          .select("id", { count: "exact", head: true })
+          .eq("created_by", userId)
+          .ilike("status", "live");
+
+        if (assessmentsData) setMyAssessments(assessmentsData);
+        setStats((prev) => ({
+          ...prev,
+          totalAssessments: assessmentsCount ?? 0,
+          liveAssessments: liveAssessmentsCount ?? 0,
+        }));
+
+        // 7. Trainee performance trend — computed view (public.trainer_performance_trends)
+        //    aggregating avg score per month from results on this trainer's assessments.
+        const { data: trendData } = await supabase
+          .from("trainer_performance_trends")
+          .select("period, score")
+          .eq("trainer_id", userId)
+          .order("period_start", { ascending: true });
+
+        if (trendData && trendData.length > 0) {
+          setPerformanceTrend(trendData);
+          setUsingMockTrend(false);
+        } else {
+          // No graded results yet for this trainer's assessments — show
+          // sample data so the chart isn't just an empty state.
+          setPerformanceTrend(MOCK_PERFORMANCE_TREND);
+          setUsingMockTrend(true);
+        }
+      } catch (err) {
+        console.error("Error fetching trainer dashboard data from Supabase:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTrainerDashboardData();
+
+    // Real-time notification listener
+    const channel = supabase
+      .channel("trainer-dashboard-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new as Notification, ...prev]);
+        },
+      )
+      // Any registration, role change, or activation/deactivation of a trainee
+      // updates the "Active trainees" tile without a page refresh.
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "profiles",
+        },
+        () => {
+          refreshActiveTraineeCount();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[350px] items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="size-5 animate-spin" />
+        Loading trainer console...
+      </div>
+    );
+  }
+
+  const displayName = trainerProfile?.name ? trainerProfile.name.split(" ")[0] : "Trainer";
+  const hasUnread = notifications.some((n) => n.unread);
 
   return (
-    <GlassBackground>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-6"
-      >
-        {/* Header Bar */}
-        <motion.div variants={itemVariants}>
-          <h1 className="font-display text-xl font-bold">Trainer Management</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-bold">Welcome back, {displayName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            View and manage trainer records and assignments.
+            {trainerProfile?.title} · {trainerProfile?.dept}
           </p>
-        </motion.div>
+        </div>
 
-        {/* Quick stat strip */}
-        <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-3">
-          <Glass className="flex items-center gap-3 p-4 transition-transform hover:-translate-y-1">
-            <span className="flex size-9 items-center justify-center rounded-lg border border-white/40 bg-white/50 dark:border-white/10 dark:bg-white/10">
-              <GraduationCap className="size-4" style={{ color: accent }} />
-            </span>
-            <div>
-              <p className="text-xs text-muted-foreground">Total trainers</p>
-              <p className="font-display text-lg font-bold">{trainers.length || "—"}</p>
-            </div>
-          </Glass>
-          <Glass className="flex items-center gap-3 p-4 transition-transform hover:-translate-y-1">
-            <span className="flex size-9 items-center justify-center rounded-lg border border-white/40 bg-white/50 dark:border-white/10 dark:bg-white/10">
-              <GraduationCap className="size-4" style={{ color: accent }} />
-            </span>
-            <div>
-              <p className="text-xs text-muted-foreground">Active</p>
-              <p className="font-display text-lg font-bold">
-                {trainers.filter((t) => t.status === "active").length || "—"}
-              </p>
-            </div>
-          </Glass>
-          <Glass className="flex items-center gap-3 p-4 transition-transform hover:-translate-y-1">
-            <span className="flex size-9 items-center justify-center rounded-lg border border-white/40 bg-white/50 dark:border-white/10 dark:bg-white/10">
-              <GraduationCap className="size-4" style={{ color: accent }} />
-            </span>
-            <div>
-              <p className="text-xs text-muted-foreground">Suspended</p>
-              <p className="font-display text-lg font-bold">
-                {trainers.filter((t) => t.status === "suspended").length || "—"}
-              </p>
-            </div>
-          </Glass>
-        </motion.div>
+        <div className="relative">
+          <Button variant="outline" size="icon" className="relative">
+            <Bell className="size-4" />
+            {hasUnread && (
+              <span className="absolute -right-1 -top-1 flex size-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex size-3 rounded-full bg-red-500" />
+              </span>
+            )}
+          </Button>
+        </div>
+      </div>
 
-        {/* Search + Table */}
-        <motion.div variants={itemVariants}>
-          <Glass className="p-5">
-            <GlassInputWrap className="relative">
-              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-              <Input
-                placeholder="Search trainers..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border-none bg-transparent pl-8 focus-visible:ring-0"
-              />
-            </GlassInputWrap>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={BookOpen}
+          label="Managed courses"
+          value={stats.totalCourses.toString()}
+          trend="Active modules"
+          accent="indigo"
+        />
+        <StatCard
+          icon={Users}
+          label="Active trainees"
+          value={stats.activeTrainees.toString()}
+          trend="Enrolled learners"
+          trendUp
+          accent="violet"
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label="Assessments"
+          value={stats.totalAssessments.toString()}
+          trend={`${stats.liveAssessments} live`}
+          accent="amber"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Avg completion"
+          value={stats.avgCompletionRate}
+          trend="Trainee progress avg"
+          trendUp
+          accent="emerald"
+        />
+      </div>
 
-            <div className="mt-4">
-              {loading ? (
-                <div className="flex h-[200px] items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin" />
-                  Loading trainers...
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="font-display text-sm font-bold">
+              Trainee progression overview
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              {usingMockTrend
+                ? "No graded results yet — showing sample trend until real data comes in"
+                : "Avg assessment score per month across your courses"}
+            </p>
+          </CardHeader>
+          <CardContent>
+            {performanceTrend.length > 0 ? (
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart
+                  data={performanceTrend}
+                  margin={{ left: -20, right: 10, top: 10, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                  <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="var(--color-muted-foreground)" />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area
+                    type="monotone"
+                    dataKey="score"
+                    stroke="var(--color-chart-1)"
+                    fill="url(#scoreFill)"
+                    strokeWidth={2}
+                    name="Avg Score"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[240px] items-center justify-center text-xs text-muted-foreground">
+                No cohort performance records found.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-display text-sm font-bold">My Assessments</CardTitle>
+            <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
+              <Link to="/trainer/questions">Manage all</Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {myAssessments.length > 0 ? (
+              myAssessments.map((a: any) => {
+                const status = (a.status || "").toLowerCase();
+                const variant =
+                  status === "live" || status === "active"
+                    ? "default"
+                    : status === "upcoming"
+                      ? "outline"
+                      : "secondary";
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between rounded-md border p-2.5"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold truncate">{a.title}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {a.course || "No course linked"}
+                      </p>
+                    </div>
+                    <Badge variant={variant} className="shrink-0 text-[10px] capitalize">
+                      {status || "draft"}
+                    </Badge>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="flex h-[180px] items-center justify-center text-xs text-muted-foreground text-center">
+                No assessments created yet.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="font-display text-sm font-bold">Your Managed Courses</CardTitle>
+          <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
+            <Link to="/trainer/courses">Manage all</Link>
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {managedCourses.length > 0 ? (
+            managedCourses.map((c) => (
+              <div key={c.id} className="flex items-center justify-between rounded-md border p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold leading-tight">{c.title}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{c.code}</p>
                 </div>
-              ) : error ? (
-                <div className="flex h-[200px] items-center justify-center text-sm text-destructive">
-                  {error}
-                </div>
-              ) : filteredTrainers.length === 0 ? (
-                <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
-                  No trainers found yet
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-white/20 hover:bg-transparent">
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Specialization</TableHead>
-                      <TableHead>Assigned Courses</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTrainers.map((t) => (
-                      <TableRow key={t.id} className="border-white/20 hover:bg-white/20">
-                        <TableCell className="font-medium">{t.name}</TableCell>
-                        <TableCell>{t.email}</TableCell>
-                        <TableCell>{t.specialization}</TableCell>
-                        <TableCell>{t.assignedCourses}</TableCell>
-                        <TableCell>
-                          <Badge variant={t.status === "active" ? "default" : "destructive"}>
-                            {t.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenEdit(t)}
-                            className="gap-1"
-                          >
-                            <Edit3 className="size-3.5" />
-                            Edit
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
+                <Badge variant="secondary" className="shrink-0 text-[10px]">
+                  Active
+                </Badge>
+              </div>
+            ))
+          ) : (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              You haven't been assigned or created any courses yet.
             </div>
-          </Glass>
-        </motion.div>
-      </motion.div>
-
-      {/* Edit Trainer Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Trainer</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="trainer-name" className="text-sm font-medium">
-                Name
-              </label>
-              <Input
-                id="trainer-name"
-                required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                placeholder="Trainer full name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="trainer-email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="trainer-email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
-                placeholder="trainer@example.com"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="trainer-specialization" className="text-sm font-medium">
-                Specialization
-              </label>
-              <Input
-                id="trainer-specialization"
-                value={formData.specialization}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, specialization: e.target.value }))
-                }
-                placeholder="e.g. Digital Marketing"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="trainer-status" className="text-sm font-medium">
-                Status
-              </label>
-              <select
-                id="trainer-status"
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    status: e.target.value as TrainerStatus,
-                  }))
-                }
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-              </select>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-1.5 size-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </GlassBackground>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
