@@ -313,7 +313,7 @@ function TrainerDashboard() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
+                       <div className="flex items-center gap-2">
               <CardTitle className="font-display text-sm font-bold">
                 Trainee progression overview
               </CardTitle>
