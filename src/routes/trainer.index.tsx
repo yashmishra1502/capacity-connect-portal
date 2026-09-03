@@ -57,11 +57,12 @@ function TrainerDashboard() {
   const [stats, setStats] = useState({
     totalCourses: 0,
     activeTrainees: 0,
-    pendingSubmissions: 0,
+    totalAssessments: 0,
+    liveAssessments: 0,
     avgCompletionRate: "0%",
   });
   const [managedCourses, setManagedCourses] = useState<any[]>([]);
-  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [myAssessments, setMyAssessments] = useState<any[]>([]);
   const [performanceTrend, setPerformanceTrend] = useState<any[]>([]);
 
   useEffect(() => {
@@ -135,36 +136,24 @@ function TrainerDashboard() {
           }));
         }
 
-        // 5. Pending reviews: there's no "submissions" table — assessment
-        //    attempts land in public.results, keyed by assessment_id, and
-        //    a result can sit in status "pending" until the trainer grades it.
-        //    Scope to assessments this trainer created.
-        const { data: myAssessments } = await supabase
+        // 5. Assessments/quizzes this trainer created (public.assessments.created_by)
+        const { data: assessmentsData } = await supabase
           .from("assessments")
-          .select("id, title, course")
-          .eq("created_by", userId);
+          .select("id, title, course, status, questions, attempts, avg, passing_score, created_at")
+          .eq("created_by", userId)
+          .order("created_at", { ascending: false })
+          .limit(5);
 
-        const assessmentIds = myAssessments?.map((a) => a.id) || [];
-        const assessmentById = new Map((myAssessments || []).map((a) => [a.id, a]));
-
-        if (assessmentIds.length > 0) {
-          const { data: pendingResults } = await supabase
-            .from("results")
-            .select("id, status, created_at, trainee_id, assessment_id, profiles(full_name)")
-            .in("assessment_id", assessmentIds)
-            .eq("status", "pending")
-            .order("created_at", { ascending: false })
-            .limit(5);
-
-          if (pendingResults) {
-            const enriched = pendingResults.map((r: any) => ({
-              ...r,
-              assessment_title: assessmentById.get(r.assessment_id)?.title,
-              course_label: assessmentById.get(r.assessment_id)?.course,
-            }));
-            setRecentSubmissions(enriched);
-            setStats((prev) => ({ ...prev, pendingSubmissions: enriched.length }));
-          }
+        if (assessmentsData) {
+          setMyAssessments(assessmentsData);
+          const liveCount = assessmentsData.filter((a) =>
+            (a.status || "").toLowerCase() === "live",
+          ).length;
+          setStats((prev) => ({
+            ...prev,
+            totalAssessments: assessmentsData.length,
+            liveAssessments: liveCount,
+          }));
         }
 
         // 6. Trainee performance trend — computed view (public.trainer_performance_trends)
@@ -262,9 +251,9 @@ function TrainerDashboard() {
         />
         <StatCard
           icon={CheckCircle2}
-          label="Pending reviews"
-          value={stats.pendingSubmissions.toString()}
-          trend="Action required"
+          label="Assessments"
+          value={stats.totalAssessments.toString()}
+          trend={`${stats.liveAssessments} live`}
           accent="amber"
         />
         <StatCard
@@ -323,32 +312,42 @@ function TrainerDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-sm font-bold">Pending Assessments</CardTitle>
+          <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-display text-sm font-bold">My Assessments</CardTitle>
+            <Button variant="link" size="sm" className="h-auto px-0 text-xs" asChild>
+              <Link to="/trainer/questions">Manage all</Link>
+            </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {recentSubmissions.length > 0 ? (
-              recentSubmissions.map((sub: any) => (
-                <div
-                  key={sub.id}
-                  className="flex items-center justify-between rounded-md border p-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold truncate">
-                      {sub.profiles?.full_name || "Trainee"}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      {sub.assessment_title || sub.course_label || "Assessment"}
-                    </p>
+            {myAssessments.length > 0 ? (
+              myAssessments.map((a: any) => {
+                const status = (a.status || "").toLowerCase();
+                const variant =
+                  status === "live" || status === "active"
+                    ? "default"
+                    : status === "upcoming"
+                      ? "outline"
+                      : "secondary";
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between rounded-md border p-2.5"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold truncate">{a.title}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {a.course || "No course linked"}
+                      </p>
+                    </div>
+                    <Badge variant={variant} className="shrink-0 text-[10px] capitalize">
+                      {status || "draft"}
+                    </Badge>
                   </div>
-                  <Badge variant="outline" className="text-[10px]">
-                    Review
-                  </Badge>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="flex h-[180px] items-center justify-center text-xs text-muted-foreground text-center">
-                All caught up! No pending submissions to review.
+                No assessments created yet.
               </div>
             )}
           </CardContent>
