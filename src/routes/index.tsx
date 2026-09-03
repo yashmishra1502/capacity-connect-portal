@@ -718,7 +718,7 @@ function Landing() {
 
       {/* ---------- DEPARTMENT PROOF STRIP ---------- */}
       <div className="proof">
-        <div className="wrap">
+        <div className="wrap reveal" data-reveal>
           <p className="proof-label">Trusted by government departments across India</p>
           <div className="dept-marquee">
             <div className="dept-track">
@@ -820,12 +820,12 @@ function Landing() {
       {/* ---------- PORTAL PICKER ---------- */}
       <section>
         <div className="wrap">
-          <div className="sec-head">
+          <div className="sec-head reveal" data-reveal>
             <div>
               <div className="sec-label">
                 <Sparkles size={13} /> Portals
               </div>
-              <h2 className="sec-title reveal" data-reveal>
+              <h2 className="sec-title">
                 Choose your portal
               </h2>
               <p className="sec-sub">Each role has a dedicated dashboard experience with its own navigation.</p>
@@ -857,12 +857,12 @@ function Landing() {
       {/* ---------- HOW IT WORKS ---------- */}
       <section id="how-it-works" style={{ background: "var(--bg-card)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
         <div className="wrap">
-          <div className="sec-head">
+          <div className="sec-head reveal" data-reveal>
             <div>
               <div className="sec-label">
                 <Layers size={13} /> Journey
               </div>
-              <h2 className="sec-title reveal" data-reveal>
+              <h2 className="sec-title">
                 How it works
               </h2>
               <p className="sec-sub">A simple four-step journey from registration to verified certification.</p>
@@ -884,12 +884,12 @@ function Landing() {
       {/* ---------- FEATURES ---------- */}
       <section>
         <div className="wrap">
-          <div className="sec-head">
+          <div className="sec-head reveal" data-reveal>
             <div>
               <div className="sec-label">
                 <BadgeCheck size={13} /> Capabilities
               </div>
-              <h2 className="sec-title reveal" data-reveal>
+              <h2 className="sec-title">
                 Platform capabilities
               </h2>
               <p className="sec-sub">Everything trainees, trainers and administrators need on a single platform.</p>
@@ -926,11 +926,11 @@ function Landing() {
       {/* ---------- FAQ ---------- */}
       <section style={{ background: "var(--bg-card)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
         <div className="wrap" style={{ maxWidth: 820 }}>
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center" }} className="reveal" data-reveal>
             <div className="sec-label" style={{ justifyContent: "center" }}>
               <ClipboardCheck size={13} /> FAQ
             </div>
-            <h2 className="sec-title reveal" data-reveal style={{ margin: "0 auto", textAlign: "center" }}>
+            <h2 className="sec-title" style={{ margin: "0 auto", textAlign: "center" }}>
               Frequently asked questions
             </h2>
             <p className="sec-sub" style={{ margin: "18px auto 0" }}>
@@ -938,7 +938,7 @@ function Landing() {
             </p>
           </div>
 
-          <div style={{ marginTop: 48 }}>
+          <div className="faq-list reveal" data-reveal style={{ marginTop: 48 }}>
             {faqs.map((faq) => (
               <FaqItem key={faq.q} q={faq.q} a={faq.a} />
             ))}
