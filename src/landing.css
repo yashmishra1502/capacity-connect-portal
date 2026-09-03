@@ -292,53 +292,50 @@
   transform: translateY(6px);
 }
 
-/* brief glitch pulse on the hero photo, fired each time the tagline
-   above finishes a cross-fade cycle */
-@keyframes ccl-hero-glitch {
-  0% {
-    clip-path: inset(0 0 0 0);
-    transform: translate3d(0, 0, 0);
-    filter: hue-rotate(0deg) saturate(1) contrast(1);
+/* one-shot, clean entrance for the hero photo: a soft fade + gentle
+   zoom-out on load. Replaces the old clip-path "glitch" pulse, which
+   fired on every tagline cycle and caused a visible flicker. */
+@keyframes ccl-hero-bg-in {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
   }
-  8% {
-    clip-path: inset(8% 0 68% 0);
-    transform: translate3d(-1.4%, 0, 0);
-    filter: hue-rotate(14deg) saturate(1.3) contrast(1.05);
-  }
-  16% {
-    clip-path: inset(62% 0 6% 0);
-    transform: translate3d(1.2%, 0, 0);
-    filter: hue-rotate(-10deg) saturate(1.15);
-  }
-  24% {
-    clip-path: inset(30% 0 42% 0);
-    transform: translate3d(-0.8%, 0, 0);
-    filter: hue-rotate(6deg) saturate(1.2);
-  }
-  32% {
-    clip-path: inset(0 0 0 0);
-    transform: translate3d(0.5%, 0, 0);
-    filter: saturate(1.05);
-  }
-  40%,
-  100% {
-    clip-path: inset(0 0 0 0);
-    transform: translate3d(0, 0, 0);
-    filter: none;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
-.ccl .hero-bg.hero-bg-glitch {
-  /* glitch pulse disabled: it caused visible hero flicker */
-  animation: none;
+.ccl .hero-bg {
+  animation: ccl-hero-bg-in 1.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .ccl .cc-typed-fade {
     transition: none;
   }
-  .ccl .hero-bg.hero-bg-glitch {
+  .ccl .hero-bg {
     animation: none;
   }
 }
+/* hero copy: staggered slide-up on load */
+.ccl .hero h1,
+.ccl .hero-sub,
+.ccl .hero-ctas,
+.ccl .hero-badges {
+  animation: ccl-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ccl .hero h1 { animation-delay: 0.05s; }
+.ccl .hero-sub { animation-delay: 0.16s; }
+.ccl .hero-ctas { animation-delay: 0.27s; }
+.ccl .hero-badges { animation-delay: 0.36s; }
+@media (prefers-reduced-motion: reduce) {
+  .ccl .hero h1,
+  .ccl .hero-sub,
+  .ccl .hero-ctas,
+  .ccl .hero-badges {
+    animation: none;
+  }
+}
+
 .ccl .eyebrow {
   font-family: var(--mono);
   font-size: 11.5px;
@@ -654,22 +651,97 @@
   flex-wrap: wrap;
 }
 
-/* reveal on scroll */
+/* reveal on scroll — bold slide-up, SevaDost-style */
+@keyframes ccl-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(42px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .ccl .reveal {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: translateY(42px);
 }
 .ccl .reveal.in,
 .ccl .reveal.cc-revealed {
-  opacity: 1;
-  transform: translateY(0);
+  animation: ccl-slide-up 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .ccl .reveal {
     opacity: 1;
     transform: none;
-    transition: none;
+  }
+  .ccl .reveal.in,
+  .ccl .reveal.cc-revealed {
+    animation: none;
+  }
+}
+
+/* card-grid cascades: the parent (portal-grid, feature-grid, process,
+   trust-grid, stat-strip) carries the single scroll trigger; each card
+   inside holds itself at the hidden pose until the parent is revealed,
+   then plays the same slide-up with an increasing delay per child —
+   one coordinated cascade instead of cards popping in one at a time. */
+.ccl .portal-grid.reveal .portal-card,
+.ccl .feature-grid.reveal .fcard,
+.ccl .process.reveal .p-step,
+.ccl .trust-grid.reveal > div,
+.ccl .stat-strip.reveal .stat {
+  opacity: 0;
+  transform: translateY(42px);
+}
+.ccl .portal-grid.reveal.in .portal-card,
+.ccl .portal-grid.reveal.cc-revealed .portal-card,
+.ccl .feature-grid.reveal.in .fcard,
+.ccl .feature-grid.reveal.cc-revealed .fcard,
+.ccl .process.reveal.in .p-step,
+.ccl .process.reveal.cc-revealed .p-step,
+.ccl .trust-grid.reveal.in > div,
+.ccl .trust-grid.reveal.cc-revealed > div,
+.ccl .stat-strip.reveal.in .stat,
+.ccl .stat-strip.reveal.cc-revealed .stat {
+  animation: ccl-slide-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ccl .portal-grid .portal-card:nth-child(1) { animation-delay: 0.05s; }
+.ccl .portal-grid .portal-card:nth-child(2) { animation-delay: 0.16s; }
+.ccl .portal-grid .portal-card:nth-child(3) { animation-delay: 0.27s; }
+
+.ccl .feature-grid .fcard:nth-child(1) { animation-delay: 0.04s; }
+.ccl .feature-grid .fcard:nth-child(2) { animation-delay: 0.11s; }
+.ccl .feature-grid .fcard:nth-child(3) { animation-delay: 0.18s; }
+.ccl .feature-grid .fcard:nth-child(4) { animation-delay: 0.25s; }
+.ccl .feature-grid .fcard:nth-child(5) { animation-delay: 0.32s; }
+.ccl .feature-grid .fcard:nth-child(6) { animation-delay: 0.39s; }
+
+.ccl .process .p-step:nth-child(1) { animation-delay: 0.05s; }
+.ccl .process .p-step:nth-child(2) { animation-delay: 0.15s; }
+.ccl .process .p-step:nth-child(3) { animation-delay: 0.25s; }
+.ccl .process .p-step:nth-child(4) { animation-delay: 0.35s; }
+
+.ccl .trust-grid > div:nth-child(1) { animation-delay: 0.04s; }
+.ccl .trust-grid > div:nth-child(2) { animation-delay: 0.12s; }
+.ccl .trust-grid > div:nth-child(3) { animation-delay: 0.2s; }
+.ccl .trust-grid > div:nth-child(4) { animation-delay: 0.28s; }
+
+.ccl .stat-strip .stat:nth-child(1) { animation-delay: 0.04s; }
+.ccl .stat-strip .stat:nth-child(2) { animation-delay: 0.12s; }
+.ccl .stat-strip .stat:nth-child(3) { animation-delay: 0.2s; }
+.ccl .stat-strip .stat:nth-child(4) { animation-delay: 0.28s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ccl .portal-grid.reveal .portal-card,
+  .ccl .feature-grid.reveal .fcard,
+  .ccl .process.reveal .p-step,
+  .ccl .trust-grid.reveal > div,
+  .ccl .stat-strip.reveal .stat {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
 
