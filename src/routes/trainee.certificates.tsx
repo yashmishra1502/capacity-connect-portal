@@ -32,6 +32,7 @@ interface RawCertificateData {
   grade: string | null;
   hours: number | null;
   certificate_path: string | null;
+  file_url: string | null;
   status: string;
   courses: CourseRelation | CourseRelation[] | null;
 }
@@ -43,6 +44,7 @@ interface CertificateRow {
   grade: string | null;
   hours: number | null;
   certificate_path: string | null;
+  file_url: string | null;
   status: string;
   course_title: string;
   course_code: string;
@@ -84,7 +86,6 @@ function TraineeCertificates() {
           return;
         }
 
-        // Selected 'code' instead of 'course_code' matching your database column
         const { data, error: fetchError } = await supabase
           .from("certificates")
           .select(`
@@ -94,6 +95,7 @@ function TraineeCertificates() {
             grade,
             hours,
             certificate_path,
+            file_url,
             status,
             courses (
               title,
@@ -123,6 +125,7 @@ function TraineeCertificates() {
               grade: row.grade,
               hours: row.hours ?? 0,
               certificate_path: row.certificate_path,
+              file_url: row.file_url,
               status: row.status,
               course_title: courseInfo?.title ?? "Course Certificate",
               course_code: courseInfo?.code ?? "",
@@ -149,22 +152,18 @@ function TraineeCertificates() {
   }, []);
 
   const handleDownload = async (cert: CertificateRow) => {
-    if (!cert.certificate_path || !supabase) return;
     setDownloadingId(cert.id);
+    setError(null);
 
     try {
-      const { data, error: downloadError } = await supabase.storage
-        .from("certificates")
-        .createSignedUrl(cert.certificate_path, 300);
-
-      if (downloadError || !data?.signedUrl) {
-        setError(downloadError?.message ?? "Unable to generate download link.");
+      if (cert.file_url) {
+        window.open(cert.file_url, "_blank");
         return;
       }
 
-      window.open(data.signedUrl, "_blank");
+      setError("No download link available for this certificate.");
     } catch {
-      setError("Failed to download certificate.");
+      setError("Failed to open certificate download link.");
     } finally {
       setDownloadingId(null);
     }
@@ -259,7 +258,7 @@ function TraineeCertificates() {
                 <div className="space-y-1">
                   <h2 className="font-display text-base font-bold leading-snug">{cert.course_title}</h2>
                   <p className="text-xs text-muted-foreground">
-                    {cert.course_code ? `${cert.course_code} · ` : ""}{cert.id.slice(0, 8)}
+                    {cert.course_code ? `${cert.course_code} · ` : ""}ID: {cert.id.slice(0, 8)}
                   </p>
                 </div>
 
@@ -282,7 +281,7 @@ function TraineeCertificates() {
 
                 <Button
                   size="sm"
-                  disabled={!cert.certificate_path || downloadingId === cert.id}
+                  disabled={!cert.file_url || downloadingId === cert.id}
                   onClick={() => handleDownload(cert)}
                   className="cc-btn-glass mt-auto w-full gap-1.5 rounded-full disabled:opacity-50"
                 >
