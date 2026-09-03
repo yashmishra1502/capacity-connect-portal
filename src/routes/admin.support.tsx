@@ -94,7 +94,25 @@ function AdminSupport() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [hasReadColumn, setHasReadColumn] = useState(true);
+  const [hasReadColumn, setHasReadColumn] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    try {
+      const raw = window.localStorage.getItem("cc-support-read-ids");
+      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set();
+    }
+  });
+
+  const persistReadIds = (ids: Set<string>) => {
+    try {
+      window.localStorage.setItem("cc-support-read-ids", JSON.stringify([...ids]));
+    } catch {
+      // ignore storage failures (private browsing, quota, etc.)
+    }
+  };
+
+  const isRead = (m: ContactMessage) => (hasReadColumn ? !!m.read : readIds.has(m.id));
 
   const fetchMessages = async () => {
     setLoading(true);
@@ -106,7 +124,7 @@ function AdminSupport() {
     if (!error && data) {
       setMessages(data as ContactMessage[]);
       // detect whether a `read` column actually exists on the row shape
-      setHasReadColumn(data.length === 0 || "read" in data[0]);
+      setHasReadColumn(data.length > 0 && "read" in data[0]);
     } else {
       setMessages([]);
     }
@@ -129,13 +147,23 @@ function AdminSupport() {
     );
   }, [messages, query]);
 
-  const unreadCount = messages.filter((m) => !m.read).length;
+  const unreadCount = messages.filter((m) => !isRead(m)).length;
   const selected = messages.find((m) => m.id === selectedId) ?? filtered[0] ?? null;
 
   const markRead = async (id: string, value = true) => {
-    if (!hasReadColumn) return;
-    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: value } : m)));
-    await supabase.from("contact_messages").update({ read: value }).eq("id", id);
+    // always update the local fallback, so this works even without the DB column
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      if (value) next.add(id);
+      else next.delete(id);
+      persistReadIds(next);
+      return next;
+    });
+
+    if (hasReadColumn) {
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: value } : m)));
+      await supabase.from("contact_messages").update({ read: value }).eq("id", id);
+    }
   };
 
   const deleteMessage = async (id: string) => {
@@ -155,7 +183,7 @@ function AdminSupport() {
 
   const openMessage = (m: ContactMessage) => {
     setSelectedId(m.id);
-    if (!m.read) markRead(m.id, true);
+    if (!isRead(m)) markRead(m.id, true);
   };
 
   return (
@@ -168,7 +196,17 @@ function AdminSupport() {
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-xl font-bold">Support</h1>
+          <h1 className="flex items-center gap-2 font-display text-xl font-bold">
+            Support
+            {!loading && unreadCount > 0 && (
+              <span
+                className="inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold text-white"
+                style={{ background: accent }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Messages submitted through the public contact form.
           </p>
@@ -196,7 +234,7 @@ function AdminSupport() {
         <StatCard
           icon={Mail}
           label="Unread"
-          value={loading ? "Loading..." : hasReadColumn ? unreadCount : "—"}
+          value={loading ? "Loading..." : unreadCount}
         />
       </div>
 
@@ -237,12 +275,18 @@ function AdminSupport() {
                   >
                     <button onClick={() => openMessage(m)} className="w-full text-left">
                       <div className="flex items-center justify-between gap-2 pr-6">
-                        <span className="flex items-center gap-1.5 truncate text-[13px] font-semibold">
-                          {hasReadColumn && !m.read && (
-                            <span
-                              className="size-1.5 shrink-0 rounded-full"
-                              style={{ background: accent }}
-                            />
+                        <span className="flex items-center gap-2 truncate text-[13px] font-semibold">
+                          {!isRead(m) && (
+                            <span className="relative flex size-2 shrink-0">
+                              <span
+                                className="absolute inline-flex size-full animate-ping rounded-full opacity-75"
+                                style={{ background: accent }}
+                              />
+                              <span
+                                className="relative inline-flex size-2 rounded-full"
+                                style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
+                              />
+                            </span>
                           )}
                           <span className="truncate">{m.full_name}</span>
                         </span>
@@ -313,26 +357,24 @@ function AdminSupport() {
                   </a>
                 </Button>
 
-                {hasReadColumn && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-white/20 bg-white/20 backdrop-blur-md hover:bg-white/30"
-                    onClick={() => markRead(selected.id, !selected.read)}
-                  >
-                    {selected.read ? (
-                      <>
-                        <CircleDot className="size-3.5" />
-                        Mark as unread
-                      </>
-                    ) : (
-                      <>
-                        <CheckCheck className="size-3.5" />
-                        Mark as read
-                      </>
-                    )}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-white/20 bg-white/20 backdrop-blur-md hover:bg-white/30"
+                  onClick={() => markRead(selected.id, !isRead(selected))}
+                >
+                  {isRead(selected) ? (
+                    <>
+                      <CircleDot className="size-3.5" />
+                      Mark as unread
+                    </>
+                  ) : (
+                    <>
+                      <CheckCheck className="size-3.5" />
+                      Mark as read
+                    </>
+                  )}
+                </Button>
 
                 <Button
                   variant="outline"
