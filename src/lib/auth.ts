@@ -21,17 +21,6 @@ export interface RegisterParams {
   role: Role;
 }
 
-export const demoCredentials = (role: Role) => {
-  switch (role) {
-    case 'admin':
-      return { email: 'admin@capacityconnect.gov.in', password: 'Admin@123' };
-    case 'trainer':
-      return { email: 'trainer@capacityconnect.gov.in', password: 'Trainer@123' };
-    default:
-      return { email: 'trainee@capacityconnect.gov.in', password: 'Trainee@123' };
-  }
-};
-
 export const register = async ({
   email,
   password,
