@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, CheckCheck, ChevronDown, Loader2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -111,36 +111,48 @@ function NotificationsPage() {
     };
   }, []);
 
-  // Action: Mark single notification as read
+  // Action: Mark single notification as read permanently in database
   const handleMarkAsRead = async (id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
 
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ read: true })
       .eq("id", id);
+
+    if (error) {
+      console.error("Failed to update notification read status:", error.message);
+    }
   };
 
-  // Action: Mark all notifications as read
+  // Action: Mark all notifications as read permanently in database
   const handleMarkAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
 
     const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
     if (unreadIds.length > 0) {
-      await supabase
+      const { error } = await supabase
         .from("notifications")
         .update({ read: true })
         .in("id", unreadIds);
+
+      if (error) {
+        console.error("Failed to update all notifications:", error.message);
+      }
     }
   };
 
-  // Action: Delete notification
+  // Action: Delete notification permanently from database
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-    await supabase.from("notifications").delete().eq("id", id);
+    
+    const { error } = await supabase.from("notifications").delete().eq("id", id);
+    if (error) {
+      console.error("Failed to delete notification:", error.message);
+    }
   };
 
   const toggleExpand = (id: string, isUnread: boolean) => {
@@ -274,37 +286,3 @@ function NotificationsPage() {
                       size="icon"
                       className="size-8 text-muted-foreground hover:text-destructive"
                       onClick={(e) => handleDelete(e, item.id)}
-                      title="Delete notification"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                    <ChevronDown
-                      className={cn(
-                        "size-4 text-muted-foreground transition-transform duration-300 ml-1",
-                        isOpen && "rotate-180"
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Expanded Full Body Message */}
-                {isOpen && (
-                  <div className="border-t border-border/70 bg-card/40 p-5 text-sm leading-relaxed text-foreground">
-                    <p className="whitespace-pre-wrap">{item.message}</p>
-                  </div>
-                )}
-              </Card>
-            );
-          })}
-
-          {notifications.length === 0 && (
-            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-              <Bell className="mx-auto mb-3 size-8 opacity-40" />
-              <p className="text-sm">You have no notifications right now.</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
